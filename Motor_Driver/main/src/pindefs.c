@@ -76,6 +76,10 @@ void pin_init()
     _RP55R = 0;
     _RP54R = 0;
     _RP41R = 0;
+    TRISCbits.TRISC6 = 0; //EN_GATE is output
+    TRISCbits.TRISC7 = 0; //GAIN is output
+    TRISBbits.TRISB9 = 0; //DC_CAL is output
+    
 
     /*
      * JP5 pins: config if needed
