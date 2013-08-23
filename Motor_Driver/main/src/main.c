@@ -21,18 +21,19 @@ volatile uint16 pos1_i, pos2_i, pos3_i;
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void)
 {
     static uint16 state = 0;
-    LED1_TOGGLE;
+    LED4 = !FAULT;
     PWM1 = pos1_i>state;
     PWM3 = pos2_i>state;
     PWM5 = pos3_i>state;
-
+    LED1 = PWM1;
+    LED2 = PWM3;
+    LED3 = PWM5;
 
     if(++state>256){
         state=0;
-        LED2_TOGGLE;
     }
 
-IFS0bits.T1IF = 0; // Clear Timer 1 Interrupt Flag
+    IFS0bits.T1IF = 0; // Clear Timer 1 Interrupt Flag
 }
 
 
@@ -44,8 +45,7 @@ void timer_init()
 	T1CONbits.TGATE = 0; 	// Disable Gated Timer mode
 
         PR1 = 50;
-
-
+        
 	TMR1 = 0x00; 			// Clear timer register
 	IPC0bits.T1IP = 0x06; 		// Set Timer1 Interrupt Priority Level to 6 = very high priority
 	IFS0bits.T1IF = 0; 		// Clear Timer1 Interrupt Flag
@@ -54,41 +54,40 @@ void timer_init()
 
 }
 
+void can_init()
+{
+    unsigned i;
+    uint16_t parameters[53];
+    for(i=0;i<53;++i)
+        parameters[i] = 0;
+    //parameters[0] = 0b0000 0001 0000 0001; //standard frames
+    parameters[1] = 1000;
+    //parameters[2] =
+    ecan1_init(parameters);    
+}
+
 /*
  * 
  */
 int main() {
     clock_init();
     pin_init();
-    ecan1msgBuf;
+    can_init();
     double time = 0.;
     double curtime, pos1, pos2, pos3;
-    LED1_ON;
     EN_GATE = 1;
-    /*
-    while(1){
-    delay_ms(100);
-    PWM1 = !PWM1;
-    LED1_TOGGLE;
-    LED2_TOGGLE;
-    LED3_TOGGLE;
-    LED4_TOGGLE;
-    }
-     */
+
     timer_init();
-    while(1){
-        LED3 = !FAULT;
-        LED4 = !OCTW;
+    while(1){        
         delay_us(100);
         time += 0.0001;
-        curtime = 1000.*time*3.14*2.;
+        curtime = 2000.*time*3.14*2.;
         pos1 = (cos(curtime)+1.)*0.5;
         pos2 = (cos(curtime+2.09)+1.)*0.5;
         pos3 = (cos(curtime+4.18)+1.)*0.5;
         pos1_i = (uint16)(pos1*256);
         pos2_i = (uint16)(pos2*256);
-        pos3_i = (uint16)(pos3*256);
-
+        pos3_i = (uint16)(pos3*256);  
     }
 
 }

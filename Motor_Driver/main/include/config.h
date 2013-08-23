@@ -12,7 +12,8 @@
 extern "C" {
 #endif
 
-#define PICINCLUDE "p33EP128GP506.h"
+#define PICINCLUDE "p33Exxxx.h"
+    //"p33EP128GP506.h"
 
 typedef char int8;
 typedef unsigned char uint8;
