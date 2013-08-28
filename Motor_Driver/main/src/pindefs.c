@@ -1,7 +1,8 @@
 /*
 
 */
-#include "p33EP128GP506.h"
+#include "../include/config.h"
+#include PICINCLUDE
 #include "../include/pindefs.h"
 
 void pin_init()
@@ -92,6 +93,7 @@ void pin_init()
     /*
      * JP1 pins: config if needed
      */
+    TRISBbits.TRISB4 = 0; //test output in on JP1
 
     /* Disable comparators */
     CM1CONbits.CEN = 0;
