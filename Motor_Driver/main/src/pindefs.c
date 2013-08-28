@@ -94,6 +94,8 @@ void pin_init()
      * JP1 pins: config if needed
      */
     TRISBbits.TRISB4 = 0; //test output in on JP1
+    ANSELAbits.ANSA12 = 1; //test analog input AN12 (pin 27)
+    TRISEbits.TRISE12 = 1;
 
     /* Disable comparators */
     CM1CONbits.CEN = 0;

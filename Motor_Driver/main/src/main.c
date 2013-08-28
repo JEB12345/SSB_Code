@@ -14,6 +14,7 @@
 #include "../include/clock.h"
 #include "../include/pindefs.h"
 #include "../include/util.h"
+#include "../include/adc_motor.h"
 //#include "../../../libs/ECAN_dspic/ecanFunctions.h"
 #include <math.h>
 
@@ -125,7 +126,7 @@ void can_init()
 }
 
 void can_test(){
-    LED1_ON;
+    //LED1_ON;
 
     ecan1MsgBuf[0][0] = 0x123C;
     ecan1MsgBuf[0][1] = 0x0000;
@@ -134,7 +135,7 @@ void can_test(){
     ecan1MsgBuf[0][4] = 0x2;
     ecan1MsgBuf[0][5] = 0x3;
     ecan1MsgBuf[0][6] = 0xabcd;
-    LED2_ON;
+    //LED2_ON;
     C1TR01CONbits.TXREQ0 = 0x1;
     LED3_ON;
 
@@ -157,6 +158,8 @@ int main() {
     pin_init();
     can_init();
     EN_GATE = 1;
+    adc_init();
+    
     can_test();
     while(1);
 
