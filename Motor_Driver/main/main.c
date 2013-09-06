@@ -11,6 +11,7 @@
 #include "motor_imu.h"
 #include "motor_led.h"
 //#include "motor_loadcell.h"
+#include "motor_qei.h"
 #include "motor_pindefs.h"
 #include "motor_rf.h"
 #include "motor_state.h"
@@ -28,6 +29,7 @@ int main(int argc, char** argv) {
     clock_init();
     pin_init();
     led_init();
+    qei_init();
     /*
     can_init();
      */
@@ -49,6 +51,7 @@ int main(int argc, char** argv) {
                 //make sure that everything in here takes less than 1ms
                 //useful for checking state consistency, synchronization, watchdog...
                 led_update();
+                qei_update();
 
             }            
         } else {

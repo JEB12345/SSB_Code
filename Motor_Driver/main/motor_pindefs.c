@@ -58,8 +58,11 @@ return_value_t pin_init()
     I2C1CONbits.I2CEN = 0;
 
     /*
-    * Motor encoder: TODO: the GP PIC has no quadrature encoder!
+    * Motor encoder
     */
+    RPINR14bits.QEA1R = 52;
+    RPINR14bits.QEB1R = 51;
+    RPINR15bits.INDX1R = 25;
 
     /*
     * Motor current (analog) inputs

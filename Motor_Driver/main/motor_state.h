@@ -98,6 +98,14 @@ extern "C" {
         uint32_t                fcy;
     } clock_data;
 
+    typedef struct {
+        return_value_t          init_return;
+        uint32_t                rotor_position;
+        uint32_t                index;
+        float                   rotor_position_f;        
+        //TODO: add wire length estimation
+    } qei_data;
+
     return_value_t state_init();
 
 #ifdef	__cplusplus
