@@ -12,7 +12,7 @@ qei_data qei_state;
         QEI1CONbits.CNTPOL = 0b0;//Counter direction is positive unless modified by external Up/Down signal
         QEI1CONbits.GATEN = 0b0; //disable external count gate enable pin
         QEI1CONbits.IMV = 0b10; //no idea...
-        QEI1CONbits.PIMOD = 0b001; //every index pulse resets the position counter
+        QEI1CONbits.PIMOD = 0b000; //index pulse does not reset the position counter
 
         QEI1IOCbits.QCAPEN = 0;
         QEI1IOCbits.FLTREN = 0; //filter disabled for now

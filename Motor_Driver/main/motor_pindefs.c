@@ -85,7 +85,12 @@ return_value_t pin_init()
     /*
      * JP5 pins: config if needed
      */
-
+    //UART TX on AN5/RP35
+    _RP35R = 0b000001;
+    TRISBbits.TRISB3 = 0;
+    //UART RX on AN4/RPI34
+    RPINR18bits.U1RXR = 34;
+    
     /*
      * JP2 pins: config if needed
      */
@@ -93,9 +98,23 @@ return_value_t pin_init()
     /*
      * JP1 pins: config if needed
      */
-    TRISBbits.TRISB4 = 0; //test output in on JP1
-    ANSELAbits.ANSA12 = 1; //test analog input AN12 (pin 27)
-    TRISEbits.TRISE12 = 1;
+    //pins: 29 30 31
+    //Hall sensors
+    //ENABLE PULL-UPS
+    CNPUEbits.CNPUE14 = 1;
+    CNPUEbits.CNPUE15 = 1;
+    CNPUAbits.CNPUA8 = 1;
+    //peripheral pin select
+    RPINR7bits.IC1R = 94;
+    RPINR7bits.IC2R = 95;
+    RPINR8bits.IC3R = 24;
+
+    //SG UART2:
+    //TX: RB4: RP36
+    //RX: RB1: RPI33
+    TRISBbits.TRISB4 = 0;
+    _RP36R = 3;
+    RPINR19bits.U2RXR = 33;
 
     /* Disable comparators */
     CM1CONbits.CEN = 0;

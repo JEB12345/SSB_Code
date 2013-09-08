@@ -1,11 +1,7 @@
 #include "motor_state.h"
 #include "motor_clock.h"
 #include "p33Exxxx.h"
-_FOSCSEL(FNOSC_FRCPLL & IESO_OFF);
-_FOSC(FCKSM_CSECMD & OSCIOFNC_ON & POSCMD_NONE);
-_FWDT(FWDTEN_OFF);
-/* Disable JTAG */
-_FICD(JTAGEN_OFF & ICS_PGD2);
+
 
 clock_data clock_state;
 

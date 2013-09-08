@@ -69,6 +69,8 @@ return_value_t pin_init();
 #define     RA11    PORTAbits.RA11
 #define     AN4     PORTAbits.RA4
 #define     AN5     PORTAbits.RA5
+//UART TX on AN5/RP35
+//UART RX on AN4/RPI34
 
 /*
  * JP2 pins
@@ -83,11 +85,12 @@ return_value_t pin_init();
  */
 #define     RE12    PORTEbits.RE12
 #define     RE13    PORTEbits.RE13
-#define     RE14    PORTEbits.RE14
-#define     RE15    PORTEbits.RE15
-#define     RA8     PORTAbits.RA8
-#define     RB4
-
+//#define     RE14    PORTEbits.RE14
+//#define     RE15    PORTEbits.RE15
+//#define     RA8     PORTAbits.RA8
+#define     HALL1   PORTEbits.RE14
+#define     HALL2   PORTEbits.RE15
+#define     HALL3   PORTAbits.RA8
 
 
 #ifdef	__cplusplus

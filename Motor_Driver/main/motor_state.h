@@ -12,13 +12,26 @@
 extern "C" {
 #endif
 
-    typedef enum
-        {
-            RET_OK = 0,
-            RET_ERROR = 1,
-            RET_UNKNOWN = 127
-        }
+    typedef enum {
+        RET_OK = 0,
+        RET_ERROR = 1,
+        RET_UNKNOWN = 127
+    }
     return_value_t;
+
+    typedef enum {
+        UART_RX_STATE_INIT = 0,
+        UART_RX_STATE_CMD = 1,
+        UART_RX_STATE_LEN = 2,
+        UART_RX_STATE_DATA = 3,
+        UART_RX_STATE_CKS = 4
+    } uart_rx_state_t;
+
+#define UART_TX_PACKET_BUFF_LEN 10
+#define UART_TX_PACKET_MAX_LEN 50
+#define UART_RX_PACKET_BUFF_LEN 10
+#define UART_RX_PACKET_MAX_LEN 32
+#define WATCHDOG_TIMEOUT 500
 
      /**
      * Th state machine for the ADC SPI
@@ -83,14 +96,15 @@ extern "C" {
 
     typedef struct {
         return_value_t          init_return;
-        unsigned int volatile   systime; //updated by a timer
-        unsigned int            prev_systime;  //updated in main loop
+        uint32_t volatile       systime; //updated by a timer
+        uint32_t                prev_systime;  //updated in main loop
     } timer_data;
 
     typedef enum {STATE_UNKNOWN = 0, STATE_INITIALIZED = 1, STATE_ERROR = 127} state_t;
     typedef struct {
         return_value_t          init_return;
-        state_t volatile state; //system state
+        uint16_t                ticks_since_last_cmd;
+        state_t volatile        state; //system state
     } system_data;
 
     typedef struct {
@@ -100,11 +114,51 @@ extern "C" {
 
     typedef struct {
         return_value_t          init_return;
-        uint32_t                rotor_position;
-        uint32_t                index;
-        float                   rotor_position_f;        
+        uint32_t                rotor_position;  //qei_data contains raw encoder data, all processed results are to be found in motor_data
+        uint32_t                index;       
         //TODO: add wire length estimation
     } qei_data;
+
+    typedef struct {
+        return_value_t          init_return;
+        uint8_t                 cur_state;
+        uint8_t                 prev_state;
+    } hallsensor_data;
+
+    typedef struct {
+        uint16_t volatile       rotor_position;
+        uint16_t volatile       rotor_turns;
+        float                   wire_length;
+    } motor_data;
+
+    typedef struct {
+        return_value_t          init_return;
+        unsigned volatile       tx_idle;
+        uint32_t volatile       bytes_sent;
+        uint32_t volatile       tx_num_errors;
+        uint32_t volatile       packets_sent;
+
+        uint16_t volatile       tx_packets_start;
+        uint16_t volatile       tx_packets_end;
+        uint16_t volatile       tx_buffer_idx;
+
+        volatile uint16_t tx_packets[UART_TX_PACKET_BUFF_LEN][UART_TX_PACKET_MAX_LEN];
+
+        uart_rx_state_t volatile rx_state;
+        uint32_t volatile       rx_num_errors;
+        uint32_t volatile       bytes_received;
+
+        uint16_t volatile       rx_packets_start;
+        uint16_t volatile       rx_packets_end;
+        uint16_t volatile       rx_buffer_idx;
+
+        volatile uint16_t rx_packets[UART_RX_PACKET_BUFF_LEN][UART_RX_PACKET_MAX_LEN];
+        volatile uint16_t*      rx_buffer;
+        volatile unsigned       rx_buffer_len;
+        volatile unsigned       rx_cks;
+        volatile unsigned       rx_len;
+        uint32_t volatile       packets_received;
+    } uart_data;
 
     return_value_t state_init();
 

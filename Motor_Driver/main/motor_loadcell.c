@@ -1,7 +1,7 @@
 #include "p33Exxxx.h"
 #include "motor_loadcell.h"
 #include "motor_state.h"
-
+loadcell_data loadcell_state;
 #ifdef ENABLE_LOADCELLS
 loadcell_data loadcell_state;
 
