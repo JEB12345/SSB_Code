@@ -23,6 +23,7 @@ _FICD(JTAGEN_OFF & ICS_PGD2);
 #include "motor_state.h"
 #include "motor_timers.h"
 #include "motor_hallsensors.h"
+#include "motor_pmsm.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -47,6 +48,7 @@ int main(int argc, char** argv) {
     led_init();
     qei_init();
     hallsensors_init();
+    pmsm_init();
     uart_init();
     /*
     can_init();
@@ -60,8 +62,12 @@ int main(int argc, char** argv) {
     timers_init();
     state_init();
 
+    pmsm_enable(1); //enable/disable gate drivers
 
-    //led_intensity_set(16,255>>2,255>>1,255);
+    led_intensity_set(0,255,0,255);
+
+    pmsm_set_duty_cycle(0,0,0);
+
     for(;;){
         if(timer_state.systime != timer_state.prev_systime){
             timer_state.prev_systime = timer_state.systime;
@@ -74,24 +80,21 @@ int main(int argc, char** argv) {
                 if(system_state.ticks_since_last_cmd>WATCHDOG_TIMEOUT){
                     //TODO: disable motor power
                 }
-
+                led_intensity_set(255*(hallsensor_state.cur_state==hallsensor_state.prev_state),0,0,0);
                 led_update();
                 qei_update();
+                pmsm_update();
                 if(++state_transmit_ctr>10){
                     state_transmit_ctr = 0;
-
                     uart_tx_packet = uart_tx_cur_packet();
                     uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
                     uart_tx_packet[1] = 0xFF;//CMD
-                    uart_tx_packet[2] = 13+16;
-                    uart_tx_packet[3] = (qei_state.rotor_position>>24)&0xFF;
-                    uart_tx_packet[4] = (qei_state.rotor_position>>16)&0xFF;
-                    uart_tx_packet[5] = (qei_state.rotor_position>>8)&0xFF;
-                    uart_tx_packet[6] = qei_state.rotor_position&0xFF;
-                    /*uart_tx_packet[7] = (qei_state.index>>24)&0xFF;
-                    uart_tx_packet[8] = (qei_state.index>>16)&0xFF;
-                    uart_tx_packet[9] = (qei_state.index>>8)&0xFF;
-                    uart_tx_packet[10] = qei_state.index&0xFF;*/
+                    uart_tx_packet[2] = 14+16;
+                    uint32_t ms = (uint32_t)(motor_state.rotor_state*100);
+                    uart_tx_packet[3] = (ms>>24)&0xFF;
+                    uart_tx_packet[4] = (ms>>16)&0xFF;
+                    uart_tx_packet[5] = (ms>>8)&0xFF;
+                    uart_tx_packet[6] = ms&0xFF;
                     uart_tx_packet[7] = (uart_sg_state.packets_received>>24)&0xFF;
                     uart_tx_packet[8] = (uart_sg_state.packets_received>>16)&0xFF;
                     uart_tx_packet[9] = (uart_sg_state.packets_received>>8)&0xFF;
@@ -100,23 +103,14 @@ int main(int argc, char** argv) {
                     uart_tx_packet[12] = (motor_state.rotor_turns>>8)&0xFF;
                     uart_tx_packet[13] = motor_state.rotor_turns&0xFF;
                     for(i=0;i<4;++i){
-                        uart_tx_packet[13+i*4] = (loadcell_state.values[i]>>24)&0xFF;
-                        uart_tx_packet[13+i*4+1] = (loadcell_state.values[i]>>16)&0xFF;
-                        uart_tx_packet[13+i*4+2] = (loadcell_state.values[i]>>8)&0xFF;
-                        uart_tx_packet[13+i*4+3] = (loadcell_state.values[i])&0xFF;
+                        uart_tx_packet[14+i*4] = (loadcell_state.values[i]>>24)&0xFF;
+                        uart_tx_packet[14+i*4+1] = (loadcell_state.values[i]>>16)&0xFF;
+                        uart_tx_packet[14+i*4+2] = (loadcell_state.values[i]>>8)&0xFF;
+                        uart_tx_packet[14+i*4+3] = (loadcell_state.values[i])&0xFF;
                     }
                     uart_tx_compute_cks(uart_tx_packet);
                     uart_tx_update_index();
                     uart_tx_start_transmit();
-                    /*
-                    //uart_send_byte(qei_state.rotor_position&0xFF);
-                    uart_send_word(0xFFFF);
-                    uart_send_word(0xFFFF);
-                    uart_send_long(qei_state.index);
-                    uart_send_long(qei_state.rotor_position);
-                    uart_send_word(0xFFFF);
-                    uart_send_word(0xFFFF);
-                     */
                 }
             }            
         } else {

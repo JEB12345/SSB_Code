@@ -126,8 +126,10 @@ extern "C" {
     } hallsensor_data;
 
     typedef struct {
+        return_value_t          init_return;
         uint16_t volatile       rotor_position;
         uint16_t volatile       rotor_turns;
+        float volatile          rotor_state;
         float                   wire_length;
     } motor_data;
 

@@ -101,9 +101,10 @@ return_value_t pin_init()
     //pins: 29 30 31
     //Hall sensors
     //ENABLE PULL-UPS
+    /*
     CNPUEbits.CNPUE14 = 1;
     CNPUEbits.CNPUE15 = 1;
-    CNPUAbits.CNPUA8 = 1;
+    CNPUAbits.CNPUA8 = 1;*///PULL UPS ARE TOO WEAK!!!
     //peripheral pin select
     RPINR7bits.IC1R = 94;
     RPINR7bits.IC2R = 95;
