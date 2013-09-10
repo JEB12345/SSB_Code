@@ -5,7 +5,7 @@
  * Created on August 28, 2013, 11:31 PM
  */
 #include "p33Exxxx.h"
-_FOSCSEL(FNOSC_FRCPLL & IESO_OFF);
+_FOSCSEL(FNOSC_FRCPLL & IESO_OFF & PWMLOCK_OFF);
 _FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_NONE);
 _FWDT(FWDTEN_OFF);
 /* Disable JTAG */
@@ -65,8 +65,8 @@ int main(int argc, char** argv) {
     pmsm_enable(1); //enable/disable gate drivers
 
     led_intensity_set(0,255,0,255);
-
-    pmsm_set_duty_cycle(0,0,0);
+    //pmsm_set_duty_cycle(1000,2000,3000);
+    
 
     for(;;){
         if(timer_state.systime != timer_state.prev_systime){
@@ -80,11 +80,12 @@ int main(int argc, char** argv) {
                 if(system_state.ticks_since_last_cmd>WATCHDOG_TIMEOUT){
                     //TODO: disable motor power
                 }
-                led_intensity_set(255*(hallsensor_state.cur_state==hallsensor_state.prev_state),0,0,0);
+                led_intensity_set(255*(!PWRGD),((timer_state.systime&0x100)>0)*255,255*(!OCTW),255*(!FAULT));
                 led_update();
                 qei_update();
                 pmsm_update();
                 if(++state_transmit_ctr>10){
+                    
                     state_transmit_ctr = 0;
                     uart_tx_packet = uart_tx_cur_packet();
                     uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
@@ -95,19 +96,27 @@ int main(int argc, char** argv) {
                     uart_tx_packet[4] = (ms>>16)&0xFF;
                     uart_tx_packet[5] = (ms>>8)&0xFF;
                     uart_tx_packet[6] = ms&0xFF;
+                    uart_tx_packet[7] = PDC1>>8;
+                    uart_tx_packet[8] = PDC1&0xFF;
+                    uart_tx_packet[9] = PDC2>>8;
+                    uart_tx_packet[10] = PDC2&0xFF;
+                    uart_tx_packet[11] = PDC3>>8;
+                    uart_tx_packet[12] = PDC3&0xFF;
+                    /*
                     uart_tx_packet[7] = (uart_sg_state.packets_received>>24)&0xFF;
                     uart_tx_packet[8] = (uart_sg_state.packets_received>>16)&0xFF;
                     uart_tx_packet[9] = (uart_sg_state.packets_received>>8)&0xFF;
                     uart_tx_packet[10] = uart_sg_state.packets_received&0xFF;
                     uart_tx_packet[11] = hallsensor_state.cur_state;
                     uart_tx_packet[12] = (motor_state.rotor_turns>>8)&0xFF;
-                    uart_tx_packet[13] = motor_state.rotor_turns&0xFF;
+                    uart_tx_packet[13] = motor_state.rotor_turns&0xFF;*/
                     for(i=0;i<4;++i){
                         uart_tx_packet[14+i*4] = (loadcell_state.values[i]>>24)&0xFF;
                         uart_tx_packet[14+i*4+1] = (loadcell_state.values[i]>>16)&0xFF;
                         uart_tx_packet[14+i*4+2] = (loadcell_state.values[i]>>8)&0xFF;
                         uart_tx_packet[14+i*4+3] = (loadcell_state.values[i])&0xFF;
                     }
+                     
                     uart_tx_compute_cks(uart_tx_packet);
                     uart_tx_update_index();
                     uart_tx_start_transmit();

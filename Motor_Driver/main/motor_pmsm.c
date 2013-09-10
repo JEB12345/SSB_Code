@@ -6,7 +6,7 @@
 #include "../../../PMSM/Code/PMSM.h"
 motor_data  motor_state;
 MotorInfo motor_info;
-//#define PIC_MC
+#define PIC_MC
 
 #ifndef PIC_MC
 volatile uint16_t t2_ontime, t2_offtime;
@@ -25,41 +25,91 @@ return_value_t pmsm_init()
     PTCONbits.PTEN = 0;
     PTPER = 4096; //4096*7.14ns = approx 34kHz
     PTCON2bits.PCLKDIV = 0b000; //prescaler 1:1
+    PWMLOCK_OFF;
+    PWMCON1 = 0x0;
+     PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
+    IOCON1 = 0x0;
+     PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
+    FCLCON1 = 0x0;
+    ALTDTR1 = 0xFFFF;
+    ALTDTR2 = 0xFFFF;
+    ALTDTR3 = 0xFFFF;
+    PWMCON2 = 0x0;
+     PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
+    IOCON2 = 0x0;
+    PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
+    FCLCON2 = 0x0;
+
+
+    PWMCON3 = 0x0;
+     PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
+    IOCON3 = 0x0;
+     PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
+    FCLCON3 = 0x0;
+
     //PWM1
+
     PWMCON1bits.FLTIEN = 0;
     PWMCON1bits.CLIEN = 0;
     PWMCON1bits.TRGIEN = 0;
+    PWMCON1bits.DTC=0b10;
     PWMCON1bits.ITB = 0; //master time base
     PWMCON1bits.MDCS = 0; //independent period
     IFS5bits.PWM1IF = 0;
+    PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
     IOCON1bits.PENH = 1;
+     PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
     IOCON1bits.PENL = 0; // only the PWMH pin is controlled
+    PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
     FCLCON1bits.FLTMOD = 0b11; //disable fault input
     PHASE1 = 0;
     PDC1 = 0;
 
     //PWM2
     PWMCON2bits.FLTIEN = 0;
+    PWMCON2bits.DTC=0b10;
     PWMCON2bits.CLIEN = 0;
     PWMCON2bits.TRGIEN = 0;
     PWMCON2bits.ITB = 0; //master time base
     PWMCON2bits.MDCS = 0; //independent period
     IFS5bits.PWM2IF = 0;
+     PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
     IOCON2bits.PENH = 1;
+     PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
     IOCON2bits.PENL = 0; // only the PWMH pin is controlled
+     PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
     FCLCON2bits.FLTMOD = 0b11; //disable fault input
     PHASE2 = 0;
     PDC2 = 0;
 
     //PWM3
     PWMCON3bits.FLTIEN = 0;
+    PWMCON3bits.DTC=0b10;
     PWMCON3bits.CLIEN = 0;
     PWMCON3bits.TRGIEN = 0;
     PWMCON3bits.ITB = 0; //master time base
     PWMCON3bits.MDCS = 0; //independent period
     IFS6bits.PWM3IF = 0;
+     PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
     IOCON3bits.PENH = 1;
+     PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
     IOCON3bits.PENL = 0; // only the PWMH pin is controlled
+     PWMKEY = 0XABCD;
+    PWMKEY = 0x4321;
     FCLCON3bits.FLTMOD = 0b11; //disable fault input
     PHASE3 = 0;
     PDC3 = 0;
@@ -119,13 +169,25 @@ void pmsm_enable(unsigned enable)
 
 void pmsm_update()
 {
-    static unsigned t=0;
+    static float t=0;
     float a,b,c;
+    float p;
+    t+=0.001;
+    p = powf(t,2.)*10.;
     //TODO: set rotor position
-    SetTorque(.5);
-    SetPosition(fmod(motor_state.rotor_state+0.52+0*2*3.14*2/6,3.14*2));//(sin(.1*(t++))+1)*3.1415);//(sin(.1*motor_state.rotor_turns)+1)*2.*3.14);
+    SetTorque(1.);
+    //SetPosition(p);
+    //p = 3.141592;
+    if(t<1.){
+        SetPosition(p);
+    } else {
+        p = (t+1)*150.;
+        SetPosition(p);
+    }
+    SetPosition(motor_state.rotor_state);
     motor_info.newData = 0;
     PMSM_Update();
+    
     pmsm_set_duty_cycle((uint16_t)(motor_info.t1/100.*4096),(uint16_t)(motor_info.t2/100.*4096),(uint16_t)(motor_info.t3/100.*4096));
     /*t++;
     b = sin((0.15*t)+3.14*2/3)/2+0.5;
@@ -150,10 +212,11 @@ void pmsm_update()
 
 void pmsm_set_duty_cycle(uint16_t pwm1, uint16_t pwm2, uint16_t pwm3)
 {
-#ifdef PIC_MC
     PDC1 = pwm1;
     PDC2 = pwm2;
     PDC3 = pwm3;
+#ifdef PIC_MC
+    
 #else
     if(pwm1>4096)
         pwm1 = 4096;
