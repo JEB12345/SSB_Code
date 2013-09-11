@@ -14,7 +14,7 @@ extern "C" {
 #include "motor_state.h"
     return_value_t hallsensors_init();
 
-    
+    void hallsensors_interpolate();
     
 
 

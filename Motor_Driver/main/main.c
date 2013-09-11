@@ -35,11 +35,13 @@ extern uart_data uart_sg_state;
 extern hallsensor_data hallsensor_state;
 extern motor_data motor_state;
 extern loadcell_data loadcell_state;
+extern hallsensor_data hallsensor_state;
 /*
  * 
  */
 int main(int argc, char** argv) {
     unsigned state_transmit_ctr = 0;
+    unsigned udiff;
     volatile uint16_t* uart_tx_packet;
     volatile uint16_t* uart_rx_packet;
     unsigned i;
@@ -80,20 +82,28 @@ int main(int argc, char** argv) {
                 if(system_state.ticks_since_last_cmd>WATCHDOG_TIMEOUT){
                     //TODO: disable motor power
                 }
-                led_intensity_set(255*(!PWRGD),((timer_state.systime&0x100)>0)*255,255*(!OCTW),255*(!FAULT));
+                led_intensity_set(60*(hallsensor_state.direction),((timer_state.systime&0x100)>0)*255,255*(!OCTW),255*(!FAULT));
                 led_update();
                 qei_update();
+                udiff = hallsensor_state.last_update_tmr;
+                /*if(TMR1<hallsensor_state.last_update_tmr){
+                    udiff = (TMR1+8750)-hallsensor_state.last_update_tmr;
+                } else {
+                    udiff = TMR1-hallsensor_state.last_update_tmr;
+                }*/
+                hallsensors_interpolate();
                 pmsm_update();
-                if(++state_transmit_ctr>10){
+                if(++state_transmit_ctr>5){
                     
                     state_transmit_ctr = 0;
                     uart_tx_packet = uart_tx_cur_packet();
                     uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
                     uart_tx_packet[1] = 0xFF;//CMD
                     uart_tx_packet[2] = 14+16;
-                    uint32_t ms = (uint32_t)(motor_state.rotor_state*100);
-                    uart_tx_packet[3] = (ms>>24)&0xFF;
-                    uart_tx_packet[4] = (ms>>16)&0xFF;
+                    uint32_t ms = (uint32_t)(motor_state.rotor_state);
+                    uint32_t speed = (uint32_t)(motor_state.rotor_speed);
+                    uart_tx_packet[3] = (speed>>8)&0xFF;
+                    uart_tx_packet[4] = speed&0xFF;
                     uart_tx_packet[5] = (ms>>8)&0xFF;
                     uart_tx_packet[6] = ms&0xFF;
                     uart_tx_packet[7] = PDC1>>8;

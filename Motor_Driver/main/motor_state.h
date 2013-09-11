@@ -123,6 +123,8 @@ extern "C" {
         return_value_t          init_return;
         uint8_t                 cur_state;
         uint8_t                 prev_state;
+        uint16_t volatile       last_update_tmr;
+        unsigned volatile       direction; //0 not moving, 1 positive, 2 negative
     } hallsensor_data;
 
     typedef struct {
@@ -130,6 +132,8 @@ extern "C" {
         uint16_t volatile       rotor_position;
         uint16_t volatile       rotor_turns;
         float volatile          rotor_state;
+        float volatile          rotor_state_interpolated;
+        float volatile          rotor_speed; //in sectors/s (60deg/s)
         float                   wire_length;
     } motor_data;
 

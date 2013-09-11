@@ -23,7 +23,7 @@ return_value_t pmsm_init()
 #ifdef PIC_MC
     //set up PWM
     PTCONbits.PTEN = 0;
-    PTPER = 4096; //4096*7.14ns = approx 34kHz
+    PTPER = 768; //4096*7.14ns = approx 34kHz
     PTCON2bits.PCLKDIV = 0b000; //prescaler 1:1
     PWMLOCK_OFF;
     PWMCON1 = 0x0;
@@ -175,7 +175,7 @@ void pmsm_update()
     t+=0.001;
     p = powf(t,2.)*10.;
     //TODO: set rotor position
-    SetTorque(1.);
+    SetTorque(.5);
     //SetPosition(p);
     //p = 3.141592;
     if(t<1.){
@@ -184,11 +184,13 @@ void pmsm_update()
         p = (t+1)*150.;
         SetPosition(p);
     }
-    SetPosition(motor_state.rotor_state);
+    SetTorque(1.);
+    SetPosition(motor_state.rotor_state+3.14/6);
+    SetPosition(motor_state.rotor_state_interpolated+3.14/6);
     motor_info.newData = 0;
     PMSM_Update();
     
-    pmsm_set_duty_cycle((uint16_t)(motor_info.t1/100.*4096),(uint16_t)(motor_info.t2/100.*4096),(uint16_t)(motor_info.t3/100.*4096));
+    pmsm_set_duty_cycle((uint16_t)(motor_info.t1/100.*768),(uint16_t)(motor_info.t2/100.*768),(uint16_t)(motor_info.t3/100.*768));
     /*t++;
     b = sin((0.15*t)+3.14*2/3)/2+0.5;
     a = sin((0.15*t))/2+0.5;
