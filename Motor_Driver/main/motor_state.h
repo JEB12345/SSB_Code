@@ -27,10 +27,10 @@ extern "C" {
         UART_RX_STATE_CKS = 4
     } uart_rx_state_t;
 
-#define UART_TX_PACKET_BUFF_LEN 10
-#define UART_TX_PACKET_MAX_LEN 50
-#define UART_RX_PACKET_BUFF_LEN 10
-#define UART_RX_PACKET_MAX_LEN 32
+#define UART_TX_PACKET_BUFF_LEN 5
+#define UART_TX_PACKET_MAX_LEN 260
+#define UART_RX_PACKET_BUFF_LEN 5
+#define UART_RX_PACKET_MAX_LEN 260
 #define WATCHDOG_TIMEOUT 500
 
      /**

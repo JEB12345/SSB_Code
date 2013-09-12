@@ -24,9 +24,10 @@ _FICD(JTAGEN_OFF & ICS_PGD2);
 #include "motor_timers.h"
 #include "motor_hallsensors.h"
 #include "motor_pmsm.h"
+#include "superball_communication.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 extern system_data system_state;
 extern timer_data timer_state;
 extern qei_data qei_state;
@@ -42,6 +43,7 @@ extern hallsensor_data hallsensor_state;
 int main(int argc, char** argv) {
     unsigned state_transmit_ctr = 0;
     unsigned udiff;
+    superball_packet packet;
     volatile uint16_t* uart_tx_packet;
     volatile uint16_t* uart_rx_packet;
     unsigned i;
@@ -62,6 +64,7 @@ int main(int argc, char** argv) {
     adc_init();
     */
     timers_init();
+    superball_communication_init();
     state_init();
 
     pmsm_enable(1); //enable/disable gate drivers
@@ -137,6 +140,23 @@ int main(int argc, char** argv) {
             //executed as fast as possible
             //these processes should NOT block the main loop
             
+            while(superball_next_transmit_packet(IF_UDP,&packet)){
+                uart_tx_packet = uart_tx_cur_packet();
+                uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
+                uart_tx_packet[1] = 0x55;//CMD                
+                uart_tx_packet[2] = sizeof(superball_packet)+packet.length+2;
+                //memcpy header
+                memcpy(uart_tx_packet+3,&packet,sizeof(superball_packet));
+                //memcpy data
+                memcpy(uart_tx_packet+3+sizeof(superball_packet),packet.data,packet.length);
+                //uart_tx_packet[3] = uart_rx_packet[2];
+                //uart_tx_packet[4] = uart_rx_packet[3];
+                uart_tx_compute_cks(uart_tx_packet);
+                uart_tx_update_index();
+                uart_tx_start_transmit();
+                superball_free_packet(&packet);
+            }
+
             //Did we receive any commands?
             uart_rx_packet=uart_rx_cur_packet();
             if(uart_rx_packet!=0){
