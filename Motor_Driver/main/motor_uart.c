@@ -1,6 +1,9 @@
 #include "motor_uart.h"
 #include "motor_state.h"
 #include "p33Exxxx.h"
+
+
+#include "superball_communication.h"
 #include "motor_led.h"
 uart_data uart_state;
 uart_data uart_sg_state;
@@ -93,12 +96,12 @@ void uart_send_long(uint32_t data)
     uart_send_word((uint16_t)(data&0xFFFF));
 }
 
-inline volatile uint16_t* uart_tx_cur_packet()
+inline volatile uint8_t* uart_tx_cur_packet()
 {
     return uart_state.tx_packets[uart_state.tx_packets_end];
 }
 
-void uart_tx_compute_cks(volatile uint16_t* packet)
+void uart_tx_compute_cks(volatile uint8_t* packet)
 {
     uint8_t uart_tx_cks = 0;
     unsigned i;
@@ -116,7 +119,7 @@ inline void uart_tx_update_index()
         ++uart_state.tx_packets_end;
 }
 
-volatile uint16_t* uart_rx_cur_packet()
+volatile uint8_t* uart_rx_cur_packet()
 {
     if(uart_state.rx_packets_start != uart_state.rx_packets_end) {
         //handle a single packet
@@ -209,15 +212,19 @@ void __attribute__ ((interrupt, no_auto_psv)) _U1RXInterrupt(void) {
         case UART_RX_STATE_CKS:
             //checksum == XOR(CMD,LEN,DATA1,...,DATAN)
             if(tmp==uart_state.rx_cks){
-                //update circular buffer
-                if(uart_state.rx_packets_end==UART_RX_PACKET_BUFF_LEN-1)
-                    uart_state.rx_packets_end = 0;
-                else
-                    ++uart_state.rx_packets_end;
 
-                uart_state.rx_buffer = uart_state.rx_packets[uart_state.rx_packets_end];
-                ++uart_state.packets_received;
-                //indicate that new packet is valid and go to next buffer location
+                
+                    //Something else (legacy mode) received)
+                    //update circular buffer
+                    if(uart_state.rx_packets_end==UART_RX_PACKET_BUFF_LEN-1)
+                        uart_state.rx_packets_end = 0;
+                    else
+                        ++uart_state.rx_packets_end;
+
+                    uart_state.rx_buffer = uart_state.rx_packets[uart_state.rx_packets_end];
+                    ++uart_state.packets_received;
+                    //indicate that new packet is valid and go to next buffer location
+                
             } //else == invalid
             else {
                 ++uart_state.rx_num_errors;

@@ -18,11 +18,11 @@ extern "C" {
     void uart_send_word(uint16_t data);
     void uart_send_long(uint32_t data);
     void uart_tx_start_transmit();
-    volatile uint16_t* uart_tx_cur_packet();
+    volatile uint8_t* uart_tx_cur_packet();
     void uart_tx_update_index();
-    void uart_tx_compute_cks(volatile uint16_t* packet);
+    void uart_tx_compute_cks(volatile uint8_t* packet);
 
-    volatile uint16_t* uart_rx_cur_packet();
+    volatile uint8_t* uart_rx_cur_packet();
     void uart_rx_packet_consumed();
 
 #ifdef	__cplusplus

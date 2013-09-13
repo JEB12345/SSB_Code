@@ -45,15 +45,19 @@ extern "C" {
         ADDR_MULTIPLE = 2
     } superball_address_t;
 
+    typedef struct {//__attribute__((__packed__)) {
+        unsigned        options;//:8;
+        unsigned        origin;//:10;
+        unsigned        destination;//:10;
+        unsigned        TTL;//:4;
+        unsigned        length;//:8;
+    } superball_packet_header;
+
     typedef struct {
-        unsigned        options:8;
-        unsigned        origin:10;
-        unsigned        destination:10;
-        unsigned        TTL:4;
-        unsigned        length:8;
+        superball_packet_header       header;
+        uint8_t*                      data;//order is important for efficient serialization
         superball_interface_t         interface_in:8;
-        superball_interface_t         interface_out:8;
-        uint8_t*        data;
+        superball_interface_t         interface_out:8;        
     } superball_packet;
 
     typedef struct superball_route superball_route;
@@ -71,6 +75,9 @@ extern "C" {
     void superball_packet_init(superball_packet* packet);
     int superball_route_packet(superball_packet* packet);
     int superball_next_transmit_packet(superball_interface_t interface, superball_packet* packet);
+    int superball_packet_serialize(const superball_packet* packet, uint8_t* serialized);
+    int superball_packet_deserialize(const volatile uint8_t* serialized, superball_packet* packet);
+    uint16_t superball_packet_length(const superball_packet* packet);
     //private
     int superball_routes_setup();
 

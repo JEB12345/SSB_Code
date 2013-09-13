@@ -37,6 +37,7 @@ extern hallsensor_data hallsensor_state;
 extern motor_data motor_state;
 extern loadcell_data loadcell_state;
 extern hallsensor_data hallsensor_state;
+
 /*
  * 
  */
@@ -44,6 +45,10 @@ int main(int argc, char** argv) {
     unsigned state_transmit_ctr = 0;
     unsigned udiff;
     superball_packet packet;
+    uint8_t uart_rx_test[UART_RX_PACKET_MAX_LEN];
+    uint8_t tmp[50];
+    
+    
     volatile uint16_t* uart_tx_packet;
     volatile uint16_t* uart_rx_packet;
     unsigned i;
@@ -96,10 +101,10 @@ int main(int argc, char** argv) {
                 }*/
                 hallsensors_interpolate();
                 pmsm_update();
-                if(++state_transmit_ctr>5){
+                if(++state_transmit_ctr>50){
                     
                     state_transmit_ctr = 0;
-                    uart_tx_packet = uart_tx_cur_packet();
+                    /*uart_tx_packet = uart_tx_cur_packet();
                     uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
                     uart_tx_packet[1] = 0xFF;//CMD
                     uart_tx_packet[2] = 14+16;
@@ -115,14 +120,7 @@ int main(int argc, char** argv) {
                     uart_tx_packet[10] = PDC2&0xFF;
                     uart_tx_packet[11] = PDC3>>8;
                     uart_tx_packet[12] = PDC3&0xFF;
-                    /*
-                    uart_tx_packet[7] = (uart_sg_state.packets_received>>24)&0xFF;
-                    uart_tx_packet[8] = (uart_sg_state.packets_received>>16)&0xFF;
-                    uart_tx_packet[9] = (uart_sg_state.packets_received>>8)&0xFF;
-                    uart_tx_packet[10] = uart_sg_state.packets_received&0xFF;
-                    uart_tx_packet[11] = hallsensor_state.cur_state;
-                    uart_tx_packet[12] = (motor_state.rotor_turns>>8)&0xFF;
-                    uart_tx_packet[13] = motor_state.rotor_turns&0xFF;*/
+                    
                     for(i=0;i<4;++i){
                         uart_tx_packet[14+i*4] = (loadcell_state.values[i]>>24)&0xFF;
                         uart_tx_packet[14+i*4+1] = (loadcell_state.values[i]>>16)&0xFF;
@@ -132,35 +130,62 @@ int main(int argc, char** argv) {
                      
                     uart_tx_compute_cks(uart_tx_packet);
                     uart_tx_update_index();
-                    uart_tx_start_transmit();
+                    uart_tx_start_transmit();*/
+
+                    
+                    superball_packet_init(&packet);
+                    packet.data = malloc(sizeof(uint8_t)*20);
+                    uint32_t ms = (uint32_t)(motor_state.rotor_state);
+                    uint32_t speed = (uint32_t)(motor_state.rotor_speed);
+                    packet.data[0] = (speed>>8)&0xFF;
+                    packet.data[1] = speed&0xFF;
+                    packet.data[2] = (ms>>8)&0xFF;
+                    packet.data[3] = ms&0xFF;
+                    for(i=0;i<4;++i){
+                        packet.data[4+i*4] = (loadcell_state.values[i]>>24)&0xFF;
+                        packet.data[4+i*4+1] = (loadcell_state.values[i]>>16)&0xFF;
+                        packet.data[4+i*4+2] = (loadcell_state.values[i]>>8)&0xFF;
+                        packet.data[4+i*4+3] = (loadcell_state.values[i])&0xFF;
+                    }
+                    //for(i=0;i<10;++i)
+                    //    packet.data[i] = i+1;
+
+                    //packet.data[0] = (uart_state.rx_num_errors>>24)&0xff;
+                    //packet.data[1] = (uart_state.rx_num_errors>>16)&0xff;
+                    //packet.data[2] = (uart_state.rx_num_errors>>8)&0xff;
+                    //packet.data[3] = uart_state.rx_num_errors&0xFF;
+                    //packet.data[6] = timer_state.systime&0xFF;
+                    packet.header.length = 20;
+                    //packet.header.origin = 1022;
+                    //packet.interface_in = IF_LOCAL;
+                    packet.header.destination = 0;
+                    superball_route_packet(&packet);
                 }
             }            
         } else {
             //untimed processes in main loop:
             //executed as fast as possible
             //these processes should NOT block the main loop
-            
-            while(superball_next_transmit_packet(IF_UDP,&packet)){
-                uart_tx_packet = uart_tx_cur_packet();
-                uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
-                uart_tx_packet[1] = 0x55;//CMD                
-                uart_tx_packet[2] = sizeof(superball_packet)+packet.length+2;
-                //memcpy header
-                memcpy(uart_tx_packet+3,&packet,sizeof(superball_packet));
-                //memcpy data
-                memcpy(uart_tx_packet+3+sizeof(superball_packet),packet.data,packet.length);
-                //uart_tx_packet[3] = uart_rx_packet[2];
-                //uart_tx_packet[4] = uart_rx_packet[3];
-                uart_tx_compute_cks(uart_tx_packet);
-                uart_tx_update_index();
-                uart_tx_start_transmit();
-                superball_free_packet(&packet);
-            }
 
-            //Did we receive any commands?
+            //CHECK FOR RECEIVED WIFI MESSAGES
             uart_rx_packet=uart_rx_cur_packet();
             if(uart_rx_packet!=0){
-
+                 if(uart_rx_packet[0]==0x55){
+                    //SUPERBall packet
+                    superball_packet_init(&packet);
+                    for(i=0;i<uart_rx_packet[1]-2;++i){
+                        uart_rx_test[i] = uart_rx_packet[2+i];
+                    }
+                    //memcpy(uart_rx_test,uart_rx_packet+2,UART_RX_PACKET_MAX_LEN-2);
+                    if(superball_packet_deserialize(uart_rx_test,&packet)==SUCCESS){
+                        packet.interface_in = IF_UDP;
+                        superball_route_packet(&packet);
+                    } else {
+                    }
+                } else{
+                    //legacy messages???
+                }
+                /*
                 if(uart_rx_packet[0]==0x01){
                     led_intensity_set(uart_rx_packet[2],uart_rx_packet[3],uart_rx_packet[4],uart_rx_packet[5]);
                 } else if (uart_rx_packet[0]==0x0){
@@ -174,15 +199,47 @@ int main(int argc, char** argv) {
                     uart_tx_compute_cks(uart_tx_packet);
                     uart_tx_update_index();
                     uart_tx_start_transmit();
-                }
+                }*/
                 uart_rx_packet_consumed();
 
                 system_state.ticks_since_last_cmd = 0;
             }
+            //CHECK FOR RECEIVED CAN MESSAGES
 
+            //CHECK FOR RECEIVED LOCAL MESSAGES
+
+            //TRANSMIT CAN MESSAGES
+
+            //TRANSMIT UART2 MESSAGES (STRAIN GAUGES)
+
+            //TRANSMIT UDP MESSAGES (UART1)
+            while(superball_next_transmit_packet(IF_UDP,&packet)){
+                uart_tx_packet = uart_tx_cur_packet();
+                //for(i=0;i<20;++i)
+                //    uart_tx_packet[i] = 0;
+                uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
+                uart_tx_packet[1] = 0x55;//CMD
+                uart_tx_packet[2] = superball_packet_length(&packet)+2;
+                superball_packet_serialize(&packet,tmp);
+                for(i=0; i<superball_packet_length(&packet);++i){
+                    uart_tx_packet[3+i] = tmp[i];
+                }
+                uart_tx_packet[uart_tx_packet[2]+1] = 0;
+                for(i=1;i<=uart_tx_packet[2];++i)
+                    uart_tx_packet[uart_tx_packet[2]+1]^=uart_tx_packet[i];
+                //uart_tx_compute_cks(uart_tx_packet);
+                //uart_tx_packet[2]--;
+                uart_tx_update_index();
+                uart_tx_start_transmit();
+                superball_free_packet(&packet);
+
+            }
+
+            
+            
+            
 
         }
     }
     return (EXIT_SUCCESS);
 }
-

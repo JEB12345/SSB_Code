@@ -77,14 +77,14 @@ int superball_routes_setup()
 
 void superball_packet_init(superball_packet* packet)
 {
-    packet->TTL = 15;
+    packet->header.TTL = 15;
     packet->data = 0;
-    packet->destination = 0;
+    packet->header.destination = 0;
     packet->interface_in = IF_UNKNOWN;
     packet->interface_out = IF_UNKNOWN;
-    packet->length = 0;
-    packet->origin = 0;
-    packet->options = 0;
+    packet->header.length = 0;
+    packet->header.origin = 0;
+    packet->header.options = 0;
 }
 
 /**
@@ -106,7 +106,7 @@ int superball_route_packet(superball_packet* packet)
     superball_route* route = &superball_routing_table;
     uint8_t match;
     unsigned i;
-    if(packet->TTL--==0){
+    if(packet->header.TTL--==0){
         //drop packet
         superball_free_packet(packet);
     } else {
@@ -116,17 +116,20 @@ int superball_route_packet(superball_packet* packet)
             route = route->next;
             match = 1;
             //does origin match?
-            if(match && !route->origin_type==ADDR_ANY){
+            if(match && route->origin_type!=ADDR_ANY){
                 //SINGLE OR MULTIPLE are considered to mean 'unique'
-                match = route->origin == packet->origin;
+                match = route->origin == packet->header.origin;
+            }
+            if(packet->header.origin==12){
+                packet->header.origin=13;
             }
             //does destination match?
-            if(match && !route->destination_type==ADDR_ANY){
+            if(match && route->destination_type!=ADDR_ANY){
                 //SINGLE OR MULTIPLE are considered to mean 'unique'
-                match = route->destination == packet->origin;
+                match = route->destination == packet->header.destination;
             }
             //does input interface match?
-            if(match && !route->interface_in!=IF_ANY){
+            if(match && route->interface_in!=IF_ANY){
                 match = route->interface_in == packet->interface_in;
             }
             
@@ -163,7 +166,7 @@ int superball_route_packet(superball_packet* packet)
                         break;
                 };
 
-                if(!route->destination_type==ADDR_MULTIPLE){
+                if(route->destination_type!=ADDR_MULTIPLE){
                     break;//only apply first matching rule, unless ADDR_MULTIPLE is indicated
                 }
             }
@@ -178,5 +181,72 @@ int superball_route_packet(superball_packet* packet)
  */
 int superball_next_transmit_packet(superball_interface_t interface, superball_packet* packet)
 {
-    return CB_ReadMany(&superball_transmit_buffers[interface],&packet,sizeof(packet));
+    return CB_ReadMany(&superball_transmit_buffers[interface],packet,sizeof(superball_packet));
 }
+
+    int superball_packet_serialize(const superball_packet* packet, uint8_t* serialized)
+    {
+        unsigned i;
+        //TODO: use only one memcpy (assuming the data is nicely aligned)
+        //serialize header
+        //memcpy(serialized,&packet->header,sizeof(superball_packet_header));
+        serialized[0] = packet->header.options&0xFF;
+        serialized[1] = packet->header.origin&0xFF;
+        serialized[2] = ((packet->header.destination&0b111111)<<2)|(packet->header.origin>>6);
+        serialized[3] = (packet->header.TTL<<4)|(packet->header.destination>>6);
+	serialized[4] = packet->header.length;
+        //serialize data
+        //memcpy(serialized+5,packet->data,packet->header.length);
+        for(i=0;i<packet->header.length;++i){
+            serialized[i+5] = packet->data[i];
+        }
+        return SUCCESS;
+    }
+   
+    int superball_packet_deserialize(const volatile uint8_t* serialized, superball_packet* packet)
+    {
+        unsigned i;
+        uint8_t tmp2[5];
+        unsigned tmp3;
+        for(i=0;i<5;++i){
+            tmp2[i] = serialized[i];
+        }
+        //memcpy(&tmp2,serialized,20);
+        superball_packet_header tmp;
+        tmp.TTL =0xF;
+        tmp.destination = 0xFF;
+        tmp.length = 0xFF;
+        tmp.options = 0xFF;
+        tmp.origin = 0xFF;
+
+        //deserialize header
+        //memcpy(&tmp,serialized,sizeof(superball_packet_header));
+        tmp3 = tmp2[0];
+        tmp.options = tmp3;
+        tmp3 = tmp2[1]|((tmp2[2]&0b11)<<8);
+        tmp.origin = tmp3;
+        tmp3 = (tmp2[2]>>2)|((tmp2[3]&0xF)<<6);
+        tmp.destination =  tmp3;
+        tmp3 = (tmp2[3]&0xF0)>>4;
+        tmp.TTL = tmp3;
+        tmp3 = tmp2[4];
+        tmp.length = tmp3;
+
+        packet->header = tmp;
+        //deserialize data
+        packet->data = malloc(packet->header.length);
+        if(packet->data){
+            for(i=0;i<packet->header.length;++i){
+                packet->data[i] = serialized[i+5];
+            }
+            //memcpy(packet->data,serialized+5,packet->header.length);
+            return SUCCESS;
+        } else {
+            return SIZE_ERROR;
+        }
+    }
+    
+    inline uint16_t superball_packet_length(const superball_packet* packet)
+    {
+        return 5+packet->header.length;
+    }

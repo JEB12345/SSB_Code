@@ -8,6 +8,8 @@
 #ifndef SENSOR_STATE_H
 #define	SENSOR_STATE_H
 #include <stdint.h>
+
+#include "superball_communication.h"
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -28,9 +30,9 @@ extern "C" {
     } uart_rx_state_t;
 
 #define UART_TX_PACKET_BUFF_LEN 5
-#define UART_TX_PACKET_MAX_LEN 260
+#define UART_TX_PACKET_MAX_LEN 50
 #define UART_RX_PACKET_BUFF_LEN 5
-#define UART_RX_PACKET_MAX_LEN 260
+#define UART_RX_PACKET_MAX_LEN 50
 #define WATCHDOG_TIMEOUT 500
 
      /**
@@ -164,6 +166,8 @@ extern "C" {
         volatile unsigned       rx_cks;
         volatile unsigned       rx_len;
         uint32_t volatile       packets_received;
+
+        volatile superball_packet rx_superball_packet;
     } uart_data;
 
     return_value_t state_init();
