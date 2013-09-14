@@ -37,6 +37,8 @@ int superball_routes_setup()
     superball_route* to_wifi;
     
     superball_route* drop_all;
+    superball_route* to_can;
+    uint8_t* data_ptr;
 
     to_wifi = malloc(sizeof(superball_route));
     tmp = to_wifi;
@@ -55,14 +57,34 @@ int superball_routes_setup()
         tmp->origin_type = ADDR_ANY; //any interface and any address, to a destination 0 goes out over UDP
     }
 
-    drop_all = malloc(sizeof(superball_route));
-    tmp = drop_all;
+    to_can = malloc(sizeof(superball_route));
+    tmp = to_can;
     if(!tmp){
         return STANDARD_ERROR;
     } else {
         to_wifi->next = tmp;
         superball_routing_table.previous = tmp;
-        tmp->previous = to_wifi;
+        tmp->previous = &to_wifi;
+        tmp->next = &superball_routing_table;
+        tmp->interface_out = IF_CAN;
+        tmp->destination_type = ADDR_SINGLE;
+        tmp->destination = 2;
+        tmp->interface_in = IF_ANY;
+        tmp->data = malloc(1*sizeof(uint8_t));
+        data_ptr = (uint8_t*)tmp->data;
+        data_ptr[0] = 0;//outgoing CAN id
+        tmp->origin = 0;
+        tmp->origin_type = ADDR_ANY; //any interface and any address, to destination 2 goes out over CAN
+    }
+
+    drop_all = malloc(sizeof(superball_route));
+    tmp = drop_all;
+    if(!tmp){
+        return STANDARD_ERROR;
+    } else {
+        to_can->next = tmp;
+        superball_routing_table.previous = tmp;
+        tmp->previous = to_can;
         tmp->next = &superball_routing_table;
         tmp->interface_out = IF_DROP;
         tmp->destination_type = ADDR_ANY;

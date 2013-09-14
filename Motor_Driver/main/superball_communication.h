@@ -68,6 +68,7 @@ extern "C" {
         unsigned        destination:10;
         superball_address_t origin_type:4;
         superball_address_t destination_type:4;
+        void*   data;
         superball_route* next;
         superball_route* previous;
     };

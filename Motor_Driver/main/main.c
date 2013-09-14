@@ -37,7 +37,9 @@ extern hallsensor_data hallsensor_state;
 extern motor_data motor_state;
 extern loadcell_data loadcell_state;
 extern hallsensor_data hallsensor_state;
-
+extern unsigned int ecan1RXMsgBuf[32][8];
+extern volatile unsigned char receivedMessagesPending;
+extern volatile unsigned char currentlyTransmitting;
 /*
  * 
  */
@@ -47,6 +49,9 @@ int main(int argc, char** argv) {
     superball_packet packet;
     uint8_t uart_rx_test[UART_RX_PACKET_MAX_LEN];
     uint8_t tmp[50];
+    tCanMessage canmsg;
+    uint8_t msg_rec;
+    uint32_t j;
     
     
     volatile uint16_t* uart_tx_packet;
@@ -60,7 +65,7 @@ int main(int argc, char** argv) {
     pmsm_init();
     uart_init();
     
-    can_init();
+   can_init();
     
     //loadcell_init();
     /*
@@ -74,11 +79,95 @@ int main(int argc, char** argv) {
 
     pmsm_enable(1); //enable/disable gate drivers
 
-    led_intensity_set(0,255,0,255);
+    //led_intensity_set(0,255,0,255);
     //pmsm_set_duty_cycle(1000,2000,3000);
 
     //can_transmit_packet(0);
-    while(1){}
+    LED4 = 1;
+#ifdef TESTTRANSMITTER
+    LED1 = 1;
+    while(1){
+        LED2 = currentlyTransmitting;
+    superball_packet_init(&packet);
+    packet.header.destination = 123;
+    packet.header.length = 10;
+    packet.header.options = 0;
+    packet.header.origin = 5;
+    packet.data = malloc(10*sizeof(uint8_t));
+    for(i=0; i<10;++i){
+        packet.data[i] = i+1;
+    }
+    if(!currentlyTransmitting)
+     can_transmit_packet(&packet);
+    for(j=0;j<100000;++j){
+        LED2 = currentlyTransmitting;
+    }
+    LED1=0;
+    for(j=0;j<100000;++j){
+        LED2 = currentlyTransmitting;
+    }
+    LED1=1;
+    }
+    led_intensity_set(255,255,0,255);
+#else
+    LED4 = 1;
+    while(1){
+        while(ecan1_receive(&canmsg, &msg_rec)){
+            j++;
+            LED2 = 1;
+        }
+        LED1 = j&0b1000;
+        
+        for(j=0;j<1000;++j){
+            Nop();
+        }
+        LED3 = 0;
+        LED2 = 0;
+       // LED1 = 0;
+
+    }
+#endif
+    /*while(1){
+        if(timer_state.systime != timer_state.prev_systime){
+            timer_state.prev_systime = timer_state.systime;
+            if(++state_transmit_ctr>200){
+                LED1 = 0;
+                LED2 = 0;
+                    state_transmit_ctr = 0;
+                    //LED4=0;
+            }
+        }
+        if(C1INTFbits.RBIF){
+            LED1 = 1;
+            //C1INTFbits.RBIF = 0;
+        }
+        
+        if(C1RXFUL1bits.RXFUL1){
+            //LED3= !LED3;
+            //LED3 = ((uint8_t) ecan1RXMsgBuf[C1VECbits.ICODE][3]);
+            //LED2 = ((uint8_t) ecan1RXMsgBuf[C1VECbits.ICODE][4]);
+
+            //C1RXFUL1 = 0;
+        }
+        if(receivedMessagesPending>0){
+            LED2 = 1;
+        }
+        if(ecan1_receive(&canmsg, &msg_rec)){
+            LED4 != LED4;
+            LED3 = canmsg.payload[0];
+            canmsg.id = 0;
+            canmsg.validBytes = 8;
+            canmsg.frame_type = CAN_FRAME_STD;
+            canmsg.message_type = CAN_MSG_DATA;
+            canmsg.payload[0] += 1;//canmsg.payload[0];
+            for(j=0;j<10000;++j){
+                Nop();
+            }
+            ecan1_buffered_transmit(&canmsg);
+        }
+
+                
+    }*/
     for(;;){
         if(timer_state.systime != timer_state.prev_systime){
             timer_state.prev_systime = timer_state.systime;
@@ -92,7 +181,7 @@ int main(int argc, char** argv) {
                     //TODO: disable motor power
                 }
                 led_intensity_set(60*(hallsensor_state.direction),((timer_state.systime&0x100)>0)*255,255*(!OCTW),255*(!FAULT));
-                //led_update();
+                led_update();
                 qei_update();
                 udiff = hallsensor_state.last_update_tmr;
                 /*if(TMR1<hallsensor_state.last_update_tmr){

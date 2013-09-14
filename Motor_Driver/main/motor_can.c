@@ -22,8 +22,8 @@ CircularBuffer ecan1_tx_buffer;
 uint8_t tx_data_array[ECAN1_BUFFERSIZE];
 
 // Track whether or not we're currently transmitting
-unsigned char currentlyTransmitting = 0;
-unsigned char receivedMessagesPending = 0;
+volatile unsigned char currentlyTransmitting = 0;
+volatile unsigned char receivedMessagesPending = 0;
 
 return_value_t can_init()
 {
@@ -35,6 +35,14 @@ return_value_t can_init()
     // 0 normal, 1 disable, 2 loopback, 3 listen-only, 4 configuration, 7 listen all messages
     uint8_t desired_mode = 0;//(parameters[0] & 0x001C) >> 2;
 
+    // Initialize our circular buffers. If this fails, we crash and burn.
+    if (!CB_Init(&ecan1_tx_buffer, tx_data_array, ECAN1_BUFFERSIZE)) {
+        while (1);
+    }
+    if (!CB_Init(&ecan1_rx_buffer, rx_data_array, ECAN1_BUFFERSIZE)) {
+        while (1);
+    }
+    
     //CONFIG CAN
     // Make sure the ECAN module is in configuration mode.
     // It should be this way after a hardware reset, but
@@ -43,21 +51,18 @@ return_value_t can_init()
     while (C1CTRL1bits.OPMODE != 4);
 
     //1Mbaud
-    C1CFG1bits.BRP = 32;//4 //TQ= FCAN/10 = 14Mhz = 14 TQ/bit
+    C1CFG1bits.BRP = 34;//4 //TQ= FCAN/10 = 14Mhz = 14 TQ/bit
     C1CFG1bits.SJW = 0;//(parameters[3] & 0x0600) >> 9;
-    C1CFG2bits.SEG1PH = 3;//4*TQ//a; // Set segment 1 time
-    C1CFG2bits.PRSEG = 4;//5*TQ//b; // Set propagation segment time
+    C1CFG2bits.PRSEG = 2;//5*TQ//b; // Set propagation segment time
+    C1CFG2bits.SEG1PH = 2;//4*TQ//a; // Set segment 1 time
     C1CFG2bits.SEG2PHTS = 0x1; // Keep segment 2 time programmable
-    C1CFG2bits.SEG2PH = 3;//4*TQ //c; // Set phase segment 2 time
+    C1CFG2bits.SEG2PH = 2;//4*TQ //c; // Set phase segment 2 time
     C1CFG2bits.SAM = (0x0800) >> 11; // Triple-sample for majority rules at bit sample point
 
     // Setup our frequencies for time quanta calculations.
     // FCAN is selected to be FCY*2 = FP*2 = 140Mhz
-    C1CTRL1bits.CANCKS = 1;
+    C1CTRL1bits.CANCKS = 0;
     C1FCTRL = 0xC01F; // No FIFO, 32 Buffers
-    // Setup message filters and masks.
-    C1CTRL1bits.WIN = 1; // Allow configuration of masks and filters
-    C1CTRL1bits.WIN = 0;
 
     // Clear all interrupt bits
     C1RXFUL1 = C1RXFUL2 = C1RXOVF1 = C1RXOVF2 = 0x0000;
@@ -100,8 +105,8 @@ return_value_t can_init()
     config = DMA0CON|0b1000000000000000;
     irq = 0x22;// Select ECAN1 RX as DMA Request source
     count = 7;   //8 words per transfer
-    IEC0bits.DMA0IE = 1; // Enable DMA Channel 0 interrupt
-    DMA0CONbits.CHEN = 1; // Enable DMA Channel 0
+    IEC0bits.DMA0IE = 0; // Enable DMA Channel 0 interrupt
+    //DMA0CONbits.CHEN = 1; // Enable DMA Channel 0
     pad_address = (volatile unsigned int)&C1RXD;
     stb_address = 0x0;
     OpenDMA0( config, irq, (long unsigned int)ecan1RXMsgBuf,
@@ -113,8 +118,12 @@ return_value_t can_init()
 
     C1FMSKSEL1bits.F0MSK=0x0; //Filter 0 will use mask 0
     C1RXM0SIDbits.SID = 0b11111111111; //Set mask
-    C1RXF0SIDbits.SID = 0x1; //set filter
-    C1RXM0SIDbits.MIDE = 0x0; //only receive standard frames
+#ifdef TESTTRANSMITTER
+    C1RXF0SIDbits.SID = 1;//0x123c;//0x1; //set filter
+#else
+    C1RXF0SIDbits.SID = 0;//0x123c;//0x1; //set filter
+#endif
+    C1RXM0SIDbits.MIDE = 0x1; //only receive standard frames
     C1RXF0SIDbits.EXIDE= 0x0;
     C1BUFPNT1bits.F0BP = 0x1; //use message buffer 1 to receive data
     C1FEN1bits.FLTEN0=0x1; //enable channel
@@ -133,6 +142,59 @@ return_value_t can_init()
 
 return_value_t can_transmit_packet(superball_packet* packet)
 {
+    unsigned plen = superball_packet_length(packet);
+    uint8_t pserial[plen];
+    uint8_t curlen;
+    unsigned i;
+    uint8_t index_byte;
+    uint8_t last_packet;
+    unsigned index;
+    tCanMessage msg;
+    superball_packet_serialize(packet,pserial);
+    superball_free_packet(packet);
+    msg.id = 0;
+    msg.frame_type = CAN_FRAME_STD;
+    msg.message_type = CAN_MSG_DATA;
+    index = 0;
+    last_packet = 0;
+    while(1){
+        msg.id = 0;
+        msg.frame_type = CAN_FRAME_STD;
+        msg.message_type = CAN_MSG_DATA;
+        if(index==0){
+            index_byte = 0b10000000; //first packet
+            if(7>=plen) {
+                //also the last packet
+                index_byte = 0b11000000;
+                curlen = plen;
+                last_packet = 1;
+            } else {
+                curlen = 7;
+            }
+        } else if((index+1)*7>=plen) {
+            index_byte = 0b01000000;//last packet
+            curlen = plen-(7*index);
+            last_packet = 1;
+        } else {
+            index_byte = 0b00000000; //full packet
+            curlen = 7;
+        }
+        index_byte |= index;
+        msg.payload[0] = index_byte;
+        msg.validBytes = curlen+1;
+        for(i=0;i<curlen;++i){
+            msg.payload[i+1] = pserial[index*7+i];
+        }
+        //update index
+        ++index;
+
+        ecan1_buffered_transmit(&msg);
+        if(last_packet){
+            break;
+        }
+    }
+
+    /*
     tCanMessage msg;
     unsigned i;
     msg.id = 1;
@@ -148,19 +210,10 @@ return_value_t can_transmit_packet(superball_packet* packet)
             ecan1_buffered_transmit(&msg);
             LED1 = !LED1;
         }
-    }
-    /*
-    ecan1TXMsgBuf[0][0] = 0x123C;
-    ecan1TXMsgBuf[0][1] = 0x0000;
-    ecan1TXMsgBuf[0][2] = 0x0008;
-    ecan1TXMsgBuf[0][3] = 0x1;
-    ecan1TXMsgBuf[0][4] = 0x2;
-    ecan1TXMsgBuf[0][5] = 0x3;
-    ecan1TXMsgBuf[0][6] = 0xabcd;
-    //LED2_ON;
-    C1TR01CONbits.TXREQ0 = 0x1;
-    //while(C1TR01CONbits.TXREQ0 == 1){
-    //}*/
+    }*/
+
+
+    
 }
 
 
@@ -280,13 +333,16 @@ void __attribute__((interrupt, no_auto_psv))_C1Interrupt(void)
     uint8_t srr = 0;
     uint32_t id = 0;
     uint16_t *ecan_msg_buf_ptr;
-     LED2 = !LED2;
+     //LED2 = !LED2;
+     //LED4 = 1;
+     //LED1 = 1;
+     //LED2 = 1;
     //LATCbits.LATC13 = 1;//!LATCbits.LATC13;
     // If the interrupt was set because of a transmit, check to
     // see if more messages are in the circular buffer and start
     // transmitting them.
     if (C1INTFbits.TBIF) {
-        LED3 = !LED3;
+        //LED3 = !LED3;
         // After a successfully sent message, there should be at least
         // one message in the queue, so pop it off.
         CB_ReadMany(&ecan1_tx_buffer, &message, sizeof(tCanMessage));
@@ -312,8 +368,8 @@ void __attribute__((interrupt, no_auto_psv))_C1Interrupt(void)
     // If the interrupt was fired because of a received message
     // package it all up and store in the circular buffer.
     if (C1INTFbits.RBIF) {
-        LED4 = !LED4;
-        LED1 = 1;
+        //LED4 = !LED4;
+        //LED1 = 1;
         // Obtain the buffer the message was stored into, checking that the value is valid to refer to a buffer
         if (C1VECbits.ICODE < 32) {
             message.buffer = C1VECbits.ICODE;
@@ -362,6 +418,8 @@ void __attribute__((interrupt, no_auto_psv))_C1Interrupt(void)
             message.validBytes = (uint8_t) (ecan_msg_buf_ptr[2] & 0x000F);
             message.payload[0] = (uint8_t) ecan_msg_buf_ptr[3];
             message.payload[1] = (uint8_t) ((ecan_msg_buf_ptr[3] & 0xFF00) >> 8);
+            //LED3 != LED3;//message.payload[1];
+            //LED2 =  message.payload[0];
             message.payload[2] = (uint8_t) ecan_msg_buf_ptr[4];
             message.payload[3] = (uint8_t) ((ecan_msg_buf_ptr[4] & 0xFF00) >> 8);
             message.payload[4] = (uint8_t) ecan_msg_buf_ptr[5];
@@ -369,15 +427,15 @@ void __attribute__((interrupt, no_auto_psv))_C1Interrupt(void)
             message.payload[6] = (uint8_t) ecan_msg_buf_ptr[6];
             message.payload[7] = (uint8_t) ((ecan_msg_buf_ptr[6] & 0xFF00) >> 8);
         }
-
         // Store the message in the buffer
         CB_WriteMany(&ecan1_rx_buffer, &message, sizeof(tCanMessage), 1);
-
+        LED3 = 1;
            
         // Increase the number of messages stored in the buffer
         ++receivedMessagesPending;
 
         // Be sure to clear the interrupt flag.
+        C1RXFUL1 = 0;
         C1INTFbits.RBIF = 0;
     }
 
