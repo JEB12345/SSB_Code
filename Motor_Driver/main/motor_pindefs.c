@@ -28,6 +28,7 @@ return_value_t pin_init()
      * CAN
      */
     TRISFbits.TRISF1 = 0; //TX = output
+    TRISFbits.TRISF0 = 1;
     _RP97R = 0b001110;//TX
     RPINR26bits.C1RXR = 96; //RX
 

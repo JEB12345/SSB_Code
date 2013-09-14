@@ -59,9 +59,9 @@ int main(int argc, char** argv) {
     hallsensors_init();
     pmsm_init();
     uart_init();
-    /*
+    
     can_init();
-     */
+    
     //loadcell_init();
     /*
     imu_init();
@@ -76,8 +76,9 @@ int main(int argc, char** argv) {
 
     led_intensity_set(0,255,0,255);
     //pmsm_set_duty_cycle(1000,2000,3000);
-    
 
+    //can_transmit_packet(0);
+    while(1){}
     for(;;){
         if(timer_state.systime != timer_state.prev_systime){
             timer_state.prev_systime = timer_state.systime;
@@ -91,7 +92,7 @@ int main(int argc, char** argv) {
                     //TODO: disable motor power
                 }
                 led_intensity_set(60*(hallsensor_state.direction),((timer_state.systime&0x100)>0)*255,255*(!OCTW),255*(!FAULT));
-                led_update();
+                //led_update();
                 qei_update();
                 udiff = hallsensor_state.last_update_tmr;
                 /*if(TMR1<hallsensor_state.last_update_tmr){
