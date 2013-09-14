@@ -24,6 +24,7 @@ uint8_t tx_data_array[ECAN1_BUFFERSIZE];
 // Track whether or not we're currently transmitting
 volatile unsigned char currentlyTransmitting = 0;
 volatile unsigned char receivedMessagesPending = 0;
+volatile uint8_t packet_rec[261];
 
 return_value_t can_init()
 {
@@ -140,10 +141,11 @@ return_value_t can_init()
     C1INTEbits.RBIE = 1; // Enable RX buffer interrupt
 }
 
-return_value_t can_transmit_packet(superball_packet* packet)
+return_value_t can_transmit_packet(superball_packet* packet, uint16_t can_id)
 {
     unsigned plen = superball_packet_length(packet);
     uint8_t pserial[plen];
+    //uint8_t test[50];
     uint8_t curlen;
     unsigned i;
     uint8_t index_byte;
@@ -152,13 +154,15 @@ return_value_t can_transmit_packet(superball_packet* packet)
     tCanMessage msg;
     superball_packet_serialize(packet,pserial);
     superball_free_packet(packet);
-    msg.id = 0;
-    msg.frame_type = CAN_FRAME_STD;
-    msg.message_type = CAN_MSG_DATA;
+    /*for(i=0;i<50;++i)
+        test[i]=0;
+    for(i=0;i<plen;++i){
+        test[i] = pserial[i];
+    }*/
     index = 0;
     last_packet = 0;
     while(1){
-        msg.id = 0;
+        msg.id = can_id;
         msg.frame_type = CAN_FRAME_STD;
         msg.message_type = CAN_MSG_DATA;
         if(index==0){
@@ -193,7 +197,7 @@ return_value_t can_transmit_packet(superball_packet* packet)
             break;
         }
     }
-
+    return SUCCESS;
     /*
     tCanMessage msg;
     unsigned i;
@@ -332,7 +336,12 @@ void __attribute__((interrupt, no_auto_psv))_C1Interrupt(void)
     uint8_t ide = 0;
     uint8_t srr = 0;
     uint32_t id = 0;
+    uint8_t index_byte;
     uint16_t *ecan_msg_buf_ptr;
+    static uint8_t packet_idx;
+    superball_packet sup_packet;
+    unsigned i;
+    
      //LED2 = !LED2;
      //LED4 = 1;
      //LED1 = 1;
@@ -426,6 +435,71 @@ void __attribute__((interrupt, no_auto_psv))_C1Interrupt(void)
             message.payload[5] = (uint8_t) ((ecan_msg_buf_ptr[5] & 0xFF00) >> 8);
             message.payload[6] = (uint8_t) ecan_msg_buf_ptr[6];
             message.payload[7] = (uint8_t) ((ecan_msg_buf_ptr[6] & 0xFF00) >> 8);
+
+            //reassembling superball messages
+            index_byte = message.payload[0];
+            switch(index_byte&0b11000000){
+                case 0b10000000:
+                    //start of a packet
+                    if((index_byte&0b111111)==0){
+                        packet_idx = 0;
+                        //copy data
+                        for(i=0;i<7;++i){
+                            packet_rec[i] = message.payload[1+i];
+                        }
+                    }
+                    break;
+                case 0b01000000:
+                    ++packet_idx;
+                    if(packet_idx == (index_byte&0b111111)){
+                        //copy data
+                        for(i=0;i<(message.validBytes-1);++i){
+                            packet_rec[i+7*packet_idx] = message.payload[1+i];
+                        }
+                        //route packet
+                        if(superball_packet_deserialize(&packet_rec,&sup_packet)==SUCCESS){
+                            sup_packet.interface_in = IF_CAN;
+                            superball_route_packet(&sup_packet);
+                        } else {
+                        }
+                        packet_idx = 0;
+                    } else {
+                        //out of order or error, reset
+                        packet_idx = 0;
+                    }
+                    break;
+                case 0b11000000:
+                    if((index_byte&0b111111)==0){
+                        //copy data
+                        for(i=0;i<(message.validBytes-1);++i){
+                            packet_rec[i] = message.payload[1+i];
+                        }
+                        //route packet
+                        if(superball_packet_deserialize(&packet_rec,&sup_packet)==SUCCESS){
+                            sup_packet.interface_in = IF_CAN;
+                            superball_route_packet(&sup_packet);
+                        } else {
+                        }
+                        packet_idx = 0;
+                    } else {
+                        //do nothing, error
+                    }
+
+                    break;
+                case 0b00000000:
+                    //part of a packet
+                    ++packet_idx;
+                    if(packet_idx == (index_byte&0b111111)){
+                        //copy data
+                        for(i=0;i<7;++i){
+                            packet_rec[i+7*packet_idx] = message.payload[1+i];
+                        }
+                    } else {
+                        //out of order or error, reset
+                        packet_idx = 0;
+                    }
+                    break;
+            }
         }
         // Store the message in the buffer
         CB_WriteMany(&ecan1_rx_buffer, &message, sizeof(tCanMessage), 1);

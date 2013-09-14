@@ -53,13 +53,6 @@ extern "C" {
         unsigned        length;//:8;
     } superball_packet_header;
 
-    typedef struct {
-        superball_packet_header       header;
-        uint8_t*                      data;//order is important for efficient serialization
-        superball_interface_t         interface_in:8;
-        superball_interface_t         interface_out:8;        
-    } superball_packet;
-
     typedef struct superball_route superball_route;
     struct superball_route {
         superball_interface_t interface_in:8;
@@ -72,6 +65,15 @@ extern "C" {
         superball_route* next;
         superball_route* previous;
     };
+
+    typedef struct {
+        superball_packet_header       header;
+        uint8_t*                      data;//order is important for efficient serialization
+        superball_interface_t         interface_in:8;
+        superball_interface_t         interface_out:8;
+        superball_route*              route;
+    } superball_packet;
+
     int superball_communication_init();
     void superball_packet_init(superball_packet* packet);
     int superball_route_packet(superball_packet* packet);

@@ -20,7 +20,7 @@ int superball_communication_init()
             ret = STANDARD_ERROR;
         }
     }
-
+    superball_routing_table.data = 0;
     superball_routing_table.next = &superball_routing_table;
     superball_routing_table.previous = &superball_routing_table;
     
@@ -38,6 +38,7 @@ int superball_routes_setup()
     
     superball_route* drop_all;
     superball_route* to_can;
+    superball_route* from_can;
     uint8_t* data_ptr;
 
     to_wifi = malloc(sizeof(superball_route));
@@ -54,6 +55,7 @@ int superball_routes_setup()
         tmp->destination = 0;
         tmp->interface_in = IF_ANY;
         tmp->origin = 0;
+        tmp->data = 0;
         tmp->origin_type = ADDR_ANY; //any interface and any address, to a destination 0 goes out over UDP
     }
 
@@ -69,10 +71,27 @@ int superball_routes_setup()
         tmp->interface_out = IF_CAN;
         tmp->destination_type = ADDR_SINGLE;
         tmp->destination = 2;
-        tmp->interface_in = IF_ANY;
+        tmp->interface_in = IF_UDP;
         tmp->data = malloc(1*sizeof(uint8_t));
         data_ptr = (uint8_t*)tmp->data;
         data_ptr[0] = 0;//outgoing CAN id
+        tmp->origin = 0;
+        tmp->origin_type = ADDR_ANY; //any interface and any address, to destination 2 goes out over CAN
+    }
+
+    from_can = malloc(sizeof(superball_route));
+    tmp = from_can;
+    if(!tmp){
+        return STANDARD_ERROR;
+    } else {
+        to_can->next = tmp;
+        superball_routing_table.previous = tmp;
+        tmp->previous = &to_can;
+        tmp->next = &superball_routing_table;
+        tmp->interface_out = IF_LOCAL;
+        tmp->destination_type = ADDR_ANY;
+        tmp->destination = 0;
+        tmp->interface_in = IF_CAN;
         tmp->origin = 0;
         tmp->origin_type = ADDR_ANY; //any interface and any address, to destination 2 goes out over CAN
     }
@@ -82,9 +101,9 @@ int superball_routes_setup()
     if(!tmp){
         return STANDARD_ERROR;
     } else {
-        to_can->next = tmp;
+        from_can->next = tmp;
         superball_routing_table.previous = tmp;
-        tmp->previous = to_can;
+        tmp->previous = from_can;
         tmp->next = &superball_routing_table;
         tmp->interface_out = IF_DROP;
         tmp->destination_type = ADDR_ANY;
@@ -158,6 +177,7 @@ int superball_route_packet(superball_packet* packet)
             if(match){
                 //send to correct buffer
                 packet->interface_out = route->interface_out;
+                packet->route = route;
                 switch(packet->interface_out){
                     case IF_UART1:
                     case IF_UART2:

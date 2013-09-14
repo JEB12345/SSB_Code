@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-    #define TESTTRANSMITTER
+    //#define TESTTRANSMITTER
 #define CAN_ID 0
     typedef enum {
         RET_OK = 0,

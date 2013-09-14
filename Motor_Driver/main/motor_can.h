@@ -12,9 +12,9 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    return_value_t can_init();
+ //   return_value_t can_init();
 
-    return_value_t can_transmit_packet(superball_packet* packet);
+//    return_value_t can_transmit_packet(superball_packet* packet);
 
     //below is private
 
@@ -44,6 +44,9 @@ typedef union {
 	tCanMessage message;
 	uint8_t     bytes[sizeof(tCanMessage)];
 } CanUnion;
+
+return_value_t can_transmit_packet(superball_packet* packet, uint16_t can_id);
+return_value_t can_init();
 
 /**
  * This function initializes the first ECAN module. It takes a parameters array
