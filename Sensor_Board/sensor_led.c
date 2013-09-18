@@ -28,13 +28,13 @@ void led_update()
 {
     static uint16_t state = 0;
 
-    RGB_RED = led_state.rgb_red>=state;
-    RGB_GREEN = led_state.rgb_red>=state;
-    RGB_BLUE = led_state.rgb_red>=state;
+    RGB_RED = led_state.rgb_red<state;
+    RGB_GREEN =led_state.rgb_green<state;
+    RGB_BLUE = led_state.rgb_blue<state;
 
-    if(++state>32){
+    if(++state>8){
         state=0;
-    }
+    } 
 }
 
 /**
@@ -45,7 +45,7 @@ void led_update()
  */
 void led_rgb_set(uint8_t r, uint8_t g, uint8_t b)
 {
-    led_state.rgb_red = r>>3;
-    led_state.rgb_green = g>>3;
-    led_state.rgb_blue = b>>3;
+    led_state.rgb_red = r>>5;
+    led_state.rgb_green = g>>5;
+    led_state.rgb_blue = b>>5;
 }
