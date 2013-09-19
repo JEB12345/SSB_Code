@@ -48,10 +48,10 @@ return_value_t pin_init();
 #define PIN_INPUT   0
 
 //P6 connector
-#define RB14_IO        PIN_INPUT
+#define RB14_IO        PIN_OUTPUT
 #define RG9_IO         PIN_INPUT
 #define RA11_IO        PIN_INPUT
-#define RA1_IO         PIN_INPUT
+#define RA1_IO         PIN_OUTPUT
 #define RB2_IO         PIN_INPUT
 #define RB15_IO        PIN_INPUT
 #define RA12_IO        PIN_INPUT
@@ -68,8 +68,8 @@ return_value_t pin_init();
 #define RB4_IO         PIN_INPUT
 #define RC10_IO        PIN_INPUT
 #define RA7_IO         PIN_INPUT
-#define RB10_IO        PIN_INPUT
-#define RB12_IO        PIN_INPUT
+#define RB10_IO        PIN_OUTPUT
+#define RB12_IO        PIN_OUTPUT
 
 #if RB14_IO==PIN_INPUT
 #define P6_RB14    PORTBbits.RB14
@@ -190,6 +190,16 @@ return_value_t pin_init();
 #else
 #define P7_RB12    LATBbits.LATB12
 #endif
+
+/*
+ * Motor control stuff
+ */
+#define     OCTW    PORTBbits.RB1
+#define     FAULT   PORTBbits.RB2
+#define     EN_GATE LATAbits.LATA1
+#define     HALL1   PORTBbits.RB15
+#define     HALL2   PORTGbits.RG7
+#define     HALL3   PORTGbits.RG9
 
 #ifdef	__cplusplus
 }

@@ -139,5 +139,23 @@ return_value_t pin_init()
 #if RB12_IO==PIN_OUTPUT
     TRISBbits.TRISB12 = 0;
 #endif
+
+    //Hall sensors
+    //ENABLE PULL-UPS
+    
+    CNPUBbits.CNPUB15 = 1;
+    CNPUGbits.CNPUG7 = 1;
+    CNPUGbits.CNPUG9 = 1;
+    //peripheral pin select
+    RPINR7bits.IC1R = 47;
+    RPINR7bits.IC2R = 119;
+    RPINR8bits.IC3R = 121;
+
+    //FAULT and OCTW
+    CNPUBbits.CNPUB1 = 1;
+    CNPUBbits.CNPUB2 = 1;
+
+
+
     return RET_OK;
 }
