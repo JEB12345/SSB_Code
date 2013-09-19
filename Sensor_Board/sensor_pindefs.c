@@ -147,9 +147,9 @@ return_value_t pin_init()
     CNPUGbits.CNPUG7 = 1;
     CNPUGbits.CNPUG9 = 1;
     //peripheral pin select
-    RPINR7bits.IC1R = 47;
-    RPINR7bits.IC2R = 119;
-    RPINR8bits.IC3R = 121;
+    RPINR7bits.IC1R = 47;   //RB15
+    RPINR7bits.IC2R = 119;  //RG7
+    RPINR8bits.IC3R = 121;  //RB9
 
     //FAULT and OCTW
     CNPUBbits.CNPUB1 = 1;

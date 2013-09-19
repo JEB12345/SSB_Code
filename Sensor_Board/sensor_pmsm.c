@@ -3,7 +3,7 @@
 #include "sensor_state.h"
 #include "sensor_pmsm.h"
 #include "math.h"
-#include "../../PMSM/Code/PMSM.h"
+#include "../../CAD/Electronics/Motor_Board/PMSM/Code/PMSM.h"
 motor_data  motor_state;
 MotorInfo motor_info;
 #define PIC_MC
@@ -184,8 +184,8 @@ void pmsm_update()
         p = (t+1)*150.;
         SetPosition(p);
     }
-    SetTorque(.8);
-    //SetPosition(motor_state.rotor_state_interpolated+3.14/6);
+    SetTorque(1);
+    SetPosition(motor_state.rotor_state+0*3.14/6);
     motor_info.newData = 0;
     PMSM_Update();
     

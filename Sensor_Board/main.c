@@ -59,7 +59,8 @@ int main(int argc, char** argv) {
     LED_3 = 0;
     LED_4 = 0;
     pmsm_enable(1);
-    pmsm_set_duty_cycle(0000,2000,4096);
+    //pmsm_set_duty_cycle(2000,2000,2000);
+    int i = 0;
     for(;;){
         if(timer_state.systime != timer_state.prev_systime){
             timer_state.prev_systime = timer_state.systime;
@@ -73,11 +74,25 @@ int main(int argc, char** argv) {
                 //LED_4= (timer_state.systime&0b10000000000)!=0;
                 //LED_1= (timer_state.systime&0b100000000000)!=0;
                 led_colors+=1;
-                led_rgb_set(((led_colors>>8)&0b1)<<5,((led_colors>>9)&0b1)<<5,((led_colors>>10)&0b1)<<5);
+                //led_rgb_set(((led_colors>>8)&0b1)<<5,((led_colors>>9)&0b1)<<5,((led_colors>>10)&0b1)<<5);
+                led_rgb_set(PDC1>>4,PDC2>>4,PDC3>>4);
                 //led_rgb_set((led_colors>>16)&0xFF,(led_colors>>8)&0xFF,led_colors&0xFF);
-                //pmsm_update();
+                pmsm_update();
                 LED_2 = !FAULT;
                 LED_3 = !OCTW;
+
+//                if(i == 0){
+//                    pmsm_set_duty_cycle(4096,0000,0000);
+//                    i++;
+//                }
+//                else if(i == 1){
+//                    pmsm_set_duty_cycle(0000,4096,0000);
+//                    i++;
+//                }
+//                else{
+//                    pmsm_set_duty_cycle(0000,0000,4096);
+//                    i=0;
+//                }
             }            
         } else {
             //untimed processes in main loop:
