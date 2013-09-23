@@ -1,9 +1,11 @@
 #include "p33Exxxx.h"
 #include "sensor_pindefs.h"
 #include "sensor_state.h"
+#ifdef DOMOTOR
 #include "sensor_pmsm.h"
 #include "math.h"
-#include "../../CAD/Electronics/Motor_Board/PMSM/Code/PMSM.h"
+//#include "../../CAD/Electronics/Motor_Board/PMSM/Code/PMSM.h"
+#include "../../PMSM/Code/PMSM.h" 
 motor_data  motor_state;
 MotorInfo motor_info;
 #define PIC_MC
@@ -184,8 +186,8 @@ void pmsm_update()
         p = (t+1)*150.;
         SetPosition(p);
     }
-    SetTorque(1);
-    SetPosition(motor_state.rotor_state+0*3.14/6);
+    SetTorque(.3);
+    SetPosition(motor_state.rotor_state+2*3.14/6);
     motor_info.newData = 0;
     PMSM_Update();
     
@@ -296,4 +298,5 @@ void __attribute__((__interrupt__, no_auto_psv)) _T4Interrupt(void)
     PWM5 = !PWM5;
     IFS1bits.T4IF = 0; // Clear Timer 4 Interrupt Flag
 }
+#endif
 #endif

@@ -1,3 +1,4 @@
+#ifdef DOMOTORS
 #include "sensor_state.h"
 #include "sensor_hallsensors.h"
 #include "p33Exxxx.h"
@@ -198,3 +199,4 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC3Interrupt(void) {
     }
     IFS2bits.IC3IF = 0; // Reset respective interrupt flag
 }
+#endif

@@ -4,7 +4,6 @@
  *
  * Created on September 8, 2013, 4:48 PM
  */
-
 #ifndef MOTOR_PMSM_H
 #define	MOTOR_PMSM_H
 

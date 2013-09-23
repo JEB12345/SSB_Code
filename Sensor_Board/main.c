@@ -14,8 +14,8 @@
 #include "sensor_pindefs.h"
 #include "sensor_rf.h"
 #include "sensor_state.h"
-#include "sensor_hallsensors.h"
-#include "sensor_pmsm.h"
+//#include "sensor_hallsensors.h"
+//#include "sensor_pmsm.h"
 #include "sensor_timers.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,8 +49,8 @@ int main(int argc, char** argv) {
     */
 
     timers_init();
-    hallsensors_init();
-    pmsm_init();
+    //hallsensors_init();
+    //pmsm_init();
     LED_4 = 1;
     state_init();
     led_rgb_set(0,100,255);
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
     LED_2 = 1;
     LED_3 = 0;
     LED_4 = 0;
-    pmsm_enable(1);
+    //pmsm_enable(1);
     //pmsm_set_duty_cycle(2000,2000,2000);
     int i = 0;
     for(;;){
@@ -69,30 +69,9 @@ int main(int argc, char** argv) {
                 //make sure that everything in here takes less than 1ms
                 //useful for checking state consistency, synchronization, watchdog...
                 led_update();
-                //LED_2= (timer_state.systime&0b100000000)!=0;
-                //LED_3= (timer_state.systime&0b1000000000)!=0;
-                //LED_4= (timer_state.systime&0b10000000000)!=0;
-                //LED_1= (timer_state.systime&0b100000000000)!=0;
                 led_colors+=1;
-                //led_rgb_set(((led_colors>>8)&0b1)<<5,((led_colors>>9)&0b1)<<5,((led_colors>>10)&0b1)<<5);
-                led_rgb_set(PDC1>>4,PDC2>>4,PDC3>>4);
-                //led_rgb_set((led_colors>>16)&0xFF,(led_colors>>8)&0xFF,led_colors&0xFF);
-                pmsm_update();
-                LED_2 = !FAULT;
-                LED_3 = !OCTW;
-
-//                if(i == 0){
-//                    pmsm_set_duty_cycle(4096,0000,0000);
-//                    i++;
-//                }
-//                else if(i == 1){
-//                    pmsm_set_duty_cycle(0000,4096,0000);
-//                    i++;
-//                }
-//                else{
-//                    pmsm_set_duty_cycle(0000,0000,4096);
-//                    i=0;
-//                }
+                led_rgb_set((led_colors>>16)&0xFF,(led_colors>>8)&0xFF,led_colors&0xFF);
+                
             }            
         } else {
             //untimed processes in main loop:
