@@ -40,6 +40,7 @@ return_value_t pin_init();
 //LOAD CELL
 #define SHD         LATCbits.LATC6
 #define SS          LATBbits.LATB0
+#define SG_MISO     PORTAbits.RA9
 
 //Pin Out Connectors
 //ANALOG pins -> analog input specified in ADC module if needed

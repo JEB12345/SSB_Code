@@ -38,6 +38,8 @@ return_value_t pin_init()
     TRISCbits.TRISC6 = 0;
     _RP54R = 0;
     TRISBbits.TRISB0 = 0;
+    RPINR8bits.IC4R = 25;
+    TRISAbits.TRISA4 = 0;
     
     //RF
     RPINR1bits.INT2R = 94;

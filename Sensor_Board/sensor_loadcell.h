@@ -8,13 +8,27 @@
 #ifndef SENSOR_LOADCELL_H
 #define	SENSOR_LOADCELL_H
 #include "sensor_state.h"
+#include "sensor_pindefs.h"
 #ifdef	__cplusplus
 extern "C" {
 #endif
     return_value_t loadcell_init();
-    void loadcell_reset();
-    void loadcell_process();
+    //void loadcell_reset();
+    //void loadcell_process();
     void loadcell_start();
+
+#define SG_SELECT       SS=0
+#define SG_DESELECT     SS=1
+
+#define SG_REG_COMM 0b0
+#define SG_REG_STATUS 0b0
+#define SG_REG_MODE 0b001000
+#define SG_REG_CONFIG 0b010000
+#define SG_REG_DATA 0b011000
+#define SG_REG_ID 0b100000
+#define SG_REG_GPOCON 0b101000
+#define SG_REG_OFFSET 0b110000
+#define SG_REG_FULLSCALE 0b111000
 
 
 //void init_load_cells();

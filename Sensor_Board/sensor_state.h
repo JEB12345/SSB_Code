@@ -20,9 +20,25 @@ extern "C" {
         }
     return_value_t;
 
-     /**
-     * Th state machine for the ADC SPI
-     */
+    typedef enum {
+         SPI_IDLE            =0,
+         SPI_LED_ON          =1,
+         SPI_LED_OFF         =2,
+         SPI_ME_READ_ANGLE   =3,
+         SPI_ME_READ_ANGLE_2 =4,
+         SPI_LED_END         =5,
+         SPI_VARIOUS         =6,  //useful during initialization
+         SPI_SG_READ_DATA_1  =7,
+         SPI_SG_READ_DATA_2  =8,
+         SPI_SG_READ_DATA_3  =9,
+         SPI_SG_READ_DATA_4  =10,
+         SPI_SG_READ_DATA_END =11
+    } spi_sg_state_t;
+
+    //#define LC_CIRCULAR_BUFFER_SIZE 3
+
+
+    /*
     typedef enum  {
         DMA_SPI_LC_IDLE, ///< No reading is being performed.
         DMA_SPI_LC_WRITING_RESET,
@@ -34,7 +50,7 @@ extern "C" {
         DMA_SPI_LC_WAITING_FOR_READOUT,
         DMA_SPI_LC_READING_DEVICES, //We are actually reading the data from the devices
         DMA_SPI_LC_DATA_READY_TO_BE_PROCESSED // We have finished to read the data, and we need to process it to extract actual data in the spi_main function
-    } DMA_SPI_LC_state_t;
+    } DMA_SPI_LC_state_t;*/
 
 
     //maintain all state variables here
@@ -66,17 +82,23 @@ extern "C" {
         uint8_t                 rgb_blue;
     } led_data;
 
+    /*typedef struct DMA_SPI_LC_read_value{
+    unsigned char DATA[3];
+    unsigned char STATUS;
+} DMA_SPI_LC_read_value;*/
+
+
     typedef struct {
         return_value_t          init_return;
         int volatile            state;
         uint32_t volatile       values[4];
-        char volatile           raw_data_0[3]; //raw data bytes of last packet
-        char volatile           raw_data_1[3]; //need not be a valid packet
-        char volatile           raw_data_2[3];
-        char volatile           raw_status[3];
-        //DMA_SPI_LC_state_t volatile     state;
         uint8_t volatile           data_ready; //data available was signalled by ADC
-
+        volatile uint8_t spi_busy;
+        volatile uint16_t buff_spi;
+        volatile uint16_t spi_state;
+        volatile uint16_t sg_data_1, sg_data_2, sg_data_3; //received data (SPI)
+        volatile uint16_t sg_status;
+        volatile uint16_t raw;
     } loadcell_data;
 
     typedef struct {

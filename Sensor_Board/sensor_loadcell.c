@@ -1,8 +1,14 @@
 #include "p33Exxxx.h"
 #include "sensor_loadcell.h"
+#include "sensor_pindefs.h"
 #include "sensor_state.h"
+#include <dma.h>
 
 loadcell_data loadcell_state;
+
+inline void spi_wait() {
+    while (loadcell_state.spi_state != SPI_IDLE);
+}
 
 return_value_t loadcell_init()
 {
@@ -10,23 +16,318 @@ return_value_t loadcell_init()
     loadcell_state.init_return = RET_OK;
     for(i=0;i<4;++i)
         loadcell_state.values[i] = 0;
+
+    SHD = 1;
+
+    IFS0bits.SPI1IF = 0; // Clear the Interrupt Flag
+    IEC0bits.SPI1IE = 0; // Disable the Interrupt
+
+    // SPI1CON1 Register Settings
+    SPI1CON1bits.DISSCK = 0; // Internal SPI clock is enabled
+    SPI1CON1bits.DISSDO = 0; // SDOx pin is controlled by the module
+    SPI1CON1bits.MODE16 = 0; // Communication is byte-wide (8 bits)
+    SPI1CON1bits.SMP = 0; // Input data is sampled at the middle of data output time
+
+    SPI1CON1bits.CKE = 0; // Serial output data changes on transition
+    // from Idle clock state to active clock state
+    SPI1CON1bits.CKP = 1; // Idle state for clock is a high level;
+    // active state is a low level
+    SPI1CON1bits.MSTEN = 1; // Master mode enabled
+    SPI1CON1bits.PPRE = 0;//0b01; // Primary prescale bit for SPI clock; 0b11 = 1:1;  0b10 = 4:1; 0b01 = 16:1; 0b00 = 64:1
+    SPI1CON1bits.SPRE = 0b011; // Secondary prescale bit for SPI clock; 0b111 = 1:1; 0b110 = 1:2 ... 0b000 = 1:8
+    SPI1CON1bits.SSEN = 0; // Slave select pin disabled
+
+    SPI1CON2bits.FRMEN = 0; // Frame mode disabled
+
+    // SPISTAT Register Settings
+    SPI1STATbits.SPIEN = 1; // Enable SPI module
+    SPI1STATbits.SPISIDL = 0; // Continue module operation when device enters Idle mode
+
+    // Interrupt Controller Settings
+    SPI1STATbits.SPIROV = 0; // Clear SPI overflow bit
+    IFS0bits.SPI1EIF = 0; // Clear SPI1 Error Interrupt Flag Status bit
+    IPC2bits.SPI1IP = 0x06; // Set SPI1 Interrupt Priority Level to 1 = low priority
+    IFS0bits.SPI1IF = 0; // Clear the Interrupt Flag
+    IEC0bits.SPI1IE = 1; // Enable the Interrupt
+
+    SG_DESELECT;
+    loadcell_state.data_ready = 0;
+
+    //loadcell_state.spi_busy = 0; // currently no SPI transfer
+
+    loadcell_state.spi_state = SPI_IDLE;
+
+    uint8_t mode_byte_1 = 0;
+    uint8_t mode_byte_2 = 0;
+    uint8_t mode_byte_3 = 0;
+    uint8_t config_byte_1;
+    uint8_t config_byte_2;
+    uint8_t config_byte_3;
+
+
+    loadcell_state.spi_state = SPI_VARIOUS;
+    SG_SELECT;
+    for(i=0;i<65000;++i){
+        Nop();Nop();
+        Nop();Nop();
+        Nop();Nop();
+        Nop();Nop();
+    }
+    for(i=0;i<65000;++i){
+        Nop();
+        Nop();
+    }
+    //delay_us(500);
+    //reset chip
+    SPI1BUF = 0xFF;
+    spi_wait();
+    loadcell_state.spi_state = SPI_VARIOUS;
+    SPI1BUF = 0xFF;
+    spi_wait();
+    loadcell_state.spi_state = SPI_VARIOUS;
+    SPI1BUF = 0xFF;
+    spi_wait();
+    loadcell_state.spi_state = SPI_VARIOUS;
+    SPI1BUF = 0xFF;
+    spi_wait();
+    loadcell_state.spi_state = SPI_VARIOUS;
+    SPI1BUF = 0xFF;
+    spi_wait();
+    SG_DESELECT;
+    //delay_ms(1);
+    for(i=0;i<65000;++i){
+        Nop();
+        Nop();
+    }
+    spi_wait();
+    loadcell_state.spi_state = SPI_VARIOUS;
+    for(i=0;i<65000;++i){
+        Nop();Nop();
+        Nop();Nop();
+        Nop();Nop();
+        Nop();Nop();
+    }
+    SG_SELECT;
+    //write the MODE register
+    SPI1BUF = SG_REG_MODE;
+    spi_wait();
+    mode_byte_1 = 0b00011101;//continuous mode, transmit status reg, MCLK2 is clock, average 2 (FS/2)
+
+    mode_byte_2 = 0b00000100;//sinc4 enabled | no parity | no clock divide | no single | 60hz rejection
+
+    mode_byte_3 = 3;//100Hz
+
+    loadcell_state.spi_state = SPI_VARIOUS;
+    SPI1BUF = mode_byte_1;
+    spi_wait();
+    loadcell_state.spi_state = SPI_VARIOUS;
+    SPI1BUF = mode_byte_2;
+    spi_wait();
+    loadcell_state.spi_state = SPI_VARIOUS;
+    SPI1BUF = mode_byte_3;
+    spi_wait();
+    SG_DESELECT;
+    //delay_ms(1);
+    for(i=0;i<65000;++i){
+        Nop();Nop();
+        Nop();Nop();
+        Nop();Nop();
+        Nop();Nop();
+    }
+
+    SG_SELECT;
+    loadcell_state.spi_state = SPI_VARIOUS;
+    SPI1BUF = SG_REG_CONFIG;
+    spi_wait();
+    //write the CONFIGURATION register
+    config_byte_1 =  0b10000000;
+    config_byte_2 = 0b11110000;
+    config_byte_3 = 0b01011000;
+    loadcell_state.spi_state = SPI_VARIOUS;
+    SPI1BUF = config_byte_1;
+    spi_wait();
+    loadcell_state.spi_state = SPI_VARIOUS;
+    SPI1BUF = config_byte_2;
+    spi_wait();
+    loadcell_state.spi_state = SPI_VARIOUS;
+    SPI1BUF = config_byte_3;
+    spi_wait();
+    SG_DESELECT;
+    //delay_ms(10);
+    for(i=0;i<65000;++i){
+        Nop();
+        Nop();
+    }
+    IC4CON1bits.ICM = 0b010; //interrupt on falling edge
+    IC4CON2bits.TRIGSTAT = 0;
+    for(i=0;i<65000;++i){
+        Nop();
+        Nop();
+    }
     return loadcell_state.init_return;
 }
 
+void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
+    SPI1STATbits.SPIROV = 0; // Clear SPI overflow bit
+    switch (loadcell_state.spi_state) {
+        case SPI_SG_READ_DATA_1:
+            SPI1BUF = 0x0;
+            loadcell_state.spi_state = SPI_SG_READ_DATA_2;
+            break;
+        case SPI_SG_READ_DATA_2:
+            loadcell_state.sg_data_1 = SPI1BUF;
+            SPI1BUF = 0x0;
+            loadcell_state.spi_state = SPI_SG_READ_DATA_3;
+            break;
+        case SPI_SG_READ_DATA_3:
+            loadcell_state.sg_data_2 = SPI1BUF;
+            SPI1BUF = 0x0;
+            loadcell_state.spi_state = SPI_SG_READ_DATA_4;
+            break;
+        case SPI_SG_READ_DATA_4:
+            loadcell_state.sg_data_3 = SPI1BUF;
+            SPI1BUF = 0x0;
+            loadcell_state.spi_state = SPI_SG_READ_DATA_END;
+            break;
+        case SPI_SG_READ_DATA_END:
+            loadcell_state.sg_status = SPI1BUF;
+            loadcell_state.spi_state = SPI_IDLE;
+            //copy the data to the right location
+            LED_3 = !LED_3;
+            if(!(loadcell_state.sg_status&0b10000000)){
+                //ready bit is not set, so data is available
+                //if(loadcell_state.sg_status&0b01000000){ //check for strain gauge error
+                //    loadcell_state.state |= NODE_STATE_SG_ERROR;
+                    //node_state.spring_forces[0] =14;
+                //} else {
+                //    loadcell_state.state &= !NODE_STATE_SG_ERROR;
+                    //node_state.spring_forces[0] =sg_data_2;
+                //}
+                //if((sg_status&0b111)==0b000)
+                //    ram_state.spring_forces[0] = (((uint32)(sg_data_1&0xFF))<<16) | (((uint32)(sg_data_2&0xFF))<<8) | (((uint32)(sg_data_3&0xFF)));
+                if(loadcell_state.sg_status&0b00000100)
+                {
+                    //one of the correct channels was converted, store the result
+                    loadcell_state.values[loadcell_state.sg_status&0b11] =
+                            (((uint32_t)(loadcell_state.sg_data_1&0xFF))<<16)
+                            | (((uint32_t)(loadcell_state.sg_data_2&0xFF))<<8)
+                            | (((uint32_t)(loadcell_state.sg_data_3&0xFF)));
+                    //ram_state.spring_forces[sg_status&0b11] |= sg_data_3&0xFF;
+                    LED_4 = !LED_4;
+
+                }
+            }
+            SG_DESELECT;
+            Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+            Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+            Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+            Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+            SG_SELECT;
+            loadcell_state.data_ready = 0;
+            IEC2bits.IC4IE = 1;
+            IFS2bits.IC4IF = 0; 
+            
+            break;
+        case SPI_VARIOUS:
+            loadcell_state.spi_state = SPI_IDLE;
+            break;
+        default:
+            loadcell_state.spi_state = SPI_IDLE;
+            break;
+    };
+
+    IFS0bits.SPI1EIF = 0; // Clear SPI1 Fault Interrupt Flag Status bit
+    IFS0bits.SPI1IF = 0; // Clear the interrupt Flag
+
+    //loadcell_state.spi_busy = 0; // indicate that next spi transfer may start
+}
+
+
+
+
+
+
+
+inline uint8_t spi_is_busy() {
+    return loadcell_state.spi_state != SPI_IDLE;
+}
+
+
+/*void spi_read_id(){
+    spi_wait();
+    SG_SELECT;
+    //delay_us(100);
+    loadcell_state.spi_state = SPI_VARIOUS;
+    SPI1BUF = 0b01100000;
+    spi_wait();
+    loadcell_state.spi_state = SPI_VARIOUS;
+    SPI1BUF = 0b0;
+    spi_wait();
+    loadcell_state.values[0] =SPI1BUF;
+    SG_DESELECT;
+}*/
+
+/*
+
+void sg_read_data(){
+    spi_wait();
+    SG_SELECT;
+    if(loadcell_state.data_ready){
+        //no data available
+        SG_DESELECT;
+        return;
+    } else {
+        loadcell_state.data_ready = 0;
+    }
+
+    //read data register
+    loadcell_state.spi_state = SPI_SG_READ_DATA_1;
+    SPI1BUF = SG_REG_DATA | 0b01000000;
+    spi_wait();
+    SG_DESELECT;
+    
+}*/
+
+void __attribute__((__interrupt__, no_auto_psv)) _IC4Interrupt(void) {
+    unsigned i;
+    LED_1 = !LED_1;
+    if((!loadcell_state.data_ready) && (!SG_MISO) ){
+        LED_2 = !LED_2;
+        //disable interrupt
+        IEC2bits.IC4IE = 0;
+        //read data register
+        //SG_SELECT;
+        //Nop();Nop();Nop();
+        loadcell_state.data_ready = 1;
+        loadcell_state.spi_state = SPI_SG_READ_DATA_1;
+        SPI1BUF = SG_REG_DATA | 0b01000000;
+
+        //spi_wait();
+    }
+    IFS2bits.IC4IF = 0; // Reset respective interrupt flag
+}
+
+void loadcell_start()
+{
+    SG_SELECT;
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    IFS2bits.IC4IF = 0; // Clear the IC1 interrupt status flag
+    IEC2bits.IC4IE = 1; // Enable IC1 interrupts
+    _IC4Interrupt();
+}
+
+
+
 #ifdef SOMETHING
-typedef struct DMA_SPI_LC_read_value{
-    unsigned char DATA[3];
-    unsigned char STATUS;
-} DMA_SPI_LC_read_value;
 
-#define CIRCULAR_BUFFER_SIZE 3
-volatile unsigned char circular_buffer_ready = 0;
-volatile unsigned char circular_buffer_index = 0;
-volatile DMA_SPI_LC_read_value circular_buffer[CIRCULAR_BUFFER_SIZE];
+//internal state variables
 
-unsigned char dma_spi_lc_tx_buffer[16] __attribute__((space(dma)));
 
-volatile unsigned char dma_spi_lc_rx_buffer[16] __attribute__((space(dma)));
+unsigned char dma_spi_lc_tx_buffer[16] __attribute__((aligned(32 * 16)));
+volatile unsigned char dma_spi_lc_rx_buffer[16] __attribute__((aligned(32 * 16)));
 
 
 #define dma_spi_lc_start() do{\
@@ -52,107 +353,106 @@ void init_load_cell(load_cell * e){
 }
 
 void init_load_cells(){
+    SHD = 1; //ENABLE LDO
 
-    //Peripheral Pin Select
-
-    //PPSUnLock;
-    __builtin_write_OSCCONL(OSCCON & 0xbf);
-    PPSOutput(0, OUT_PIN_PPS_RP25); // no output on rp5
-    IN_FN_PPS_SDI2 = 0;// no input on rp2
-    IN_FN_PPS_SCK2 = 0;// no input on rp5
-    IN_FN_PPS_SS2 = 0;// no input on rp23
-    OUT_PIN_PPS_RP2 = 0;
-    OUT_PIN_PPS_RP5 = 0;
-    OUT_PIN_PPS_RP23 = 0;
-    OUT_PIN_PPS_RP24 = 0;
-    OUT_PIN_PPS_RP25 = 0;
-    PPSOutput(OUT_FN_PPS_SDO2, OUT_PIN_PPS_RP23); // MOSI to rp23
-    PPSOutput(OUT_FN_PPS_SS2, OUT_PIN_PPS_RP2); // chip select to rp2
-    PPSOutput(OUT_FN_PPS_SCK2, OUT_PIN_PPS_RP5); // clock out to rp5
-    PPSInput(PPS_SDI2, PPS_RP25);// MISO to rp25
-    //PPSLock;
-    //__builtin_write_OSCCONL(OSCCON | 0x40);
-
-    dma_spi_lc.spi_mosi = gpio_create(GPIO_PORT_C,GPIO_PIN_7,GPIO_OUTPUT);
-    gpio_clear(dma_spi_lc.spi_mosi);
-
-    dma_spi_lc.spi_miso = gpio_create(GPIO_PORT_C,GPIO_PIN_9,GPIO_INPUT);
-    gpio_set(dma_spi_lc.spi_miso);
-
-    dma_spi_lc.spi_clk = gpio_create(GPIO_PORT_B,GPIO_PIN_5,GPIO_OUTPUT);
-    gpio_set(dma_spi_lc.spi_clk);
-
-    dma_spi_lc.spi_sync = gpio_create(GPIO_PORT_C,GPIO_PIN_8,GPIO_OUTPUT);
-    gpio_set(dma_spi_lc.spi_sync);
-
-    dma_spi_lc.spi_cs = gpio_create(GPIO_PORT_B,GPIO_PIN_2,GPIO_OUTPUT);
-    gpio_set(dma_spi_lc.spi_cs);
-
-    dma_spi_lc.state  = DMA_SPI_LC_IDLE;
+    loadcell_state.state = DMA_SPI_LC_IDLE;
 
     /************************************
-     SPI2-MODULE
+     SPI1-MODULE
      ************************************/
 
-    SPI2STATbits.SPIEN  = 0;     //Disable SPI 2 module during configuration
-    //SPI 1 is for magentic encoders :
-    IEC2bits.SPI2IE     = 0; //disable interrupt. This is needed because we use DMA
-    IFS2bits.SPI2IF     = 0; //clear the interrupt flag.
-    IPC8bits.SPI2IP     = 0b000;
-    SPI2CON1bits.MSTEN  = 1; //enable master mode
-    SPI2STATbits.SPIROV = 0; // clear overflow flag
+    SPI1STATbits.SPIEN  = 0;     //Disable SPI module during configuration
+    IEC0bits.SPI1IE     = 0; //disable interrupt. This is needed because we use DMA
+    IFS0bits.SPI1IF     = 0; //clear the interrupt flag.
+    IPC2bits.SPI1IP     = 0b000;
+    SPI1CON1bits.MSTEN  = 1; //enable master mode
+    SPI1STATbits.SPIROV = 0; // clear overflow flag
 
-    SPI2CON1bits.DISSCK = 0; //Use the clock
-    SPI2CON1bits.DISSDO = 0; //Disable data output. This is not needed by the application, no pin are routed
-    SPI2CON1bits.MODE16 = 0; //Transmit bytes. Rx buffer is in byte, but we don't care because we are transmitting an even number of byte
+    SPI1CON1bits.DISSCK = 0; //Use the clock
+    SPI1CON1bits.DISSDO = 0; //Enable data output. 
+    SPI1CON1bits.MODE16 = 0; //Transmit bytes. Rx buffer is in byte, but we don't care because we are transmitting an even number of byte
 
-    SPI2CON1bits.CKE    = 0; //data valid on rising edge
-    SPI2CON1bits.CKP    = 1; //clock idle state is at high level
-    SPI2CON1bits.SMP    = 0; //0=data is sampled at middle of clock time
+    SPI1CON1bits.CKE    = 0; //data valid on rising edge
+    SPI1CON1bits.CKP    = 1; //clock idle state is at high level
+    SPI1CON1bits.SMP    = 0; //0=data is sampled at middle of clock time
 
-    SPI2CON1bits.SSEN   = 0; //disable chip select bit (we do this ourselves)
-    SPI2CON2bits.FRMEN  = 0;     //Frame support
+    SPI1CON1bits.SSEN   = 0; //disable chip select bit (we do this ourselves)
+    SPI1CON2bits.FRMEN  = 0;     //Frame support
 
-    //Choose a clock frequency of 625 kHz, max accepted by AS5045 is 1Mhz
+    //Choose a clock frequency of 875 kHz, max accepted by AS5045 is 1Mhz
     //TODO: set frequency
-    SPI2CON1bits.SPRE   = 0b000; //Select a secondary prescaler of 1:1
-    SPI2CON1bits.PPRE   = 0b10 ; //select a primary prescaler of 64:1
+    SPI1CON1bits.SPRE   = 0b011; //Select a secondary prescaler of 1:5
+    SPI1CON1bits.PPRE   = 0b01; //select a primary prescaler of 16:1
 
-    IEC2bits.SPI2IE     = 0;    //enable interrupt.
-    SPI2STATbits.SPIEN  = 1;     //Enable SPI 2 module
+    IEC0bits.SPI1IE     = 0;    //enable interrupt.
+    SPI1STATbits.SPIEN  = 1;     //Enable SPI 1 module
 
     /************************************
      DMA3-MODULE
      ************************************/
+    unsigned int config;
+    unsigned int irq;
+    unsigned long int stb_address;
+    unsigned int pad_address;
+    unsigned int count;
+    
+    DMA3CONbits.SIZE = 1;
+    DMA3CONbits.DIR = 0; //Read to RAM from peripheral
+    DMA3CONbits.AMODE = 0b00;// Register indirect with posincrement
+    DMA3CONbits.MODE = 0b00;// continuous, No Ping Pong
+    DMA3CONbits.HALF  = 0;
+    IPC9bits.DMA3IP = 0b001; 
+    config = DMA3CON|0b1000000000000000;
+    irq = 0b00001010;// Select SPI1 as DMA Request source
+    count = 0;   //1 byte per transfer
+    IEC2bits.DMA3IE = 0; // Enable DMA Channel 3 interrupt
+    IFS2bits.DMA3IF = 0;
+    //DMA0CONbits.CHEN = 1; // Enable DMA Channel 0
+    pad_address = (volatile unsigned int) &SPI1BUF;
+    stb_address = 0x0;
+    OpenDMA3( config, irq, (long unsigned int)dma_spi_lc_rx_buffer,
+        stb_address,pad_address, count );
+    IEC2bits.DMA3IE = 1;
 
+    /*
     IEC2bits.DMA3IE = 0;
     IFS2bits.DMA3IF = 0;
-
     IPC9bits.DMA3IP = 0b001; //low priority, but needs to be higher than DMA4IP
-
-
     DMA3CONbits.CHEN  = 0;
     DMA3CONbits.SIZE  = 1;
     DMA3CONbits.DIR   = 0;//read, don't send
     DMA3CONbits.HALF  = 0;
 
-    DMA3CONbits.NULLW = 0;
-
     DMA3CONbits.AMODE = 0b00;// Register indirect with posincrement
     DMA3CONbits.MODE  = 0b00;// continuous, No Ping Pong
-
     DMA3STA = __builtin_dmaoffset(dma_spi_lc_rx_buffer);
-
     DMA3PAD = (volatile unsigned int) & SPI2BUF;
-
     DMA3REQbits.IRQSEL = 0b0100001; //SPI2
     DMA3CNT = 0;
-
     IEC2bits.DMA3IE = 1;
+     */
 
     /************************************
      DMA4-MODULE
      ************************************/
+
+    DMA4CONbits.SIZE = 1;
+    DMA4CONbits.DIR = 0; //Read to RAM from peripheral
+    DMA4CONbits.AMODE = 0b00;// Register indirect with posincrement
+    DMA4CONbits.MODE = 0b00;// continuous, No Ping Pong
+    DMA4CONbits.HALF  = 0;
+    IPC9bits.DMA4IP = 0b001;
+    config = DMA3CON|0b1000000000000000;
+    irq = 0b00001010;// Select SPI1 as DMA Request source
+    count = 0;   //1 byte per transfer
+    IEC2bits.DMA3IE = 0; // Enable DMA Channel 3 interrupt
+    IFS2bits.DMA3IF = 0;
+    //DMA0CONbits.CHEN = 1; // Enable DMA Channel 0
+    pad_address = (volatile unsigned int) &SPI1BUF;
+    stb_address = 0x0;
+    OpenDMA3( config, irq, (long unsigned int)dma_spi_lc_rx_buffer,
+        stb_address,pad_address, count );
+    IEC2bits.DMA3IE = 1;
 
     IEC2bits.DMA4IE = 0;
     IFS2bits.DMA4IF = 0;

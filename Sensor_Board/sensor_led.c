@@ -32,7 +32,7 @@ void led_update()
     RGB_GREEN =led_state.rgb_green<state;
     RGB_BLUE = led_state.rgb_blue<state;
 
-    if(++state>8){
+    if(++state>=8){
         state=0;
     } 
 }

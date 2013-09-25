@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
     /*
     can_init();
      */
-    loadcell_init();
+    
     LED_3 = 1;
     /*
     imu_init();
@@ -53,11 +53,13 @@ int main(int argc, char** argv) {
     //pmsm_init();
     LED_4 = 1;
     state_init();
-    led_rgb_set(0,100,255);
+    led_rgb_set(0,0,0);
     LED_1 = 0;
     LED_2 = 1;
     LED_3 = 0;
     LED_4 = 0;
+    loadcell_init();
+    loadcell_start();
     //pmsm_enable(1);
     //pmsm_set_duty_cycle(2000,2000,2000);
     int i = 0;
@@ -70,8 +72,10 @@ int main(int argc, char** argv) {
                 //useful for checking state consistency, synchronization, watchdog...
                 led_update();
                 led_colors+=1;
-                led_rgb_set((led_colors>>16)&0xFF,(led_colors>>8)&0xFF,led_colors&0xFF);
-                
+                //led_rgb_set(0,255,0);
+                //led_rgb_set((led_colors>>16)&0xFF,(led_colors>>8)&0xFF,led_colors&0xFF);
+                //if(timer_state.systime&0b10000)
+                //    loadcell_start();
             }            
         } else {
             //untimed processes in main loop:
