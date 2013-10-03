@@ -75,7 +75,7 @@ int main(int argc, char** argv) {
                 //led_rgb_set(0,255,0);
                 //led_rgb_set((led_colors>>16)&0xFF,(led_colors>>8)&0xFF,led_colors&0xFF);
                 //if(timer_state.systime&0b10000)
-                //    loadcell_start();
+                    //loadcell_start();
             }            
         } else {
             //untimed processes in main loop:

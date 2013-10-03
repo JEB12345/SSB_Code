@@ -90,15 +90,12 @@ extern "C" {
 
     typedef struct {
         return_value_t          init_return;
-        int volatile            state;
         uint32_t volatile       values[4];
         uint8_t volatile           data_ready; //data available was signalled by ADC
-        volatile uint8_t spi_busy;
-        volatile uint16_t buff_spi;
         volatile uint16_t spi_state;
         volatile uint16_t sg_data_1, sg_data_2, sg_data_3; //received data (SPI)
         volatile uint16_t sg_status;
-        volatile uint16_t raw;
+        uint32_t volatile       num_measurements[4]; //counts the number of measurements received per channel
     } loadcell_data;
 
     typedef struct {
