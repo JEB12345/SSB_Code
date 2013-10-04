@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
     loadcell_start();
     //pmsm_enable(1);
     //pmsm_set_duty_cycle(2000,2000,2000);
-    int i = 0;
+    //int i = 0;
     for(;;){
         if(timer_state.systime != timer_state.prev_systime){
             timer_state.prev_systime = timer_state.systime;
