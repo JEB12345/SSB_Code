@@ -43,14 +43,19 @@ return_value_t pin_init()
     
     //RF
     RPINR1bits.INT2R = 94;
-    PORTBbits.RB9 = 0;
+    TRISBbits.TRISB9 = 0;
+    XBEE_nSSEL = 1;
     _RP41R = 0;
-    PORTFbits.RF1 = 0;
+    TRISFbits.TRISF1 = 0;
+    XBEE_SLEEP_RQ = 0;
     _RP97R = 0;
-    PORTEbits.RE13 = 0;
+    TRISEbits.TRISE13 = 0;
+    XBEE_nRESET = 1;
     _SDI2R = 40;     // Map SPI2 DI to RP40
     _RP39R = 8;      // Map SPI2 DO to RP39
+    TRISBbits.TRISB7 = 0;
     _RP57R = 9;      // Map SPI2 CLK to RP57
+    CNPUEbits.CNPUE14 = 1;// XBEE_nATTN pull up
 
     //LEDs
     TRISGbits.TRISG6 = 0;
@@ -147,7 +152,7 @@ return_value_t pin_init()
     
     CNPUBbits.CNPUB15 = 1;
     CNPUGbits.CNPUG7 = 1;
-    CNPUGbits.CNPUG9 = 1;
+    CNPUGbits.CNPUG9 = 1; 
     //peripheral pin select
     RPINR7bits.IC1R = 47;   //RB15
     RPINR7bits.IC2R = 119;  //RG7
@@ -157,6 +162,9 @@ return_value_t pin_init()
     CNPUBbits.CNPUB1 = 1;
     CNPUBbits.CNPUB2 = 1;
 
+    //UART 1
+    _RP43R = 0b1; //RB11 uart 1 tx
+    RPINR18bits.U1RXR = 44; //RB12 uart 1 rx
 
 
     return RET_OK;
