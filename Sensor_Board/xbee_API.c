@@ -10,13 +10,20 @@
 #include "sensor_pindefs.h"
 #include "sensor_rf.h"
 
+        // Provide a reference of the last modem status
+	volatile uint8_t xbee_last_status;
+        // The function pointer for IP callback
+        void (*ip_data_func)(uint8_t *, int, s_rxinfo *);
+        // The function pointer for modem status callback
+	void (*modem_status_func)(uint8_t);
+
 return_value_t confirm_checksum(wifi_data* data) {
     uint8_t sum;
 
     // Defined in the XBee data sheet
-    sum = data.Frame_Name + data.cmdData + data.checksum;
+    sum = data->Frame_Name + data->cmdData + data->checksum;
 
-    if(sum == checksum_value){
+    if(sum == XBEE_CHECKSUM_VALUE){
         return RET_OK;
     }
     else{

@@ -29,8 +29,11 @@ return_value_t pin_init();
 //RF
 #define XBEE_nATTN  PORTEbits.RE14//actually tied to INT2
 #define XBEE_nSSEL  LATBbits.LATB9
-#define SLEEP_RQ    LATFbits.LATF1
-#define nRESET      LATEbits.LATE13
+#define XBEE_SLEEP_RQ    LATFbits.LATF1
+#define XBEE_nRESET      LATEbits.LATE13
+#define XBEE_DOUT   LATCbits.LATC10
+#define XBEE_DOUT_INPUT (TRISCbits.TRISC10 = 1)
+#define XBEE_DOUT_OUTPUT (TRISCbits.TRISC10 = 0)
 
 //POWER MOSFETS
 #define NFET_1      LATCbits.LATC12
@@ -63,14 +66,14 @@ return_value_t pin_init();
 //P7 connector
 #define RE12_IO        PIN_INPUT
 #define RA8_IO         PIN_INPUT
-#define RB11_IO        PIN_INPUT
+#define RB11_IO        PIN_OUTPUT
 #define RB13_IO        PIN_INPUT
 #define RE13_IO        PIN_INPUT
 #define RB4_IO         PIN_INPUT
 #define RC10_IO        PIN_INPUT
 #define RA7_IO         PIN_INPUT
 #define RB10_IO        PIN_OUTPUT
-#define RB12_IO        PIN_OUTPUT
+#define RB12_IO        PIN_INPUT
 
 #if RB14_IO==PIN_INPUT
 #define P6_RB14    PORTBbits.RB14
