@@ -249,41 +249,24 @@
 #define XBEE_AT_EXEC_SOFTWARE_RESET		"FR"
 #define XBEE_AT_EXEC_NETWORK_RESET		"NR"
 
-// Definition of API Headers
-#define LENGTH_XBEE_API_ATCMD                   2
-#define LENGTH_XBEE_API_LENGTH                  2
+// Definition of API header lengths
 #define LENGTH_XBEE_START_DELIMITER             1
+#define LENGTH_XBEE_API_LENGTH                  2
+#define LENGTH_XBEE_API_ID                      1
+#define LENGTH_XBEE_FRAMEID                     1
 #define LENGTH_XBEE_CHECKSUM                    1
-#define LENGTH_XBEE_HEADER                      LENGTH_XBEE_START_DELIMITER + LENGTH_XBEE_CHECKSUM + LENGTH_XBEE_API_LENGTH
 
-// This structure is used with the IP data callback to
-// report information about the incoming IP data
-typedef struct {
-	uint8_t source_addr[4];		// Address from which the data originated
-	uint16_t source_port;		// Port from which the data originated
-	uint16_t dest_port;		// Port on which the data arrived. If 0xBEE, data was received using app service
-	uint8_t protocol;		// XBEE_NET_IPPROTO_UDP / TCP
-	uint16_t sequence;		// Segment number
-	uint16_t total_packet_length;	// Total length of the incoming packet
-	uint16_t current_offset;	// Current offset within the incoming packet of this segment
-	bool final;			// True for the final segment of this packet
-	bool checksum_error;		// Checksum indication flag
-} s_rxinfo;
+// Definiton of AT header lengths
+#define LENGTH_XBEE_API_ATCMD                   2
+#define LENGTH_XBEE_AT_FRAME_NOPARAM            LENGTH_XBEE_START_DELIMITER+LENGTH_XBEE_API_LENGTH+LENGTH_XBEE_API_ID+LENGTH_XBEE_FRAMEID+LENGTH_XBEE_API_ATCMD+LENGTH_XBEE_CHECKSUM
 
-// Note that due to buffer size restrictions, an incoming data packet (of up to 1400 bytes length)
-// will be delivered in multiple calls to the ip data reception callback
-// The sequence number will be the same for all calls for a given packet and then incremented
-// for the next packet
-// A checksum error will only be flagged (true) on the last given call for a packet / sequence
-
-
-// This structure is used to provide transmission options when transmiting IP data
-typedef struct {
-	uint16_t dest_port;
-	uint16_t source_port;
-	uint8_t protocol;		// XBEE_NET_IPPROTO_UDP / TCP
-	bool leave_open;
-} s_txoptions;
+// Definition of IPv4 API header lengths
+#define LENGTH_XBEE_IPv4_DESTINATION_ADDRESS    4
+#define LENGTH_XBEE_IPv4_DESTINATION_PORT       2
+#define LENGTH_XBEE_IPv4_SOURCE_PORT            2
+#define LENGTH_XBEE_IPv4_PROTOCOL               1
+#define LENGTH_XBEE_IPv4_OPTIONS                1
+#define LENGTH_XBEE_IPv4_FRAME_NODATA           LENGTH_XBEE_IPv4_DESTINATION_ADDRESS+LENGTH_XBEE_IPv4_DESTINATION_PORT+LENGTH_XBEE_IPv4_SOURCE_PORT+LENGTH_XBEE_IPv4_PROTOCOL+LENGTH_XBEE_IPv4_OPTIONS+LENGTH_XBEE_CHECKSUM
 
 // This packet is used for the sample reception callback to provide sample data
 typedef struct {
@@ -308,7 +291,7 @@ typedef struct {
  *
  * @param data A pointer to the wifi_data being checked
  */
-return_value_t confirm_checksum(wifi_data* data);
+//return_value_t confirm_checksum(wifi_data* data);
 
 
 

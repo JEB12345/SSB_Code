@@ -8,6 +8,8 @@
 
 #include <p33Exxxx.h>
 #include <dma.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "sensor_rf.h"
 #include "sensor_pindefs.h"
 #include "sensor_state.h"
@@ -343,6 +345,82 @@ void rf_transmit_spi_packet()
 void rf_receive_spi_packet()
 {
 
+}
+
+uint8_t compute_checksum(uint8_t* data, unsigned length)
+{
+        unsigned i,j;
+        uint16_t* data_int = (uint16_t*) data;
+        uint16_t cks16 = 0x0;
+        uint8_t cks8 = 0xFF;
+        j = length>>1;
+
+        for(i=0;i<j;++i){
+                cks16 ^= data_int[i];
+        }
+        if((j<<1)<length){
+                cks8^=data[length-1];
+        }
+        cks8 ^= cks16&0xFF;
+        cks8 ^= cks16>>8;
+        return cks8;
+}
+
+return_value_t allocate_ip_packet(uint16_t* allocateAmount, xbee_tx_ip_packet_t* ip_data)
+{
+    
+}
+
+return_value_t xbee_at_cmd(const char *atxx, const uint8_t *parmval, int parmlen, bool queued, xbee_at_packet_t* at_data)
+{
+    uint16_t i;
+    static uint8_t at_frame_id = 0;
+    uint8_t* rawPacket;
+    uint16_t rawPacketSize;
+    uint16_t rawDataSize;
+
+    rawPacketSize = parmlen + LENGTH_XBEE_AT_FRAME_NOPARAM;
+    rawPacket = malloc(rawPacketSize);
+    if(rawPacket==NULL) {
+        return RET_ERROR;
+    }
+
+    rawDataSize = (rawPacketSize-LENGTH_XBEE_START_DELIMITER-LENGTH_XBEE_API_LENGTH-LENGTH_XBEE_CHECKSUM);
+
+    // Create the actual raw data based on the XBee Wifi Data sheet for AT command API
+    rawPacket[0] = 0x7E;
+    rawPacket[1] = rawDataSize>>8;
+    rawPacket[2] = rawDataSize&0xFF;
+    // Sets the AT command frame to either send immediately or queued based on user input
+    if(queued){
+        rawPacket[3] = XBEE_API_FRAME_ATCMD_QUEUED;
+    }
+    else{
+        rawPacket[3] = XBEE_API_FRAME_ATCMD;
+    }
+    rawPacket[4] = at_frame_id;
+    rawPacket[5] = atxx[0];
+    rawPacket[6] = atxx[1];
+    for(i=0;i<parmlen;i++) {
+        rawPacket[i+7] = parmval[i];
+    }
+    rawPacket[i+7] = XBEE_CHECKSUM_VALUE - rawDataSize;
+    
+    // Pass Raw created raw packet into our at_packet struct
+    // TODO: add time out call
+    at_data->raw_packet.raw_data = rawPacket;
+    at_data->raw_packet.length = rawPacketSize;
+    at_data->raw_packet.dynamic = 1;
+    at_data->raw_packet.valid = 1;
+
+    // Pass the AT ID and Frame ID to struct
+    at_data->options.at_cmd_id[0] = atxx[0];
+    at_data->options.at_cmd_id[1] = atxx[1];
+    at_data->options.frame_id = at_frame_id;
+
+    // Iterate on the frame id
+    at_frame_id++;
+    return RET_OK;
 }
 
 void rf_process()

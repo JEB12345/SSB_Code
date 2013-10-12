@@ -111,15 +111,16 @@
     // This structure is used with the IP data callback to
 // report information about the incoming IP data
 typedef struct {
-	uint8_t source_addr[4];		// Address from which the data originated
-	uint16_t source_port;		// Port from which the data originated
-	uint16_t dest_port;		// Port on which the data arrived. If 0xBEE, data was received using app service
-	uint8_t protocol;		// XBEE_NET_IPPROTO_UDP / TCP
-	uint16_t sequence;		// Segment number
-	uint16_t total_packet_length;	// Total length of the incoming packet
-	uint16_t current_offset;	// Current offset within the incoming packet of this segment
-	bool final;			// True for the final segment of this packet
-	bool checksum_error;		// Checksum indication flag
+    uint8_t             frame_id;
+    uint8_t             source_addr[4];		// Address from which the data originated
+    uint16_t            source_port;		// Port from which the data originated
+    uint16_t            dest_port;		// Port on which the data arrived. If 0xBEE, data was received using app service
+    uint8_t             protocol;		// XBEE_NET_IPPROTO_UDP / TCP
+    uint16_t            sequence;		// Segment number
+    uint16_t            total_packet_length;	// Total length of the incoming packet
+    uint16_t            current_offset;	// Current offset within the incoming packet of this segment
+    bool                final;			// True for the final segment of this packet
+    bool                checksum_error;		// Checksum indication flag
 } s_rxinfo;
 
 // Note that due to buffer size restrictions, an incoming data packet (of up to 1400 bytes length)
@@ -131,11 +132,17 @@ typedef struct {
 
 // This structure is used to provide transmission options when transmiting IP data
 typedef struct {
-	uint16_t dest_port;
-	uint16_t source_port;
-	uint8_t protocol;		// XBEE_NET_IPPROTO_UDP / TCP
-	bool leave_open;
+    uint8_t             frame_id;
+    uint16_t            dest_port;
+    uint16_t            source_port;
+    uint8_t             protocol;		// XBEE_NET_IPPROTO_UDP / TCP
+    bool                leave_open;
 } s_txoptions;
+
+typedef struct {
+    char*            at_cmd_id;
+    uint8_t             frame_id;
+} s_atoptions;
 
     typedef struct {
         uint8_t*        raw_data;
@@ -154,28 +161,29 @@ typedef struct {
 
     typedef struct {
         xbee_packet_t   raw_packet;
-        s_rxinfo         options;
+        s_rxinfo        options;
     } xbee_rx_ip_packet_t;
 
     typedef struct {
         xbee_packet_t   raw_packet;
+        s_atoptions     options;
     } xbee_at_packet_t;
 
     typedef struct {
         return_value_t          init_return;
         return_value_t          init_SPI2_return;
         return_value_t          init_XBEE_return;
-         uint32_t       dma2_int_cnt;
-         uint32_t       dma3_int_cnt;
-        int             state;
-         xbee_state_t   xbee_state;
+        uint32_t                dma2_int_cnt;
+        uint32_t                dma3_int_cnt;
+        int                     state;
+        xbee_state_t            xbee_state;
         bool                    xbee_at_req;
         CircularBuffer          ip_tx_buffer;
         CircularBuffer          ip_rx_buffer;
         CircularBuffer          raw_rx_buffer;
         xbee_tx_ip_packet_t     cur_tx_ip_packet;
         xbee_at_packet_t        at_packet;
-         bool           process_lock; //lock to indicate that the state is changing (prevent interrupts from updating)
+        bool                    process_lock; //lock to indicate that the state is changing (prevent interrupts from updating)
         xbee_packet_t*          cur_tx_packet;
     } rf_data;
 
