@@ -14,9 +14,9 @@ return_value_t led_init()
     LED_2 = 0;
     LED_3 = 0;
     LED_4 = 0;
-    RGB_BLUE = 0;
-    RGB_RED = 0;
-    RGB_GREEN = 0;
+    RGB_BLUE = 1;
+    RGB_RED = 1;
+    RGB_GREEN = 1;
     led_state.init_return = RET_OK;
     return led_state.init_return;
 }
