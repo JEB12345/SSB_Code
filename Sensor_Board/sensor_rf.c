@@ -18,7 +18,7 @@
 #define SPI_BUFFER_SIZE 16*50
 #endif
 
-rf_data rf_state;
+volatile rf_data rf_state;
 CircularBuffer TxCB;
 CircularBuffer RxCB;
 
@@ -298,8 +298,11 @@ return_value_t xbee_init() {
 return_value_t rf_init()
 {
     //init state
+    rf_state.process_lock = 1;
     rf_state.xbee_state = XBEE_STATE_INIT;
     rf_state.xbee_at_req = 0;
+    rf_state.at_packet.raw_packet.valid = 0;
+    
     rf_state.dma2_int_cnt = rf_state.dma3_int_cnt = 0;
     rf_state.init_return = RET_OK;
     //init spi & dma
@@ -313,13 +316,42 @@ return_value_t rf_init()
     if(rf_state.init_XBEE_return!=RET_OK){
         rf_state.init_return = RET_ERROR;
     }
-    
+    rf_state.process_lock = 0;
     return rf_state.init_return;
 }
 
+void rf_transmit_spi_packet()
+{
+    //invalidate packet
+    rf_state.cur_tx_packet.valid = 0;
+
+    DMA2CONbits.CHEN = 0; //NEEDED OR WE CAN ONLY DO ONE TRANSFER!!!
+    DMA3CONbits.CHEN = 0;
+    DMA2CNT = SPI_BUFFER_SIZE-1;
+    DMA3CNT = SPI_BUFFER_SIZE-1;
+    DMA2CONbits.CHEN = 1;
+    DMA3CONbits.CHEN = 1;
+    //dma3 = rf_state.dma3_int_cnt;
+
+    DMA2REQbits.FORCE = 1;//start transfer
+
+    //TODO:free the data in the DMA interrupt
+    //if(rf_state.cur_tx_packet.dynamic){
+    //}
+}
+
+void rf_receive_spi_packet()
+{
+
+}
 
 void rf_process()
 {
+    while(rf_state.process_lock);
+    rf_state.process_lock = 1;
+    if(!rf_state.process_lock){
+        return;
+    }
     //Handle received packets
     switch(rf_state.xbee_state){
         case XBEE_STATE_IDLE_TRANSMIT_IP:
@@ -351,12 +383,20 @@ void rf_process()
                     //at_req is not asserted, remain in transmit_ip mode
                     //TODO: if there's an IP packet to send, start sending it and go to XBEE_STATE_TRANSMIT
                     if(CB_ReadMany(&rf_state.ip_tx_buffer,&rf_state.cur_tx_ip_packet,sizeof(xbee_tx_ip_packet_t))){
-                        rf_state.xbee_state = XBEE_STATE_RECEIVE_HEADER;
-                        //xbee_transmit_packet(rf_state.cur_ip_packet.raw_data, rf_state.cur_ip_packet.raw_data_length);
+                        if(rf_state.cur_tx_ip_packet.raw_packet.valid){
+                            //if not valid, we just discard it
+                            //start the dma
+                            rf_state.xbee_state = XBEE_STATE_TRANSMIT;
+                            rf_transmit_spi_packet(&rf_state.cur_tx_ip_packet.raw_packet);
+                        } else {
+                            //discard packet. note: we do not free the data!
+                        }
                     }
                 }
             } else {
                 //go to receive
+                rf_state.xbee_state = XBEE_STATE_RECEIVE_HEADER;
+                rf_receive_spi_packet();
             }
             break;
         case XBEE_STATE_IDLE_TRANSMIT_AT:
@@ -364,12 +404,22 @@ void rf_process()
                 if(rf_state.xbee_at_req){
                     //check if there's AT data to send
                     //TODO: if there's an AT command to send, start sending it and go to XBEE_STATE_TRANSMIT
+                    if(rf_state.at_packet.raw_packet.valid){
+                            //if not valid, we just discard it
+                            //start the dma
+                            rf_state.xbee_state = XBEE_STATE_TRANSMIT;
+                            rf_transmit_spi_packet(&rf_state.at_packet.raw_packet);
+                        } else {
+                            //discard packet. note: we do not free the data!
+                    }
                 } else {
                     //at_req was disabled, go back to transmit_ip mode
                     rf_state.xbee_state = XBEE_STATE_IDLE_TRANSMIT_IP;
                 }
             } else {
                 //go to receive
+                rf_state.xbee_state = XBEE_STATE_RECEIVE_HEADER;
+                rf_receive_spi_packet();
             }
             break;
         case XBEE_STATE_TRANSMITTED:
@@ -392,6 +442,7 @@ void rf_process()
             //error!!!
             break;
     };
+    rf_state.process_lock = 0;
 }
 
 /***************************
