@@ -112,9 +112,13 @@ extern "C" {
     } loadcell_data;
 
     typedef struct {
-        uint8_t*    raw_data;
-        uint16_t    length;
-        bool        dynamic;
+        uint8_t*        raw_data;
+        uint16_t        length;
+        bool            dynamic;
+        bool            valid;
+        void (*transmitted)();
+        void (*response_received)();
+        uint16_t        response_time_out;
     } xbee_packet_t;
 
 
@@ -122,10 +126,6 @@ extern "C" {
     typedef struct {
         xbee_packet_t   raw_packet;
         s_txoptions     options;
-        bool            valid;
-        void (*transmitted)();
-        void (*response_received)();
-        uint16_t        response_time_out;
     } xbee_tx_ip_packet_t;
 
     typedef struct {
