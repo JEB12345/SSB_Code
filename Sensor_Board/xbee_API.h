@@ -249,6 +249,13 @@
 #define XBEE_AT_EXEC_SOFTWARE_RESET		"FR"
 #define XBEE_AT_EXEC_NETWORK_RESET		"NR"
 
+// Definition of API Headers
+#define LENGTH_XBEE_API_ATCMD                   2
+#define LENGTH_XBEE_API_LENGTH                  2
+#define LENGTH_XBEE_START_DELIMITER             1
+#define LENGTH_XBEE_CHECKSUM                    1
+#define LENGTH_XBEE_HEADER                      LENGTH_XBEE_START_DELIMITER + LENGTH_XBEE_CHECKSUM + LENGTH_XBEE_API_LENGTH
+
 // This structure is used with the IP data callback to
 // report information about the incoming IP data
 typedef struct {
@@ -289,16 +296,6 @@ typedef struct {
 
 #define XBEE_CHECKSUM_VALUE 0xFF
 
-/************************************
- * Struct to contain the wifi packets
- ************************************/
-typedef struct {
-    uint8_t     Length;     // Length of Data Frame not including checksum
-    uint8_t     Frame_Name; // Type of message Defined in the header
-    uint32_t    cmdData;    // Frame data, size dependent on the frame type
-    uint8_t     checksum;   // Checksum defined as 0xFF = Frame_Name+cmdDtat+checksum
-}wifi_data;
-
 /***********
  * Functions
  ***********/
@@ -315,51 +312,51 @@ return_value_t confirm_checksum(wifi_data* data);
 
 
 
-        // Send AT command with data of various possible forms
-	// atxx = Two digit string (i.e. "XY" would indicate ATXY command)
-	// Set queued = true to delay execution until applied (per spec)
-	// But note that queued AT commands are executed without confirmation
-	// so errors will not be reported
-	bool xbee_at_cmd_raw(const char *atxx, uint8_t *buffer, int len, bool queued);
-	bool xbee_at_cmd_str(const char *atxx, const char *buffer, bool queued );
-	bool xbee_at_cmd_byte(const char *atxx, uint8_t byte, bool queued );
-	bool xbee_at_cmd_short(const char *atxx, uint16_t twobyte, bool queued );
-	bool xbee_at_cmd_noparm(const char *atxx, bool queued );
+// Send AT command with data of various possible forms
+// atxx = Two digit string (i.e. "XY" would indicate ATXY command)
+// Set queued = true to delay execution until applied (per spec)
+// But note that queued AT commands are executed without confirmation
+// so errors will not be reported
+bool xbee_at_cmd_raw(const char *atxx, uint8_t *buffer, int len, bool queued);
+bool xbee_at_cmd_str(const char *atxx, const char *buffer, bool queued );
+bool xbee_at_cmd_byte(const char *atxx, uint8_t byte, bool queued );
+bool xbee_at_cmd_short(const char *atxx, uint16_t twobyte, bool queued );
+bool xbee_at_cmd_noparm(const char *atxx, bool queued );
 
-	// Query an AT parameter
-	// Provide a buffer (parmval) and it's length (maxlen)
-	// Will return parmlen indicating the number of bytes read back into the buffer
-	bool xbee_at_query(const char *atxx, uint8_t *parmval, int *parmlen, int maxlen);
-        
+// Query an AT parameter
+// Provide a buffer (parmval) and it's length (maxlen)
+// Will return parmlen indicating the number of bytes read back into the buffer
+bool xbee_at_query(const char *atxx, uint8_t *parmval, int *parmlen, int maxlen);
 
-        // The following functions define callbacks for asynchronous data delivery
-	// To stop delivery (and discard data) of any given type
-	// set the associated callback to it's default (NULL)
 
-	// Register a callback to receive incoming IP data
-	// Callback should be of following form:
-	//	void my_callback(uint8_t *data, int len, s_rxinfo *info)
-	void xbee_register_ip_data_callback(void (*func)(uint8_t *, int, s_rxinfo *));
+// The following functions define callbacks for asynchronous data delivery
+// To stop delivery (and discard data) of any given type
+// set the associated callback to it's default (NULL)
 
-	// Register callback for modem status indications
-	// Callback should be of following form:
-	//	void my_callback(uint8_t status)
-	void xbee_register_status_callback(void (*func)(uint8_t));
+// Register a callback to receive incoming IP data
+// Callback should be of following form:
+//	void my_callback(uint8_t *data, int len, s_rxinfo *info)
+void xbee_register_ip_data_callback(void (*func)(uint8_t *, int, s_rxinfo *));
 
-	// Transmit data to an endpoint
-	// ip should be the binary form (uint8_t[4]) IP address
-	// addr should be transmission options indicating port assignments and such. May be null when useAppService is true
-	// data and len provide the data to be transmitted
-	// Leave confirm=true to block for confirmation of delivery (TCP)
-	// Set useAppService to true to use the compatability mode (64bit) app service to transmit the data to the 0xBEE port
-	bool xbee_transmit(const uint8_t *ip, s_txoptions *addr, uint8_t *data, int len, bool confirm, bool useAppService );
+// Register callback for modem status indications
+// Callback should be of following form:
+//	void my_callback(uint8_t status)
+void xbee_register_status_callback(void (*func)(uint8_t));
 
-        //PRIVATE
-        // This is the actual method that does all AT processing
-	bool xbee_at_cmd(const char *atxx, const uint8_t *parmval, int parmlen, void *returndata, int *returnlen, bool queued);
+// Transmit data to an endpoint
+// ip should be the binary form (uint8_t[4]) IP address
+// addr should be transmission options indicating port assignments and such. May be null when useAppService is true
+// data and len provide the data to be transmitted
+// Leave confirm=true to block for confirmation of delivery (TCP)
+// Set useAppService to true to use the compatability mode (64bit) app service to transmit the data to the 0xBEE port
+bool xbee_transmit(const uint8_t *ip, s_txoptions *addr, uint8_t *data, int len, bool confirm, bool useAppService );
 
-        // Transmit an API frame of specified type, length and data
-	void xbee_tx_frame(uint8_t type, unsigned int len, uint8_t *data);
+//PRIVATE
+// This is the actual method that does all AT processing
+bool xbee_at_cmd(const char *atxx, const uint8_t *parmval, int parmlen, void *returndata, int *returnlen, bool queued);
+
+// Transmit an API frame of specified type, length and data
+void xbee_tx_frame(uint8_t type, unsigned int len, uint8_t *data);
 
         
         
