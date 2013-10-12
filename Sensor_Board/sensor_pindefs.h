@@ -19,9 +19,9 @@ return_value_t pin_init();
 #define RGB_BLUE    LATGbits.LATG8
 #define RGB_GREEN   LATAbits.LATA0
 #define LED_1       LATDbits.LATD6
-#define LED_2       LATDbits.LATD5 //incorrect in the schematic D3->D5
+#define LED_4       LATDbits.LATD5 //incorrect in the schematic D3->D5
 #define LED_3       LATCbits.LATC13
-#define LED_4       LATDbits.LATD8
+#define LED_2       LATDbits.LATD8
 
 //IMU
 #define INT_IMU     PORTFbits.RF0 //actually tied to INT1

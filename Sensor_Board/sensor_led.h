@@ -15,6 +15,8 @@ extern "C" {
     return_value_t led_init();
     void led_update();
     void led_rgb_set(uint8_t r, uint8_t g, uint8_t b);
+    void led_rgb_off();
+    void led_rgb_on();
     
 #ifdef	__cplusplus
 }

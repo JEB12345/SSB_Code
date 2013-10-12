@@ -9,6 +9,8 @@
 #include "sensor_state.h"
 #include "sensor_pindefs.h"
 #include "sensor_rf.h"
+#include <stdio.h>
+#include <stdlib.h>
 
         // Provide a reference of the last modem status
 	volatile uint8_t xbee_last_status;
@@ -31,6 +33,10 @@ return_value_t confirm_checksum(wifi_data* data) {
     }
 }
 
-return_value_t xbee_spi_transmit(uint8_t* transmit_data) {
-    
+bool xbee_at_cmd(const char *atxx, const uint8_t *parmval, void *returndata, bool queued){
+    uint8_t* data;
+    uint8_t dataSize;
+
+    dataSize = sizeof(parmval) + LENGTH_XBEE_API_ATCMD + LENGTH_XBEE_HEADER;
+    data = malloc();
 }

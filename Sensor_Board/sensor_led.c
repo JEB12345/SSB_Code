@@ -4,6 +4,7 @@
 #include "sensor_state.h"
 
 led_data led_state;
+static uint8_t RGB_LED_ON = 1;
 
 return_value_t led_init()
 {
@@ -28,13 +29,15 @@ void led_update()
 {
     static uint16_t state = 0;
 
-    RGB_RED = led_state.rgb_red<state;
-    RGB_GREEN =led_state.rgb_green<state;
-    RGB_BLUE = led_state.rgb_blue<state;
+    if(RGB_LED_ON == 1){
+        RGB_RED = led_state.rgb_red<state;
+        RGB_GREEN =led_state.rgb_green<state;
+        RGB_BLUE = led_state.rgb_blue<state;
 
-    if(++state>=8){
-        state=0;
-    } 
+        if(++state>=8){
+            state=0;
+        }
+    }
 }
 
 /**
@@ -48,4 +51,22 @@ void led_rgb_set(uint8_t r, uint8_t g, uint8_t b)
     led_state.rgb_red = r>>5;
     led_state.rgb_green = g>>5;
     led_state.rgb_blue = b>>5;
+}
+
+void led_rgb_off()
+{
+    RGB_RED = 1;
+    RGB_BLUE = 1;
+    RGB_GREEN = 1;
+
+    RGB_LED_ON = 0;
+}
+
+void led_rgb_on()
+{
+    RGB_RED = 0;
+    RGB_BLUE = 0;
+    RGB_GREEN = 0;
+    
+    RGB_LED_ON = 1;
 }
