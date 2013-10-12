@@ -22,21 +22,24 @@ volatile rf_data rf_state;
 CircularBuffer TxCB;
 CircularBuffer RxCB;
 
-uint8_t tx_spi_buffer_array[SPI_BUFFER_SIZE];
-uint8_t rx_spi_buffer_array[SPI_BUFFER_SIZE];
+//uint8_t tx_spi_buffer_array[SPI_BUFFER_SIZE];
+//uint8_t rx_spi_buffer_array[SPI_BUFFER_SIZE];
 
 uint8_t TxBufferKEN[100] __attribute__((aligned(32 * 16)));
 uint8_t RxBufferKEN[100] __attribute__((aligned(32 * 16)));
+
+uint8_t TxBufferDummy[1] __attribute__((space(xmemory)));//dummy buffer for transmitting messages & receiving headers
+uint8_t RxBufferHeader[3] __attribute__((space(xmemory)));//buffer for receiving headers
 /*
  * DMA2 Tx Buffers
  */
-unsigned int TxBufferA[16] __attribute__((space(xmemory)));
-unsigned int TxBufferB[16] __attribute__((space(xmemory)));
+//unsigned int TxBufferA[16] __attribute__((space(xmemory)));
+//unsigned int TxBufferB[16] __attribute__((space(xmemory)));
 /*
  * DMA3 Rx Buffers
  */
-unsigned int RxBufferA[16] __attribute__((space(xmemory)));
-unsigned int RxBufferB[16] __attribute__((space(xmemory)));
+//unsigned int RxBufferA[16] __attribute__((space(xmemory)));
+//unsigned int RxBufferB[16] __attribute__((space(xmemory)));
 
 /*
  * Sets Up the SPI2 line to interface with the XBee Wifi
@@ -49,6 +52,7 @@ return_value_t spi2_init() {
     unsigned int pad_address;
     unsigned int count;
 
+    /*
     // Setup Circular Buffers, Crash and Burn if FAIL
     if (!CB_Init(&TxCB, tx_spi_buffer_array, SPI_BUFFER_SIZE)) {
         LED_1 = 1;
@@ -63,7 +67,7 @@ return_value_t spi2_init() {
         LED_3 = 1;
         LED_4 = 1;
         while (1);
-    }
+    }*/
 
     rf_state.init_SPI2_return = RET_OK;
     /*
@@ -231,9 +235,9 @@ return_value_t xbee_init() {
     }
     LED_3 = 1;
 
-    tx_spi_buffer_array[0] = 0x01;
-    tx_spi_buffer_array[1] = 0x02;
-    tx_spi_buffer_array[2] = 0x03;
+//    tx_spi_buffer_array[0] = 0x01;
+  //  tx_spi_buffer_array[1] = 0x02;
+   // tx_spi_buffer_array[2] = 0x03;
     TxBufferKEN[0]= 1;
     TxBufferKEN[1]= 2;
     TxBufferKEN[2]= 3;
@@ -302,9 +306,14 @@ return_value_t rf_init()
     rf_state.xbee_state = XBEE_STATE_INIT;
     rf_state.xbee_at_req = 0;
     rf_state.at_packet.raw_packet.valid = 0;
-    
+    rf_state.cur_tx_packet_type = XBEE_API_FRAME_TX_IPV4;
+    rf_state.cur_tx_ip_packet.raw_packet.valid = 0;
+    rf_state.cur_tx_at_packet.raw_packet.valid = 0;
+    rf_state.cur_rx_raw_packet.valid = 0;
     rf_state.dma2_int_cnt = rf_state.dma3_int_cnt = 0;
     rf_state.init_return = RET_OK;
+    rf_state.cur_raw_packet = 0;
+    rf_state.cur_packet_timeout_ctr = 0;
     //init spi & dma
     spi2_init();
     if(rf_state.init_SPI2_return!=RET_OK){
@@ -322,40 +331,73 @@ return_value_t rf_init()
 
 void rf_transmit_spi_packet()
 {
-    //invalidate packet
-    rf_state.cur_tx_packet.valid = 0;
-
+    long unsigned int sta_address;
+    if(rf_state.cur_tx_packet_type == XBEE_API_FRAME_TX_IPV4){
+        rf_state.cur_raw_packet = &rf_state.cur_tx_ip_packet.raw_packet;
+    } else {
+        rf_state.cur_raw_packet = &rf_state.cur_tx_at_packet.raw_packet;
+    }
+    XBEE_nSSEL = 0;
     DMA2CONbits.CHEN = 0; //NEEDED OR WE CAN ONLY DO ONE TRANSFER!!!
     DMA3CONbits.CHEN = 0;
-    DMA2CNT = SPI_BUFFER_SIZE-1;
-    DMA3CNT = SPI_BUFFER_SIZE-1;
+    DMA2CNT = rf_state.cur_raw_packet->length-1;
+    DMA3CNT = DMA2CNT;
+    sta_address = (long unsigned int)rf_state.cur_raw_packet->raw_data;
+    DMA2STAL = sta_address & 0xFFFF;
+    DMA2STAH = sta_address >> 16;
+    sta_address = (long unsigned int)TxBufferDummy;
+    DMA3STAL = sta_address & 0xFFFF;
+    DMA3STAH = sta_address >> 16;
+    DMA2CONbits.AMODE = 0b00; //enable postincrement
+    DMA3CONbits.AMODE = 0b01; //disable postincrement (saves memory)
     DMA2CONbits.CHEN = 1;
     DMA3CONbits.CHEN = 1;
-    //dma3 = rf_state.dma3_int_cnt;
 
-    DMA2REQbits.FORCE = 1;//start transfer
-
-    //TODO:free the data in the DMA interrupt
-    //if(rf_state.cur_tx_packet.dynamic){
-    //}
+    DMA2REQbits.FORCE = 1;//start transfer   
 }
 
 void rf_receive_spi_packet()
 {
+    long unsigned int sta_address;
+    XBEE_nSSEL = 0;
+    DMA2CONbits.CHEN = 0;
+    DMA3CONbits.CHEN = 0;
+    DMA2CNT = 2; //3 bytes header
+    DMA3CNT = DMA2CNT;
+    sta_address = (long unsigned int)TxBufferDummy;
+    DMA2STAL = sta_address & 0xFFFF;
+    DMA2STAH = sta_address >> 16;
+    sta_address = (long unsigned int)RxBufferHeader;
+    DMA3STAL = sta_address & 0xFFFF;
+    DMA3STAH = sta_address >> 16;
+    DMA2CONbits.AMODE = 0b01; //disable postincrement
+    DMA3CONbits.AMODE = 0b00; //enable postincrement
+    DMA2CONbits.CHEN = 1;
+    DMA3CONbits.CHEN = 1;
 
+    DMA2REQbits.FORCE = 1;//start transfer
 }
 
 void rf_process()
 {
+    void (*transmitted_cb)() = 0;
     while(rf_state.process_lock);
     rf_state.process_lock = 1;
     if(!rf_state.process_lock){
         return;
     }
-    //Handle received packets
+    //Check if pending transmissions response callback timed out
     switch(rf_state.xbee_state){
         case XBEE_STATE_IDLE_TRANSMIT_IP:
         case XBEE_STATE_IDLE_TRANSMIT_AT:
+            if(rf_state.cur_raw_packet){
+                if(rf_state.cur_raw_packet->valid && rf_state.cur_packet_timeout_ctr==0){
+                    //current transmit packet callback timed out
+                    rf_state.cur_raw_packet->valid = 0; //we're done with this packet
+                } else {
+                    //current transmit packet valid and waiting for callback
+                }
+            }
             //check for data in the raw incoming buffer            
             break;
         case XBEE_STATE_TRANSMIT:
@@ -382,16 +424,18 @@ void rf_process()
                 } else {
                     //at_req is not asserted, remain in transmit_ip mode
                     //TODO: if there's an IP packet to send, start sending it and go to XBEE_STATE_TRANSMIT
+                    if(!rf_state.cur_raw_packet || !rf_state.cur_raw_packet.valid) //wait for current packet response to time out
                     if(CB_ReadMany(&rf_state.ip_tx_buffer,&rf_state.cur_tx_ip_packet,sizeof(xbee_tx_ip_packet_t))){
-                        if(rf_state.cur_tx_ip_packet.raw_packet.valid){
-                            //if not valid, we just discard it
-                            //start the dma
-                            rf_state.xbee_state = XBEE_STATE_TRANSMIT;
-                            rf_transmit_spi_packet(&rf_state.cur_tx_ip_packet.raw_packet);
-                        } else {
-                            //discard packet. note: we do not free the data!
-                        }
-                    }
+                                if(rf_state.cur_tx_ip_packet.raw_packet.valid){
+                                    //if not valid, we just discard it
+                                    //start the dma
+                                    rf_state.xbee_state = XBEE_STATE_TRANSMIT;
+                                    rf_state.cur_tx_packet_type = XBEE_API_FRAME_TX_IPV4;
+                                    rf_transmit_spi_packet();
+                                } else {
+                                    //discard packet. note: we do not free the data!
+                                }
+                            }
                 }
             } else {
                 //go to receive
@@ -404,11 +448,14 @@ void rf_process()
                 if(rf_state.xbee_at_req){
                     //check if there's AT data to send
                     //TODO: if there's an AT command to send, start sending it and go to XBEE_STATE_TRANSMIT
+                    if(!rf_state.cur_raw_packet || !rf_state.cur_raw_packet.valid) //wait for current packet response to time out
                     if(rf_state.at_packet.raw_packet.valid){
                             //if not valid, we just discard it
                             //start the dma
                             rf_state.xbee_state = XBEE_STATE_TRANSMIT;
-                            rf_transmit_spi_packet(&rf_state.at_packet.raw_packet);
+                            rf_state.cur_tx_packet_type = XBEE_API_FRAME_TX_IPV4;
+                            rf_state.cur_tx_at_packet = rf_state.at_packet;//copy packet
+                            rf_transmit_spi_packet();
                         } else {
                             //discard packet. note: we do not free the data!
                     }
@@ -423,7 +470,40 @@ void rf_process()
             }
             break;
         case XBEE_STATE_TRANSMITTED:
+            //free packet pointer if necessary.
+            if(rf_state.cur_raw_packet->valid && rf_state.cur_raw_packet->dynamic){
+                free(rf_state.cur_raw_packet->raw_data);                
+            }
+            if(rf_state.cur_raw_packet->valid){
+                if(rf_state.cur_raw_packet->response_time_out==0 || (rf_state.cur_raw_packet->response_received==0)){
+                    //we're done with this packet
+                    rf_state.cur_raw_packet->valid = 0;
+                    rf_state.cur_packet_timeout_ctr = 0;
+                } else {
+                    //start countdown
+                    rf_state.cur_packet_timeout_ctr = rf_state.cur_raw_packet->response_time_out;
+                }
+                //call the transmitted callback if set
+                transmitted_cb = rf_state.cur_raw_packet->transmitted;
+                
+            }
+            //go back to IDLE_TRANSMIT_IP or IDLE_TRANSMIT_AT depending on the at_req flag
+            if(rf_state.xbee_at_req){
+                rf_state.xbee_state = XBEE_STATE_IDLE_TRANSMIT_AT;
+            } else {
+                rf_state.xbee_state = XBEE_STATE_IDLE_TRANSMIT_IP;
+            }
+
+            break;
         case XBEE_STATE_PACKET_RECEIVED:
+            //TODO: add packet to circular buffer if valid
+            if(rf_state.cur_rx_raw_packet.valid){
+                //compute checksum to see if it is really valid
+                
+                //if it is an TX STATUS or AT RESPONSE PACKET, check if we have a pending transmit
+                //if IP RX: add to IP RX buffer
+                //else ignore for now
+            }
             //go back to IDLE_TRANSMIT_IP or IDLE_TRANSMIT_AT depending on the at_req flag
             if(rf_state.xbee_at_req){
                 rf_state.xbee_state = XBEE_STATE_IDLE_TRANSMIT_AT;
@@ -443,6 +523,11 @@ void rf_process()
             break;
     };
     rf_state.process_lock = 0;
+
+    //call callbacks here, outside of the lock
+    if(transmitted_cb){
+        transmitted_cb();
+    }
 }
 
 /***************************
@@ -450,24 +535,68 @@ void rf_process()
  ***************************/
 void __attribute__((__interrupt__, __auto_psv__)) _DMA3Interrupt(void)
 {
-    static unsigned int RxBufferCount = 0;    // Keep record of the RX data buffer
-
+    bool fail = 0;
+    bool do_start_transmit;
+    long unsigned int sta_address;
+    while(rf_state.process_lock);
+    rf_state.process_lock = 1;
     switch(rf_state.xbee_state){
         case XBEE_STATE_TRANSMIT:
             //finished sending data, go to XBEE_STATE_TRANSMITTED
-            XBEE_nSSEL = 1;
-            //TODO: free packet pointer if necessary.
+            XBEE_nSSEL = 1;            
             rf_state.xbee_state = XBEE_STATE_TRANSMITTED;
             break;
         case XBEE_STATE_RECEIVE_FRAME:
             //full packet received
-            //TODO: put in raw RX buffer
+            rf_state.cur_rx_raw_packet.valid = 1;
             rf_state.xbee_state = XBEE_STATE_PACKET_RECEIVED;
             XBEE_nSSEL = 1;
             break;
         case XBEE_STATE_RECEIVE_HEADER:
-            //read N bytes (rest of packet)
-            //TODO: allocate memory for rx buffer
+            rf_state.cur_rx_raw_packet.valid = 0;
+            if(RxBufferHeader[0]==0x7E){                
+                rf_state.cur_rx_raw_packet.dynamic = 1;
+                rf_state.cur_rx_raw_packet.length = (((uint16_t)RxBufferHeader[1])<<8)|(RxBufferHeader[2]&0xFF);
+                //read N bytes (rest of packet)
+                if(rf_state.cur_rx_raw_packet.length<1500){
+                    rf_state.cur_raw_packet.raw_data = malloc(rf_state.cur_rx_raw_packet.length+4);
+                    if(rf_state.cur_raw_packet.raw_data){
+                        //we're good, memory was allocated
+                        rf_state.cur_raw_packet.raw_data[0] = RxBufferHeader[0];
+                        rf_state.cur_raw_packet.raw_data[1] = RxBufferHeader[1];
+                        rf_state.cur_raw_packet.raw_data[2] = RxBufferHeader[2];
+                        //set up DMA
+                        DMA2CONbits.CHEN = 0;
+                        DMA3CONbits.CHEN = 0;
+                        DMA2CNT = rf_state.cur_rx_raw_packet.length; //data+cks bytes
+                        DMA3CNT = DMA2CNT;
+                        sta_address = (long unsigned int)TxBufferDummy;
+                        DMA2STAL = sta_address & 0xFFFF;
+                        DMA2STAH = sta_address >> 16;
+                        sta_address = (long unsigned int)rf_state.cur_raw_packet.raw_data;
+                        DMA3STAL = sta_address & 0xFFFF;
+                        DMA3STAH = sta_address >> 16;
+                        DMA2CONbits.AMODE = 0b01; //disable postincrement
+                        DMA3CONbits.AMODE = 0b00; //enable postincrement
+                        DMA2CONbits.CHEN = 1;
+                        DMA3CONbits.CHEN = 1;
+                        rf_state.xbee_state = XBEE_STATE_RECEIVE_FRAME;
+                        do_start_transmit = 1;
+
+                    } else {
+                        fail = 1;
+                    }
+                } else {
+                    fail = 1;
+                }
+            } else {
+                fail = 1;
+            }
+            if(fail){
+                //error, stop receiving
+                XBEE_nSSEL = 1;
+                rf_state.xbee_state = XBEE_STATE_PACKET_RECEIVED;
+            }
             break;
         case XBEE_STATE_IDLE_TRANSMIT_IP:            
         case XBEE_STATE_IDLE_TRANSMIT_AT:            
@@ -479,10 +608,11 @@ void __attribute__((__interrupt__, __auto_psv__)) _DMA3Interrupt(void)
             break;
     };
 
+    rf_state.process_lock = 0;
     rf_state.dma3_int_cnt++;
-    //LED_1 = 0;
-
-    RxBufferCount ^= 1;
+    if(do_start_transmit){
+        DMA2REQbits.FORCE = 1;//start transfer
+    }
     IFS2bits.DMA3IF = 0;
 }
 

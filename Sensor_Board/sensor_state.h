@@ -152,7 +152,11 @@ extern "C" {
         xbee_tx_ip_packet_t     cur_tx_ip_packet;
         xbee_at_packet_t        at_packet;
          bool           process_lock; //lock to indicate that the state is changing (prevent interrupts from updating)
-        xbee_packet_t*          cur_tx_packet;
+        xbee_at_packet_t          cur_tx_at_packet;
+        xbee_packet_t*          cur_raw_packet;
+        xbee_packet_t           cur_rx_raw_packet;
+        unsigned                cur_tx_packet_type;
+        uint16_t                cur_packet_timeout_ctr;
     } rf_data;
 
     typedef struct {
