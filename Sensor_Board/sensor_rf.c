@@ -368,7 +368,8 @@ uint8_t compute_checksum(uint8_t* data, unsigned length)
 
 return_value_t allocate_ip_packet(uint16_t* allocateAmount, xbee_tx_ip_packet_t* ip_data)
 {
-    
+    ip_data->raw_packet.raw_data = malloc(allocateAmount + LENGTH_XBEE_IPv4_FRAME_NODATA);
+    ip_data->
 }
 
 return_value_t xbee_at_cmd(const char *atxx, const uint8_t *parmval, int parmlen, bool queued, xbee_at_packet_t* at_data)

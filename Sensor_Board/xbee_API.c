@@ -19,24 +19,3 @@
         // The function pointer for modem status callback
 	void (*modem_status_func)(uint8_t);
 
-return_value_t confirm_checksum(wifi_data* data) {
-    uint8_t sum;
-
-    // Defined in the XBee data sheet
-    sum = data->Frame_Name + data->cmdData + data->checksum;
-
-    if(sum == XBEE_CHECKSUM_VALUE){
-        return RET_OK;
-    }
-    else{
-        return RET_ERROR;
-    }
-}
-
-bool xbee_at_cmd(const char *atxx, const uint8_t *parmval, void *returndata, bool queued){
-    uint8_t* data;
-    uint8_t dataSize;
-
-    dataSize = sizeof(parmval) + LENGTH_XBEE_API_ATCMD + LENGTH_XBEE_HEADER;
-    data = malloc();
-}
