@@ -165,16 +165,18 @@ typedef struct {
         return_value_t          init_return;
         return_value_t          init_SPI2_return;
         return_value_t          init_XBEE_return;
-        volatile uint32_t       dma2_int_cnt;
-        volatile uint32_t       dma3_int_cnt;
-        int volatile            state;
-        volatile xbee_state_t   xbee_state;
+         uint32_t       dma2_int_cnt;
+         uint32_t       dma3_int_cnt;
+        int             state;
+         xbee_state_t   xbee_state;
         bool                    xbee_at_req;
         CircularBuffer          ip_tx_buffer;
         CircularBuffer          ip_rx_buffer;
         CircularBuffer          raw_rx_buffer;
         xbee_tx_ip_packet_t     cur_tx_ip_packet;
         xbee_at_packet_t        at_packet;
+         bool           process_lock; //lock to indicate that the state is changing (prevent interrupts from updating)
+        xbee_packet_t*          cur_tx_packet;
     } rf_data;
 
     typedef struct {
