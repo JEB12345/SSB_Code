@@ -8,6 +8,9 @@
 #ifndef SENSOR_STATE_H
 #define	SENSOR_STATE_H
 #include <stdint.h>
+
+#include "superball_circularbuffer.h"
+#include "xbee_API.h"
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -52,6 +55,16 @@ extern "C" {
         DMA_SPI_LC_DATA_READY_TO_BE_PROCESSED // We have finished to read the data, and we need to process it to extract actual data in the spi_main function
     } DMA_SPI_LC_state_t;*/
 
+    typedef enum {
+        XBEE_STATE_INIT,
+        XBEE_STATE_IDLE_TRANSMIT_IP,
+        XBEE_STATE_IDLE_TRANSMIT_AT,
+        XBEE_STATE_RECEIVE_HEADER,
+        XBEE_STATE_RECEIVE_FRAME,
+        XBEE_STATE_PACKET_RECEIVED,
+        XBEE_STATE_TRANSMIT,
+        XBEE_STATE_TRANSMITTED
+    } xbee_state_t;
 
     //maintain all state variables here
     typedef struct {
@@ -99,12 +112,45 @@ extern "C" {
     } loadcell_data;
 
     typedef struct {
+        uint8_t*    raw_data;
+        uint16_t    length;
+        bool        dynamic;
+    } xbee_packet_t;
+
+
+
+    typedef struct {
+        xbee_packet_t   raw_packet;
+        s_txoptions     options;
+        bool            valid;
+        void (*transmitted)();
+        void (*response_received)();
+        uint16_t        response_time_out;
+    } xbee_tx_ip_packet_t;
+
+    typedef struct {
+        xbee_packet_t   raw_packet;
+        s_rxinfo         options;
+    } xbee_rx_ip_packet_t;
+
+    typedef struct {
+        xbee_packet_t   raw_packet;
+    } xbee_at_packet_t;
+
+    typedef struct {
         return_value_t          init_return;
         return_value_t          init_SPI2_return;
         return_value_t          init_XBEE_return;
         volatile uint32_t       dma2_int_cnt;
         volatile uint32_t       dma3_int_cnt;
         int volatile            state;
+        volatile xbee_state_t   xbee_state;
+        bool                    xbee_at_req;
+        CircularBuffer          ip_tx_buffer;
+        CircularBuffer          ip_rx_buffer;
+        CircularBuffer          raw_rx_buffer;
+        xbee_tx_ip_packet_t     cur_tx_ip_packet;
+        xbee_at_packet_t        at_packet;
     } rf_data;
 
     typedef struct {
