@@ -133,6 +133,7 @@ typedef struct {
 // This structure is used to provide transmission options when transmiting IP data
 typedef struct {
     uint8_t             frame_id;
+    uint32_t            dest_address;
     uint16_t            dest_port;
     uint16_t            source_port;
     uint8_t             protocol;		// XBEE_NET_IPPROTO_UDP / TCP
@@ -140,7 +141,7 @@ typedef struct {
 } s_txoptions;
 
 typedef struct {
-    char*            at_cmd_id;
+    uint16_t            at_cmd_id;
     uint8_t             frame_id;
 } s_atoptions;
 
@@ -156,6 +157,8 @@ typedef struct {
 
     typedef struct {
         xbee_packet_t   raw_packet;
+        uint8_t*        user_data_location;
+        uint16_t        allocationLength;
         s_txoptions     options;
     } xbee_tx_ip_packet_t;
 
