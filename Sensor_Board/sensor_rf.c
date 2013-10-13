@@ -414,7 +414,6 @@ return_value_t allocate_ip_packet(uint16_t* allocateAmount, xbee_tx_ip_packet_t*
 return_value_t transmit_ip_packet(xbee_tx_ip_packet_t* ip_data)
 {
     static uint16_t ip_frame_id = 0;
-    uint8_t i;
     uint8_t rawDataSize;
 
     rawDataSize = (ip_data->raw_packet.length - LENGTH_XBEE_START_DELIMITER - LENGTH_XBEE_API_LENGTH - LENGTH_XBEE_CHECKSUM);
@@ -426,7 +425,7 @@ return_value_t transmit_ip_packet(xbee_tx_ip_packet_t* ip_data)
     ip_data->raw_packet.raw_data[3] = XBEE_API_FRAME_TX_IPV4;
     ip_data->raw_packet.raw_data[4] = ip_frame_id;
 
-    // Places the destination IP address, IP port, and source port to the packet as defined in data sheet
+    // Places the destination IP address, IP port, and source port to the packet as defined in datasheet
     ip_data->raw_packet.raw_data[5] = ip_data->options.dest_address[0];
     ip_data->raw_packet.raw_data[6] = ip_data->options.dest_address[1];
     ip_data->raw_packet.raw_data[7] = ip_data->options.dest_address[2];
@@ -438,12 +437,19 @@ return_value_t transmit_ip_packet(xbee_tx_ip_packet_t* ip_data)
     ip_data->raw_packet.raw_data[11] = ip_data->options.source_port[0];
     ip_data->raw_packet.raw_data[12] = ip_data->options.source_port[1];
 
-    // This is the user defined protocol UDP/TCP
+    // This is the user defined protocol UDP/TCP and if the port will be left open
     ip_data->raw_packet.raw_data[13] = ip_data->options.protocol;
-
     ip_data->raw_packet.raw_data[14] = ip_data->options.leave_open;
 
-    ip_data->raw_packet.raw_data[15+ip_data->allocationLength] = XBEE_CHECKSUM_VALUE - rawDataSize;
+    // Creates the Checksum as defined in the Xbee Wifi datasheet
+    ip_data->raw_packet.raw_data[15+ip_data->allocationLength] = compute_checksum(ip_data->raw_packet.raw_data, rawDataSize);
+
+    // Sets the dyanmic and valid flags
+    ip_data->raw_packet.dynamic = 1;
+    ip_data->raw_packet.valid = 1;
+
+    // Writes the raw packet into the Tx Circular Buffer
+    CB_WriteMany(&TxCB, ip_data->raw_packet.raw_data, ip_data->raw_packet.raw_data, 1);
 
     // Iterate IP frame id
     ip_frame_id++;
@@ -483,7 +489,7 @@ return_value_t xbee_at_cmd(const char *atxx, const uint8_t *parmval, int parmlen
     for(i=0;i<parmlen;i++) {
         rawPacket[i+7] = parmval[i];
     }
-    rawPacket[i+7] = XBEE_CHECKSUM_VALUE - rawDataSize;
+    rawPacket[i+7] = compute_checksum(rawPacket, rawDataSize);
     
     // Pass Raw created raw packet into our at_packet struct
     // TODO: add time out call
