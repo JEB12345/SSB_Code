@@ -112,7 +112,7 @@
 // report information about the incoming IP data
 typedef struct {
     uint8_t             frame_id;
-    uint32_t             source_addr;		// Address from which the data originated
+    uint8_t             source_addr[4];		// Address from which the data originated
     uint16_t            source_port;		// Port from which the data originated
     uint16_t            dest_port;		// Port on which the data arrived. If 0xBEE, data was received using app service
     uint8_t             protocol;		// XBEE_NET_IPPROTO_UDP / TCP
@@ -147,7 +147,7 @@ typedef struct {
 
 typedef union {
     void (*ip_tx)(uint8_t, uint8_t);//frame_id, status
-    bool (*at_cmd)(uint8_t, uint16_t, uint8_t, xbee_packet_t); //frame_id, at_cmd, status, packet, return true to indicate that the AT cmd was handled
+    bool (*at_cmd)(uint8_t, uint16_t, uint8_t, uint8_t*, uint16_t,bool); //frame_id, at_cmd, status, raw packet data, length, dynamic (needs to be freed), return true to indicate that the AT cmd was handled
 } response_callback_t;
 
     typedef struct {

@@ -432,7 +432,7 @@ return_value_t allocate_ip_packet(uint16_t* allocateAmount, xbee_tx_ip_packet_t*
     if(ip_data->raw_packet.raw_data==NULL) {
         return RET_ERROR;
     }
-    ip_data->user_data_location = ip_data->raw_packet.raw_data[LENGTH_XBEE_IPv4_FRAME_NODATA-LENGTH_XBEE_CHECKSUM];
+    ip_data->user_data_location = &ip_data->raw_packet.raw_data[LENGTH_XBEE_IPv4_FRAME_NODATA-LENGTH_XBEE_CHECKSUM];
     ip_data->allocationLength = allocateAmount;
 
     return RET_OK;
@@ -584,8 +584,8 @@ void rf_process()
                 } else {
                     //at_req is not asserted, remain in transmit_ip mode
                     //TODO: if there's an IP packet to send, start sending it and go to XBEE_STATE_TRANSMIT
-                    if(!rf_state.cur_raw_packet || !rf_state.cur_raw_packet.valid) //wait for current packet response to time out
-                    if(CB_ReadMany(&rf_state.ip_tx_buffer,&rf_state.cur_tx_ip_packet,sizeof(xbee_tx_ip_packet_t))){
+                    if(!rf_state.cur_raw_packet || !rf_state.cur_raw_packet->valid) //wait for current packet response to time out
+                    if(CB_ReadMany(&rf_state.ip_tx_buffer,(void*)(&rf_state.cur_tx_ip_packet),sizeof(xbee_tx_ip_packet_t))){
                                 if(rf_state.cur_tx_ip_packet.raw_packet.valid){
                                     //if not valid, we just discard it
                                     //start the dma
@@ -608,16 +608,17 @@ void rf_process()
                 if(rf_state.xbee_at_req){
                     //check if there's AT data to send
                     //TODO: if there's an AT command to send, start sending it and go to XBEE_STATE_TRANSMIT
-                    if(!rf_state.cur_raw_packet || !rf_state.cur_raw_packet.valid) //wait for current packet response to time out
-                    if(rf_state.at_packet.raw_packet.valid){
-                            //if not valid, we just discard it
-                            //start the dma
-                            rf_state.xbee_state = XBEE_STATE_TRANSMIT;
-                            rf_state.cur_tx_packet_type = XBEE_API_FRAME_TX_IPV4;
-                            rf_state.cur_tx_at_packet = rf_state.at_packet;//copy packet
-                            rf_transmit_spi_packet();
-                        } else {
-                            //discard packet. note: we do not free the data!
+                    if(!rf_state.cur_raw_packet || !rf_state.cur_raw_packet->valid){ //wait for current packet response to time out
+                        if(rf_state.at_packet.raw_packet.valid){
+                                //if not valid, we just discard it
+                                //start the dma
+                                rf_state.xbee_state = XBEE_STATE_TRANSMIT;
+                                rf_state.cur_tx_packet_type = XBEE_API_FRAME_TX_IPV4;
+                                rf_state.cur_tx_at_packet = rf_state.at_packet;//copy packet
+                                rf_transmit_spi_packet();
+                            } else {
+                                //discard packet. note: we do not free the data!
+                        }
                     }
                 } else {
                     //at_req was disabled, go back to transmit_ip mode
@@ -660,8 +661,8 @@ void rf_process()
             //TODO: add packet to circular buffer if valid
             if(rf_state.cur_rx_raw_packet.valid){
                 //compute checksum to see if it is really valid
-                cks = compute_checksum(rf_state.cur_rx_raw_packet.raw_data,rf_state.cur_raw_packet.length);
-                if(cks==rf_state.cur_rx_raw_packet.raw_data[rf_state.cur_raw_packet.length-1]){
+                cks = compute_checksum(rf_state.cur_rx_raw_packet.raw_data,rf_state.cur_rx_raw_packet.length);
+                if(cks==rf_state.cur_rx_raw_packet.raw_data[rf_state.cur_rx_raw_packet.length-1]){
                     //checksum OK
                     //handle packout outside state machine loop
                     rf_state.pending_rx_packet = rf_state.cur_rx_raw_packet;
@@ -731,7 +732,7 @@ void rf_process()
                 status = rf_state.pending_rx_packet.raw_data[7];
                 if (rf_state.cur_raw_packet && rf_state.cur_raw_packet->valid && rf_state.cur_tx_packet_type == XBEE_API_FRAME_ATCMD
                     && rf_state.cur_tx_at_packet.options.frame_id == frame_id  && rf_state.cur_tx_at_packet.options.at_cmd_id==at_cmd){
-                        if(rf_state.cur_raw_packet->response_received.at_cmd(frame_id, at_cmd, status, rf_state.pending_rx_packet)){
+                        if(rf_state.cur_raw_packet->response_received.at_cmd(frame_id, at_cmd, status, rf_state.pending_rx_packet.raw_data,rf_state.pending_rx_packet.length,rf_state.pending_rx_packet.dynamic)){
                             rf_state.cur_raw_packet->valid = 0; //packet is now fully handled
                             //CALLBACK NEEDS TO FREE MEMORY!!!
                         } else {
@@ -752,10 +753,10 @@ void rf_process()
                 ip_rx.options.protocol = rf_state.pending_rx_packet.raw_data[12];
                 ip_rx.options.source_port = (((uint16_t)rf_state.pending_rx_packet.raw_data[10])<<8) | (rf_state.pending_rx_packet.raw_data[11]&0xFF);
                 ip_rx.options.dest_port = (((uint16_t)rf_state.pending_rx_packet.raw_data[8])<<8) | (rf_state.pending_rx_packet.raw_data[9]&0xFF);
-                ip_rx.options.source_addr = ((((uint32_t)rf_state.pending_rx_packet.raw_data[4])&0xFF)<<24) |
-                                            ((((uint32_t)rf_state.pending_rx_packet.raw_data[5])&0xFF)<<16) |
-                                            ((((uint32_t)rf_state.pending_rx_packet.raw_data[6])&0xFF)<<8) |
-                                            ((((uint32_t)rf_state.pending_rx_packet.raw_data[7])&0xFF));
+                ip_rx.options.source_addr[0] = rf_state.pending_rx_packet.raw_data[4];
+                ip_rx.options.source_addr[1] = rf_state.pending_rx_packet.raw_data[5];
+                ip_rx.options.source_addr[2] = rf_state.pending_rx_packet.raw_data[6];
+                ip_rx.options.source_addr[3] = rf_state.pending_rx_packet.raw_data[7];
                 ip_rx.options.total_packet_length = ip_rx.raw_packet.length-15;
                 if(CB_WriteMany(&rf_state.ip_rx_buffer,&ip_rx,sizeof(xbee_rx_ip_packet_t),1)){
                     //success
@@ -815,15 +816,15 @@ void __attribute__((__interrupt__, __auto_psv__)) _DMA3Interrupt(void)
             rf_state.cur_rx_raw_packet.valid = 0;
             if(RxBufferHeader[0]==0x7E){                
                 rf_state.cur_rx_raw_packet.dynamic = 1;
-                rf_state.cur_rx_raw_packet.length = (((uint16_t)RxBufferHeader[1])<<8)|(RxBufferHeader[2]&0xFF)+4;
+                rf_state.cur_rx_raw_packet.length = ((((uint16_t)RxBufferHeader[1])<<8)|(RxBufferHeader[2]&0xFF))+4;
                 //read N bytes (rest of packet)
                 if(rf_state.cur_rx_raw_packet.length<1500 && rf_state.cur_rx_raw_packet.length>4){
-                    rf_state.cur_raw_packet.raw_data = malloc(rf_state.cur_rx_raw_packet.length);
-                    if(rf_state.cur_raw_packet.raw_data){
+                    rf_state.cur_rx_raw_packet.raw_data = malloc(rf_state.cur_rx_raw_packet.length);
+                    if(rf_state.cur_rx_raw_packet.raw_data){
                         //we're good, memory was allocated
-                        rf_state.cur_raw_packet.raw_data[0] = RxBufferHeader[0];
-                        rf_state.cur_raw_packet.raw_data[1] = RxBufferHeader[1];
-                        rf_state.cur_raw_packet.raw_data[2] = RxBufferHeader[2];
+                        rf_state.cur_rx_raw_packet.raw_data[0] = RxBufferHeader[0];
+                        rf_state.cur_rx_raw_packet.raw_data[1] = RxBufferHeader[1];
+                        rf_state.cur_rx_raw_packet.raw_data[2] = RxBufferHeader[2];
                         //set up DMA
                         DMA2CONbits.CHEN = 0;
                         DMA3CONbits.CHEN = 0;
@@ -832,7 +833,7 @@ void __attribute__((__interrupt__, __auto_psv__)) _DMA3Interrupt(void)
                         sta_address = (long unsigned int)TxBufferDummy;
                         DMA2STAL = sta_address & 0xFFFF;
                         DMA2STAH = sta_address >> 16;
-                        sta_address = (long unsigned int)rf_state.cur_raw_packet.raw_data;
+                        sta_address = (long unsigned int)rf_state.cur_rx_raw_packet.raw_data;
                         DMA3STAL = sta_address & 0xFFFF;
                         DMA3STAH = sta_address >> 16;
                         DMA2CONbits.AMODE = 0b01; //disable postincrement
