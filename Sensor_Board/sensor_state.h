@@ -112,7 +112,7 @@
 // report information about the incoming IP data
 typedef struct {
     uint8_t             frame_id;
-    uint8_t             source_addr[4];		// Address from which the data originated
+    uint32_t             source_addr;		// Address from which the data originated
     uint16_t            source_port;		// Port from which the data originated
     uint16_t            dest_port;		// Port on which the data arrived. If 0xBEE, data was received using app service
     uint8_t             protocol;		// XBEE_NET_IPPROTO_UDP / TCP
@@ -144,14 +144,19 @@ typedef struct {
     uint8_t             frame_id;
 } s_atoptions;
 
+typedef union {
+    void (*ip_tx)(uint8_t, uint8_t);//frame_id, status
+    bool (*at_cmd)(uint8_t, uint16_t, uint8_t, xbee_packet_t); //frame_id, at_cmd, status, packet, return true to indicate that the AT cmd was handled
+} response_callback_t;
+
     typedef struct {
         uint8_t*        raw_data;
         uint16_t        length;
         bool            dynamic;
         bool            valid;
         void (*transmitted)();
-        void (*response_received)();
-        uint16_t        response_time_out;
+        response_callback_t response_received; //void (*response_received)();
+        uint16_t        response_time_out; //response_time_out>0 indicates that there is a valid callback!!!
     } xbee_packet_t;
 
     typedef struct {
@@ -189,6 +194,8 @@ typedef struct {
         xbee_packet_t           cur_rx_raw_packet;
         unsigned                cur_tx_packet_type;
         uint16_t                cur_packet_timeout_ctr;
+        xbee_packet_t           pending_rx_packet;
+        uint8_t                 cur_modem_status;
     } rf_data;
 
     typedef struct {
