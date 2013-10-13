@@ -141,7 +141,7 @@ typedef struct {
 } s_txoptions;
 
 typedef struct {
-    uint16_t            at_cmd_id;
+    uint8_t*            at_cmd_id;
     uint8_t             frame_id;
 } s_atoptions;
 
