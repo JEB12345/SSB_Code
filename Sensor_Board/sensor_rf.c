@@ -469,7 +469,7 @@ return_value_t transmit_ip_packet(xbee_tx_ip_packet_t* ip_data)
     ip_data->raw_packet.raw_data[14] = ip_data->options.leave_open;
 
     // Creates the Checksum as defined in the Xbee Wifi datasheet
-    ip_data->raw_packet.raw_data[15+ip_data->allocationLength] = compute_checksum(ip_data->raw_packet.raw_data, rawDataSize);
+    ip_data->raw_packet.raw_data[15+ip_data->allocationLength] = compute_checksum(ip_data->raw_packet.raw_data, ip_data->raw_packet.length);
 
     // Sets the dyanmic and valid flags
     ip_data->raw_packet.dynamic = 1;
@@ -516,7 +516,7 @@ return_value_t xbee_at_cmd(const char *atxx, const uint8_t *parmval, int parmlen
     for(i=0;i<parmlen;i++) {
         rawPacket[i+7] = parmval[i];
     }
-    rawPacket[i+7] = compute_checksum(rawPacket, rawDataSize);
+    rawPacket[i+7] = compute_checksum(rawPacket, rawPacketSize);
     
     // Pass Raw created raw packet into our at_packet struct
     // TODO: add time out call
