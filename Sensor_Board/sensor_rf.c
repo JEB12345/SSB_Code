@@ -556,6 +556,7 @@ return_value_t xbee_at_cmd(const char *atxx, const uint8_t *parmval, int parmlen
     uint16_t rawPacketSize;
     uint16_t rawDataSize;
 
+    at_frame_id = 0;
     rawPacketSize = parmlen + LENGTH_XBEE_AT_FRAME_NOPARAM;
     rawPacket = malloc(rawPacketSize);
     if(rawPacket==NULL) {
@@ -639,6 +640,12 @@ void rf_process()
                 if(rf_state.cur_raw_packet->valid && rf_state.cur_packet_timeout_ctr==0){
                     //current transmit packet callback timed out
                     rf_state.cur_raw_packet->valid = 0; //we're done with this packet
+                    //call the callback indicating an error
+                    rf_state.cur_raw_packet->
+                            response_received.at_cmd(
+                                rf_state.cur_tx_at_packet.options.frame_id, rf_state.cur_tx_at_packet.options.at_cmd_id,
+                                1, //FAILED
+                                0,0,0); //NULL pointers for data structures
                 } else {
                     //current transmit packet valid and waiting for callback
                 }
