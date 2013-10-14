@@ -26,12 +26,14 @@
 
 extern system_data system_state;
 extern timer_data timer_state;
-
+extern volatile rf_data rf_state;
 /*
  * 
  */
 int main(int argc, char** argv) {
     uint32_t led_colors = 0;
+    uint8_t at_parm_test[10];
+    unsigned once;
     volatile uint8_t* uart_tx_packet;
     LED_1 = 1;
     LED_2 = 0;
@@ -72,6 +74,8 @@ int main(int argc, char** argv) {
     //pmsm_enable(1);
     //pmsm_set_duty_cycle(2000,2000,2000);
     //int i = 0;
+    once = 0;
+    rf_state.init_return = RET_UNKNOWN;
     for(;;){
         if(timer_state.systime != timer_state.prev_systime){
             timer_state.prev_systime = timer_state.systime;
@@ -79,21 +83,41 @@ int main(int argc, char** argv) {
                 //everything in here will be executed once every ms
                 //make sure that everything in here takes less than 1ms
                 //useful for checking state consistency, synchronization, watchdog...
-
+                rf_tick(1);
                 //if(can_tick()){
                     //reset device
                 //}
 
-                led_update();
-                led_colors+=1;
+                //led_update();
+                //led_colors+=1;
                 //led_rgb_set(0,255,0);
                 //led_rgb_set((led_colors>>16)&0xFF,(led_colors>>8)&0xFF,led_colors&0xFF);
                 //if(timer_state.systime&0b10000)
                     //loadcell_start();
-                if(timer_state.systime==2000){
+                ClrWdt();
+                if(timer_state.systime==100 && !once){
+                    LED_1 = 0;
+                    LED_2 = 0;
+                    LED_3 = 0;
+                    LED_4 = 0;
                     rf_init();
+                    once = 1;
+                    //LED_1 = 1;
+                    //while(1);
                 }
-                if(timer_state.systime&0b10000){
+                if(timer_state.systime==500 && rf_state.init_return==RET_OK){
+                    //send a test AT command
+                    at_parm_test[0] = 0x1;
+                    rf_state.at_packet.raw_packet.response_time_out = 0; //no callback
+                    
+                    xbee_at_cmd_no_cb("AP",at_parm_test,1,0,&rf_state.at_packet);
+
+                    xbee_send_at_cmd();
+                }
+                if(timer_state.systime&0b100000){
+                    LED_3=!LED_3;
+                }
+                if(timer_state.systime&0b10000 && 0){
                             uart_tx_packet = uart_tx_cur_packet();
                             //0:0XFF
                             //1:LEN
@@ -135,6 +159,9 @@ int main(int argc, char** argv) {
             //untimed processes in main loop:
             //executed as fast as possible
             //these processes should NOT block the main loop
+            if(rf_state.init_return==RET_OK){
+                rf_process();
+            }
         }
     }
     return (EXIT_SUCCESS);

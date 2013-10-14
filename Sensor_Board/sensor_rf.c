@@ -415,8 +415,6 @@ void rf_receive_spi_packet()
     Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
     Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
     Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
-    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
-    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
     DMA2REQbits.FORCE = 1;//start transfer
 }
 
@@ -544,7 +542,12 @@ return_value_t transmit_ip_packet(xbee_tx_ip_packet_t* ip_data)
     return RET_OK;
 }
 
-return_value_t xbee_at_cmd(const char *atxx, const uint8_t *parmval, int parmlen, bool queued, xbee_at_packet_t* at_data)
+return_value_t xbee_at_cmd_no_cb(const char *atxx, const uint8_t *parmval, int parmlen, bool queued, xbee_at_packet_t* at_data)
+{
+    return xbee_at_cmd(atxx, parmval, parmlen, queued, at_data,0,0,0);            
+}
+
+return_value_t xbee_at_cmd(const char *atxx, const uint8_t *parmval, int parmlen, bool queued, xbee_at_packet_t* at_data, XBEE_TRANSMITTED_CB, XBEE_RESPONSE_CB, uint16_t timeout)
 {
     uint16_t i;
     static uint8_t at_frame_id = 1; //if we start from zero, the first cmd wont get a response
@@ -585,6 +588,9 @@ return_value_t xbee_at_cmd(const char *atxx, const uint8_t *parmval, int parmlen
     at_data->raw_packet.length = rawPacketSize;
     at_data->raw_packet.dynamic = 1;
     at_data->raw_packet.valid = 1;
+    at_data->raw_packet.response_received.at_cmd = at_cmd;
+    at_data->raw_packet.transmitted = ip_tx;
+    at_data->raw_packet.response_time_out = timeout;
 
     // Pass the AT ID and Frame ID to struct
     at_data->options.at_cmd_id[0] = atxx[0];
