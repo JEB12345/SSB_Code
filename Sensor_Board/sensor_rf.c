@@ -556,7 +556,7 @@ return_value_t xbee_at_cmd(const char *atxx, const uint8_t *parmval, int parmlen
     uint16_t rawPacketSize;
     uint16_t rawDataSize;
 
-    at_frame_id = 0;
+    
     rawPacketSize = parmlen + LENGTH_XBEE_AT_FRAME_NOPARAM;
     rawPacket = malloc(rawPacketSize);
     if(rawPacket==NULL) {

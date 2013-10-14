@@ -30,9 +30,9 @@ void led_update()
     static uint16_t state = 0;
 
     if(RGB_LED_ON == 1){
-        RGB_RED = led_state.rgb_red<state;
-        RGB_GREEN =led_state.rgb_green<state;
-        RGB_BLUE = led_state.rgb_blue<state;
+        RGB_RED = led_state.rgb_red<=state;
+        RGB_GREEN =led_state.rgb_green<=state;
+        RGB_BLUE = led_state.rgb_blue<=state;
 
         if(++state>=8){
             state=0;
