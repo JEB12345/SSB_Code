@@ -28,18 +28,51 @@ extern system_data system_state;
 extern timer_data timer_state;
 extern volatile rf_data rf_state;
 
+void at_cmd_test_transmitted_tp_cb()
+{
+    
+}
+
+bool at_cmd_test_response_tp_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
+{
+    uint8_t* at_resp_param;
+    int8_t temperature;
+    //led_rgb_set(255,255,0);
+
+    at_resp_param = xbee_at_cmd_data(raw_packet);
+
+    temperature = at_resp_param[0];
+
+    if(dynamic){
+        free(raw_packet);
+    }
+    return 1;
+}
+
+
 void at_cmd_test_transmitted_cb()
 {
-    led_rgb_set(0,255,0);
+    //led_rgb_set(0,255,0);
 }
 
 bool at_cmd_test_response_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
 {
-    led_rgb_set(0,255,255);
+    //led_rgb_set(0,255,255);
     LED_4 = 1;
+    if(status==1){
+        led_rgb_set(0,0,255);
+    } else {
+        led_rgb_set(0,255,0);
+        
+    }
+    xbee_at_cmd("TP",0,0,0,&rf_state.at_packet,at_cmd_test_transmitted_tp_cb,at_cmd_test_response_tp_cb,10);
+    xbee_send_at_cmd();
     if(dynamic){
         free(raw_packet);
     }
+
+
+
     return 1;
 }
 

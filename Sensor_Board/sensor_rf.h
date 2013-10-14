@@ -41,7 +41,12 @@ extern "C" {
      * Same function, but without callbacks.
      */
     return_value_t xbee_at_cmd_no_cb(const char *atxx, const uint8_t *parmval, int parmlen, bool queued, xbee_at_packet_t* at_data);
-
+    
+    /**
+     * returns a pointer to the actual parameter data (if any) in an AT cmd response packet
+     * @param _X
+     */
+    #define xbee_at_cmd_data(_X)    ((_X)+8)
 
     /**
      * Start transmission of the current AT command
