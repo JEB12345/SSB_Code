@@ -32,7 +32,18 @@ extern "C" {
      * @return The function returns error if it is unable to allocate the correct amount of memory, else success
      */
     return_value_t xbee_at_cmd(const char *atxx, const uint8_t *parmval, int parmlen, bool queued, xbee_at_packet_t* at_data);
-    
+
+    /**
+     * This function evaluates the pending callbacks.
+     * This function has to be called at a fixed rate (ms specifies the number of milliseconds since the last call).
+     */
+    void rf_tick(unsigned ms);
+
+    /**
+     * This function updates the XBEE state machine and processes incoming and outgoing data.
+     * It is a non-blocking function that has to be called as often as possible to ensure smooth operation.
+     * However, it does not need to be called at a fixed rate (cf. rf_tick).
+     */
     void rf_process();
 
 
