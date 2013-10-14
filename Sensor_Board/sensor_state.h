@@ -191,8 +191,8 @@ typedef union {
         CircularBuffer          raw_rx_buffer;
         xbee_tx_ip_packet_t     cur_tx_ip_packet;
         xbee_at_packet_t        at_packet;
-         bool           process_lock; //lock to indicate that the state is changing (prevent interrupts from updating)
-        xbee_at_packet_t          cur_tx_at_packet;
+        bool                    process_lock; //lock to indicate that the state is changing (prevent interrupts from updating)
+        xbee_at_packet_t        cur_tx_at_packet;
         xbee_packet_t*          cur_raw_packet;
         xbee_packet_t           cur_rx_raw_packet;
         unsigned                cur_tx_packet_type;
@@ -203,8 +203,11 @@ typedef union {
 
     typedef struct {
         return_value_t          init_return;
-        uint8_t                 current_state;
         return_value_t          callback_success;
+        return_value_t          network_setup_complete;
+        uint8_t                 current_state;
+        uint8_t*                current_at_cmd;
+        uint8_t*                current_parmval;
         
     }network_init;
 
