@@ -141,13 +141,16 @@ typedef struct {
 } s_txoptions;
 
 typedef struct {
-    uint8_t*            at_cmd_id;
+    uint16_t            at_cmd_id;
     uint8_t             frame_id;
 } s_atoptions;
 
+#define XBEE_RESPONSE_CB bool (*at_cmd)(uint8_t, uint16_t, uint8_t, uint8_t*, uint16_t,bool) //frame_id, at_cmd, status, raw packet data, length, dynamic (needs to be freed), return true to indicate that the AT cmd was handled
+#define XBEE_TRANSMITTED_CB void (*ip_tx)()
+
 typedef union {
-    void (*ip_tx)(uint8_t, uint8_t);//frame_id, status
-    bool (*at_cmd)(uint8_t, uint16_t, uint8_t, uint8_t*, uint16_t,bool); //frame_id, at_cmd, status, raw packet data, length, dynamic (needs to be freed), return true to indicate that the AT cmd was handled
+    XBEE_TRANSMITTED_CB;
+    XBEE_RESPONSE_CB;
 } response_callback_t;
 
     typedef struct {
