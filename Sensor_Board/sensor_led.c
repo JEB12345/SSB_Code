@@ -48,6 +48,7 @@ void led_update()
  */
 void led_rgb_set(uint8_t r, uint8_t g, uint8_t b)
 {
+    led_rgb_on();
     led_state.rgb_red = r>>5;
     led_state.rgb_green = g>>5;
     led_state.rgb_blue = b>>5;
