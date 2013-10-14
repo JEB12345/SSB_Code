@@ -455,6 +455,18 @@ void rf_receive_spi_packet()
     Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
     Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
     Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
     DMA2REQbits.FORCE = 1;//start transfer
 }
 
