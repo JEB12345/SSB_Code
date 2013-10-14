@@ -27,6 +27,22 @@
 extern system_data system_state;
 extern timer_data timer_state;
 extern volatile rf_data rf_state;
+
+void at_cmd_test_transmitted_cb()
+{
+    led_rgb_set(0,255,0);
+}
+
+bool at_cmd_test_response_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
+{
+    led_rgb_set(0,255,255);
+    LED_4 = 1;
+    if(dynamic){
+        free(raw_packet);
+    }
+    return 1;
+}
+
 /*
  * 
  */
@@ -60,7 +76,7 @@ int main(int argc, char** argv) {
     LED_4 = 1;
     state_init();
     uart_init();
-    led_rgb_set(0,0,0);
+    led_rgb_off();
     LED_1 = 0;
     LED_2 = 0;
     LED_3 = 0;
@@ -88,7 +104,7 @@ int main(int argc, char** argv) {
                     //reset device
                 //}
 
-                //led_update();
+                led_update();
                 //led_colors+=1;
                 //led_rgb_set(0,255,0);
                 //led_rgb_set((led_colors>>16)&0xFF,(led_colors>>8)&0xFF,led_colors&0xFF);
@@ -110,9 +126,13 @@ int main(int argc, char** argv) {
                     at_parm_test[0] = 0x1;
                     rf_state.at_packet.raw_packet.response_time_out = 0; //no callback
                     
-                    xbee_at_cmd_no_cb("AP",at_parm_test,1,0,&rf_state.at_packet);
+                    //xbee_at_cmd_no_cb("AP",at_parm_test,1,0,&rf_state.at_packet);
+
+                    xbee_at_cmd("AP",at_parm_test,1,0,&rf_state.at_packet,at_cmd_test_transmitted_cb,at_cmd_test_response_cb,10);
 
                     xbee_send_at_cmd();
+
+
                 }
                 if(timer_state.systime&0b100000){
                     LED_3=!LED_3;

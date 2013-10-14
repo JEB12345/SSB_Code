@@ -15,6 +15,7 @@
 #include "sensor_state.h"
 #include "superball_circularbuffer.h"
 #include "xbee_API.h"
+#include "sensor_led.h"
 
 
 #define SPI_BUFFER_SIZE_TX 16*sizeof(xbee_tx_ip_packet_t)
@@ -593,8 +594,8 @@ return_value_t xbee_at_cmd(const char *atxx, const uint8_t *parmval, int parmlen
     at_data->raw_packet.response_time_out = timeout;
 
     // Pass the AT ID and Frame ID to struct
-    at_data->options.at_cmd_id[0] = atxx[0];
-    at_data->options.at_cmd_id[1] = atxx[1];
+    at_data->options.at_cmd_id =  atxx[0]<<8;
+    at_data->options.at_cmd_id |= atxx[1]&0xFF;
     at_data->options.frame_id = at_frame_id;
 
     // Iterate on the frame id
@@ -811,14 +812,16 @@ void rf_process()
                 break;
             case XBEE_API_FRAME_ATCMD_RESP:
                 //grab the frame id
-                LED_2 = 1;
+                //LED_2 = 1;
                 frame_id = rf_state.pending_rx_packet.raw_data[4];
                 //grab the AT command
                 at_cmd = (((uint16_t)rf_state.pending_rx_packet.raw_data[5])<<8) | (rf_state.pending_rx_packet.raw_data[6]&0xFF);
                 //grab the status
                 status = rf_state.pending_rx_packet.raw_data[7];
+                
                 if (rf_state.cur_raw_packet && rf_state.cur_raw_packet->valid && rf_state.cur_tx_packet_type == XBEE_API_FRAME_ATCMD
                     && rf_state.cur_tx_at_packet.options.frame_id == frame_id  && rf_state.cur_tx_at_packet.options.at_cmd_id==at_cmd){
+                        //LED_2 = 1;
                         if(rf_state.cur_raw_packet->response_received.at_cmd(frame_id, at_cmd, status, rf_state.pending_rx_packet.raw_data,rf_state.pending_rx_packet.length,rf_state.pending_rx_packet.dynamic)){
                             rf_state.cur_raw_packet->valid = 0; //packet is now fully handled
                             //CALLBACK NEEDS TO FREE MEMORY!!!
@@ -827,11 +830,12 @@ void rf_process()
                         }                    
                 } else {
                     //no callback, free message
+                    //LED_4 = 1;
                     if (rf_state.pending_rx_packet.dynamic) {
                         free(rf_state.pending_rx_packet.raw_data);
                         rf_state.pending_rx_packet.raw_data = 0;
 
-                        LED_4 = 1;
+                        //LED_4 = 1;
                     }
                 }
                 break;
