@@ -7,7 +7,7 @@
 
 #include "sensor_clock.h" //always include first, as this sets a number of config variables
 #include "sensor_adc.h"
-#include "CANopen.h"
+#include "../libs/canopen/CANopen_stack/CANopen.h"
 //#include "CO_PDO.h"
 #include "sensor_can.h"
 #include "sensor_imu.h"
@@ -69,6 +69,7 @@ int main(int argc, char** argv) {
     LED_2 = 0;
     LED_3 = 0;
     LED_4 = 0;
+    led_rgb_off();
     //pmsm_enable(1);
     //pmsm_set_duty_cycle(2000,2000,2000);
     //int i = 0;
