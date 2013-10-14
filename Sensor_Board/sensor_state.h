@@ -203,6 +203,13 @@ typedef union {
 
     typedef struct {
         return_value_t          init_return;
+        uint8_t                 current_state;
+        return_value_t          callback_success;
+        
+    }network_init;
+
+    typedef struct {
+        return_value_t          init_return;
         unsigned int volatile   systime; //updated by a timer
         unsigned int            prev_systime;  //updated in main loop
     } timer_data;
