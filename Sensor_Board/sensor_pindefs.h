@@ -15,8 +15,8 @@ extern "C" {
 return_value_t pin_init();
 
 //LEDs
-#define RGB_RED     LATGbits.LATG6
-#define RGB_BLUE    LATGbits.LATG8
+#define RGB_RED     LATGbits.LATG8
+#define RGB_BLUE    LATGbits.LATG6
 #define RGB_GREEN   LATAbits.LATA0
 #define LED_1       LATDbits.LATD6
 #define LED_4       LATDbits.LATD5 //incorrect in the schematic D3->D5
