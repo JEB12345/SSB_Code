@@ -211,8 +211,9 @@ typedef union {
         uint8_t                 current_state;
         uint8_t*                current_at_cmd;
         uint8_t*                current_parmval;
-        
-    }network_init;
+        XBEE_RESPONSE_CB;
+        XBEE_TRANSMITTED_CB;
+    }network_init_data;
 
     typedef struct {
         return_value_t          init_return;

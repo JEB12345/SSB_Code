@@ -355,6 +355,45 @@ return_value_t rf_init()
     return rf_state.init_return;
 }
 
+return_value_t network_init(network_init_data* network_data)
+{
+    // RE-Factory Reset, AH-Network Type, MA-IP address mode, ID-SSID,
+    // AI-Assoc. Indication, GW-Gateway IP, MK-IP Mask, MY-IP address
+    uint8_t at_init_cmd[8][2] = {"RE","AH","MA","ID","AI","GW","MK","MY"};
+    // Network Type-Infrastructure, IP Mode-DHCP, SSID-"ken"
+    // All other values - NULL
+    uint8_t at_init_paramval[8][31] = {NULL,2,0,"ken",NULL,NULL,NULL,NULL};
+    // parameter size array
+    unsigned int at_init_paramlen[8] = {0,1,0,3,0,0,0,0};
+    
+    static uint8_t cmd_control = 0;
+
+    switch(network_data.current_state) {
+        case 0:
+            xbee_at_cmd(at_init_cmd[cmd_control][],at_init_paramval[cmd_control][],at_init_paramlen[cmd_control],0,&rf_state.at_packet,NULL,at_init_response_cb(network_data),10);
+            break;
+        case 1:
+
+            cmd_control++;
+            if(cmd_control>7)
+            {
+                cmd_control = 0;
+            }
+            break;
+        default:
+            //TODO: Do something here if case fails...
+    }
+}
+
+bool at_init_response_cb(network_init_data* network_data)
+{
+    if(network_data.current_at_cmd == "AI")
+    {
+        if(network_data)
+    }
+
+}
+
 void rf_transmit_spi_packet()
 {
     long unsigned int sta_address;
