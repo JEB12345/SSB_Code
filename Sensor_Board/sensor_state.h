@@ -133,9 +133,9 @@ typedef struct {
 // This structure is used to provide transmission options when transmiting IP data
 typedef struct {
     uint8_t             frame_id;
-    uint8_t*            dest_address;
-    uint8_t*            dest_port;
-    uint8_t*            source_port;
+    uint8_t             dest_address[4];
+    uint16_t            dest_port;
+    uint16_t            source_port;
     uint8_t             protocol;		// XBEE_NET_IPPROTO_UDP / TCP
     bool                leave_open;
 } s_txoptions;

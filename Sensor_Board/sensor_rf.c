@@ -503,12 +503,16 @@ inline uint8_t compute_checksum(uint8_t* data, unsigned length){
 #endif
 }
 
-return_value_t allocate_ip_packet(uint16_t* allocateAmount, xbee_tx_ip_packet_t* ip_data)
+return_value_t allocate_ip_packet(uint16_t allocateAmount, xbee_tx_ip_packet_t* ip_data)
 {
     ip_data->raw_packet.raw_data = malloc(allocateAmount + LENGTH_XBEE_IPv4_FRAME_NODATA);
     if(ip_data->raw_packet.raw_data==NULL) {
         return RET_ERROR;
     }
+    ip_data->raw_packet.length = allocateAmount + LENGTH_XBEE_IPv4_FRAME_NODATA;
+    ip_data->raw_packet.response_time_out = 0;
+    ip_data->raw_packet.response_received.ip_tx = 0;
+    ip_data->raw_packet.transmitted = 0;
     ip_data->user_data_location = &ip_data->raw_packet.raw_data[LENGTH_XBEE_IPv4_FRAME_NODATA-LENGTH_XBEE_CHECKSUM];
     ip_data->allocationLength = allocateAmount;
 
@@ -517,7 +521,7 @@ return_value_t allocate_ip_packet(uint16_t* allocateAmount, xbee_tx_ip_packet_t*
 
 return_value_t transmit_ip_packet(xbee_tx_ip_packet_t* ip_data)
 {
-    static uint16_t ip_frame_id = 0;
+    static uint16_t ip_frame_id = 1;
     uint8_t rawDataSize;
 
     rawDataSize = (ip_data->raw_packet.length - LENGTH_XBEE_START_DELIMITER - LENGTH_XBEE_API_LENGTH - LENGTH_XBEE_CHECKSUM);
@@ -535,11 +539,11 @@ return_value_t transmit_ip_packet(xbee_tx_ip_packet_t* ip_data)
     ip_data->raw_packet.raw_data[7] = ip_data->options.dest_address[2];
     ip_data->raw_packet.raw_data[8] = ip_data->options.dest_address[3];
 
-    ip_data->raw_packet.raw_data[9] = ip_data->options.dest_port[0];
-    ip_data->raw_packet.raw_data[10] = ip_data->options.dest_port[1];
+    ip_data->raw_packet.raw_data[9] = ip_data->options.dest_port>>8;
+    ip_data->raw_packet.raw_data[10] = ip_data->options.dest_port&0xFF;
 
-    ip_data->raw_packet.raw_data[11] = ip_data->options.source_port[0];
-    ip_data->raw_packet.raw_data[12] = ip_data->options.source_port[1];
+    ip_data->raw_packet.raw_data[11] = ip_data->options.source_port>>8;
+    ip_data->raw_packet.raw_data[12] = ip_data->options.source_port&0xFF;
 
     // This is the user defined protocol UDP/TCP and if the port will be left open
     ip_data->raw_packet.raw_data[13] = ip_data->options.protocol;
@@ -552,13 +556,18 @@ return_value_t transmit_ip_packet(xbee_tx_ip_packet_t* ip_data)
     ip_data->raw_packet.dynamic = 1;
     ip_data->raw_packet.valid = 1;
 
+    // Update IP frame id
+    ip_frame_id++;
+
     // Writes the raw packet into the Tx Circular Buffer
     //CB_WriteMany(&TxCB, ip_data->raw_packet.raw_data, ip_data->raw_packet.raw_data, 1);
-    CB_WriteMany(&rf_state.ip_tx_buffer, ip_data->raw_packet.raw_data, ip_data->raw_packet.raw_data, 1);
+    if(CB_WriteMany(&rf_state.ip_tx_buffer, ip_data, sizeof(xbee_tx_ip_packet_t), 1)!=SUCCESS){
+        return RET_ERROR;
+    } else {
+        return RET_OK;
+    }
 
-    // Iterate IP frame id
-    ip_frame_id++;
-    return RET_OK;
+    
 }
 
 return_value_t xbee_at_cmd_no_cb(const char *atxx, const uint8_t *parmval, int parmlen, bool queued, xbee_at_packet_t* at_data)
