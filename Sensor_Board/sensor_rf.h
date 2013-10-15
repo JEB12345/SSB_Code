@@ -8,12 +8,18 @@
 #ifndef SENSOR_RF_H
 #define	SENSOR_RF_H
 #include "sensor_state.h"
+#include "xbee_API.h"
 #ifdef	__cplusplus
 extern "C" {
 #endif
 #define XBEE_RESET_RETRIES  5 //how many times to try to reset the XBEE before failing
 #define XBEE_RESET_WAIT_CYCLES  100000 //how many cycles to wait before the current XBEE reset trial has failed
     return_value_t rf_init();
+
+    /**
+     * Defines the starting values for the network_data struct
+     */
+    return_value_t network_init();
 
     /**
      * @brief xbee_at_cmd Create the raw AT packet based on the user command and input parameters
@@ -80,7 +86,21 @@ extern "C" {
     #define xbee_send_at_cmd() (rf_state.xbee_at_req=1)
 
     /**
-     * Registers a packet handler for received IP packets
+<<<<<<< HEAD
+     *@brief xbee_at_rawdata_size This function takes any full length raw AT command packet of and returns the size of the data
+     *
+     * @param _X raw AT command packet
+     */
+    #define xbee_at_rawdata_size(_X)   (sizeof(_X)-LENGTH_XBEE_AT_FRAME_NOPARAM)
+
+    /**
+     *@brief xbee_ip_rawdata_size This function takes any full length raw IPv4 command packet of and returns the size of the data
+     *
+     * @param _X raw IPv4 command packet
+     */
+    #define xbee_ip_rawdata_size(_X)   (sizeof(_X)-LENGTH_XBEE_IPv4_FRAME_NODATA)
+
+    /* Registers a packet handler for received IP packets
      * A packet handler will be called when there is data in the IP RX buffer.
      * If the packet handler returns true, we assume that the data was handled (and freed by the packet handler if necessary).
      * If the packet handler returns false, the packet is passed onto the next packet handler.

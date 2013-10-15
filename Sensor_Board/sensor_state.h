@@ -180,6 +180,8 @@ typedef union {
         s_atoptions     options;
     } xbee_at_packet_t;
 
+    typedef enum { INIT_IN_PROCESS = 0,  INIT_SUCCESS = 1, INIT_ERROR = 127} network_status_t;
+
     typedef struct {
         return_value_t          init_return;
         return_value_t          init_SPI2_return;
@@ -194,17 +196,25 @@ typedef union {
         CircularBuffer          raw_rx_buffer;
         xbee_tx_ip_packet_t     cur_tx_ip_packet;
         xbee_at_packet_t        at_packet;
-         bool           process_lock; //lock to indicate that the state is changing (prevent interrupts from updating)
-        xbee_at_packet_t          cur_tx_at_packet;
+        bool                    process_lock; //lock to indicate that the state is changing (prevent interrupts from updating)
+        xbee_at_packet_t        cur_tx_at_packet;
         xbee_packet_t*          cur_raw_packet;
         xbee_packet_t           cur_rx_raw_packet;
         unsigned                cur_tx_packet_type;
         uint16_t                cur_packet_timeout_ctr;
         xbee_packet_t           pending_rx_packet;
         uint8_t                 cur_modem_status;
+        network_status_t        cur_network_status;
         bool (*ip_rx_pkt_handlers[10])(xbee_rx_ip_packet_t*);
         unsigned                num_ip_rx_pkt_handlers;
     } rf_data;
+
+    typedef struct {
+        bool                    callback_success;
+        uint8_t                 cur_state;
+        uint8_t                 error_count;
+        bool                 connection_pending;
+    }network_data;
 
     typedef struct {
         return_value_t          init_return;
