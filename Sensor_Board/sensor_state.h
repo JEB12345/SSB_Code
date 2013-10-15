@@ -180,6 +180,8 @@ typedef union {
         s_atoptions     options;
     } xbee_at_packet_t;
 
+    typedef enum { INIT_IN_PROCESS = 0,  INIT_SUCCESS = 1, INIT_ERROR = 127} network_status_t;
+
     typedef struct {
         return_value_t          init_return;
         return_value_t          init_SPI2_return;
@@ -202,18 +204,15 @@ typedef union {
         uint16_t                cur_packet_timeout_ctr;
         xbee_packet_t           pending_rx_packet;
         uint8_t                 cur_modem_status;
+        network_status_t        cur_network_status;
     } rf_data;
 
     typedef struct {
-        return_value_t          init_return;
-        return_value_t          callback_success;
-        return_value_t          network_setup_complete;
-        uint8_t                 current_state;
-        uint8_t*                current_at_cmd;
-        uint8_t*                current_parmval;
-        XBEE_RESPONSE_CB;
-        XBEE_TRANSMITTED_CB;
-    }network_init_data;
+        bool                    callback_success;
+        uint8_t                 cur_state;
+        uint8_t                 error_count;
+        bool                 connection_pending;
+    }network_data;
 
     typedef struct {
         return_value_t          init_return;

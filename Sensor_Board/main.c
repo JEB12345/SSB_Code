@@ -126,6 +126,7 @@ int main(int argc, char** argv) {
     //int i = 0;
     once = 0;
     rf_state.init_return = RET_UNKNOWN;
+    network_init();
     for(;;){
         if(timer_state.systime != timer_state.prev_systime){
             timer_state.prev_systime = timer_state.systime;

@@ -22,6 +22,7 @@
 #define SPI_BUFFER_SIZE_RX 16*sizeof(xbee_rx_ip_packet_t)
 
 volatile rf_data rf_state;
+network_data network_state;
 //CircularBuffer TxCB;
 //CircularBuffer RxCB;
 
@@ -355,43 +356,150 @@ return_value_t rf_init()
     return rf_state.init_return;
 }
 
-return_value_t network_init(network_init_data* network_data)
+return_value_t network_init()
 {
-    // RE-Factory Reset, AH-Network Type, MA-IP address mode, ID-SSID,
-    // AI-Assoc. Indication, GW-Gateway IP, MK-IP Mask, MY-IP address
-    uint8_t at_init_cmd[8][2] = {"RE","AH","MA","ID","AI","GW","MK","MY"};
-    // Network Type-Infrastructure, IP Mode-DHCP, SSID-"ken"
-    // All other values - NULL
-    uint8_t at_init_paramval[8][31] = {NULL,2,0,"ken",NULL,NULL,NULL,NULL};
-    // parameter size array
-    unsigned int at_init_paramlen[8] = {0,1,0,3,0,0,0,0};
-    
-    static uint8_t cmd_control = 0;
-
-    switch(network_data.current_state) {
-        case 0:
-            xbee_at_cmd(at_init_cmd[cmd_control][],at_init_paramval[cmd_control][],at_init_paramlen[cmd_control],0,&rf_state.at_packet,NULL,at_init_response_cb(network_data),10);
-            break;
-        case 1:
-
-            cmd_control++;
-            if(cmd_control>7)
-            {
-                cmd_control = 0;
-            }
-            break;
-        default:
-            //TODO: Do something here if case fails...
-    }
+    network_state.callback_success = 0;
+    network_state.error_count = 0;
+    network_state.cur_state = 0;
+    network_state.connection_pending = 1;
+    rf_state.cur_network_status = INIT_IN_PROCESS;
 }
 
-bool at_init_response_cb(network_init_data* network_data)
+bool at_init_response_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length, bool dynamic)
 {
-    if(network_data.current_at_cmd == "AI")
+    // Check to see if we got a valid packet from the raw data
+    if(status != 0)
     {
-        if(network_data)
+        if(raw_packet == NULL)
+        {
+            network_state.callback_success = 0;
+            if(dynamic == 1)
+            {
+                free(raw_packet);
+            }
+            return 0;
+        }
+        else
+        {
+            network_state.callback_success = 0;
+            if(dynamic == 1)
+            {
+                free(raw_packet);
+            }
+            return 1;
+        }
     }
 
+    uint8_t* at_resp_param;
+
+    if(at_cmd == "AI")
+    {
+        at_resp_param = xbee_at_cmd_data(raw_packet);
+        if(at_resp_param == XBEE_DIAG_ASSOC_INSV)
+        {
+            rf_state.cur_network_status = INIT_SUCCESS;
+            network_state.connection_pending = 0;
+        }
+        else if(at_resp_param == XBEE_DIAG_ASSOC_DISCONNECTING)
+        {
+            network_state.callback_success = 0;
+            if(dynamic == 1)
+            {
+                free(raw_packet);
+            }
+            return 1;
+        }
+        else if(at_resp_param == XBEE_DIAG_ASSOC_SSID_NOT_FOUND)
+        {
+            network_state.callback_success = 0;
+            if(dynamic == 1)
+            {
+                free(raw_packet);
+            }
+            return 1;
+        }
+        else if(at_resp_param == XBEE_DIAG_ASSOC_SSID_NOT_CONFIGURED)
+        {
+            network_state.callback_success = 0;
+            if(dynamic == 1)
+            {
+                free(raw_packet);
+            }
+            return 1;
+        }
+        else if(at_resp_param == XBEE_DIAG_ASSOC_JOIN_FAILED)
+        {
+            network_state.callback_success = 0;
+            if(dynamic == 1)
+            {
+                free(raw_packet);
+            }
+            return 1;
+        }
+        else
+        {
+        }
+    }
+    if(dynamic == 1)
+    {
+        free(raw_packet);
+    }
+    network_state.callback_success = 1;
+    return 1;
+}
+
+void network()
+{
+    //TODO: Make the network stuff more dynamic
+    uint8_t at_init_cmd[8][2] = {XBEE_AT_EXEC_RESTORE_DEFAULTS,
+                                XBEE_AT_NET_TYPE,
+                                XBEE_AT_NET_SSID,
+                                XBEE_AT_ADDR_SERIAL_COM_SERVICE_PORT,
+                                XBEE_AT_NET_ADDRMODE,
+                                XBEE_AT_DIAG_ASSOC_INFO,
+                                XBEE_AT_ADDR_GATEWAY,
+                                XBEE_AT_ADDR_NETMASK,
+                                XBEE_AT_ADDR_IPADDR};
+    // Network Type-Infrastructure, IP Mode-DHCP, SSID-"ken"
+    // All other values - NULL
+    uint8_t at_init_paramval[9][31] = {NULL,2,"ken",80,0,NULL,NULL,NULL,NULL};
+    // parameter size array
+    unsigned int at_init_paramlen[9] = {0,1,3,1,1,0,0,0,0};
+
+    static uint8_t cmd_control = 0;
+
+    switch(network_state.cur_state) {
+        case 0:
+            xbee_at_cmd(at_init_cmd[cmd_control],at_init_paramval[cmd_control],at_init_paramlen[cmd_control],0,&rf_state.at_packet,NULL,at_init_response_cb,10);
+            network_state.cur_state = 1;
+            break;
+        case 1:
+            if(network_state.callback_success == 0)
+            {
+                cmd_control = 0;
+                network_state.cur_state = 0;
+                network_state.error_count++;
+                if(network_state.error_count > 10)
+                {
+                    rf_state.cur_network_status = INIT_ERROR;
+                }
+                break;
+            }
+            else
+            {
+                if(cmd_control == 5)
+                {
+                    break;
+                }
+                cmd_control++;
+                network_state.cur_state = 0;
+                if(cmd_control > 8)
+                {
+                    cmd_control = 0;
+                }
+                break;
+            }
+    }
 }
 
 void rf_transmit_spi_packet()
