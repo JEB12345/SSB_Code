@@ -202,6 +202,8 @@ typedef union {
         uint16_t                cur_packet_timeout_ctr;
         xbee_packet_t           pending_rx_packet;
         uint8_t                 cur_modem_status;
+        bool (*ip_rx_pkt_handlers[10])(xbee_rx_ip_packet_t*);
+        unsigned                num_ip_rx_pkt_handlers;
     } rf_data;
 
     typedef struct {
@@ -284,6 +286,17 @@ typedef enum {
 
 
     } uart_data;
+
+    typedef struct {
+        return_value_t          init_return;
+        void*                   parser;
+        void*                   parser_settings;
+        CircularBuffer          rx_buffer;
+        const char*                   last_url;
+        uint16_t                last_url_length;
+    } http_data;
+
+
 
 #ifdef	__cplusplus
 }
