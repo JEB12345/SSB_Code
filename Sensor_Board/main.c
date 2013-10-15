@@ -15,7 +15,9 @@
 #include "sensor_loadcell.h"
 #include "sensor_pindefs.h"
 #include "sensor_rf.h"
+#include "xbee_API.h"
 #include "sensor_state.h"
+#include "sensor_http.h"
 //#include "sensor_hallsensors.h"
 //#include "sensor_pmsm.h"
 #include "sensor_uart.h"
@@ -27,6 +29,7 @@
 extern system_data system_state;
 extern timer_data timer_state;
 extern volatile rf_data rf_state;
+extern http_data http_state;
 
 void at_cmd_test_transmitted_tp_cb()
 {
@@ -46,6 +49,8 @@ bool at_cmd_test_response_tp_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t statu
     if(dynamic){
         free(raw_packet);
     }
+
+    rf_state.xbee_at_req = 0;
     return 1;
 }
 
@@ -154,19 +159,73 @@ int main(int argc, char** argv) {
                     //LED_1 = 1;
                     //while(1);
                 }
-                if(timer_state.systime==500 && rf_state.init_return==RET_OK){
-                    //send a test AT command
-                    at_parm_test[0] = 0x1;
-                    rf_state.at_packet.raw_packet.response_time_out = 0; //no callback
-                    
-                    //xbee_at_cmd_no_cb("AP",at_parm_test,1,0,&rf_state.at_packet);
-
-                    xbee_at_cmd("AP",at_parm_test,1,0,&rf_state.at_packet,at_cmd_test_transmitted_cb,at_cmd_test_response_cb,10);
-
-                    xbee_send_at_cmd();
-
-
+//                if(timer_state.systime==500 && rf_state.init_return==RET_OK){
+//                    //send a test AT command
+//                    at_parm_test[0] = 0x1;
+//                    rf_state.at_packet.raw_packet.response_time_out = 0; //no callback
+//
+//                    //xbee_at_cmd_no_cb("AP",at_parm_test,1,0,&rf_state.at_packet);
+//
+//                    xbee_at_cmd("AP",at_parm_test,1,0,&rf_state.at_packet,at_cmd_test_transmitted_cb,at_cmd_test_response_cb,10);
+//
+//                    xbee_send_at_cmd();
+//
+//
+//                }
+                if(timer_state.systime==700 && rf_state.init_return==RET_OK){
+                    http_init();
+                } else if(timer_state.systime>700 && http_state.init_return==RET_OK && rf_state.init_return==RET_OK){
+                    http_process();
                 }
+
+//                if(timer_state.systime>800 && rf_state.init_return==RET_OK ){
+//                    char AT_cmd[2];
+//                    unsigned parmlen;
+//                    switch(timer_state.systime){
+//                        case 800:
+//                            at_parm_test[0] = 0x1;
+//                            parmlen=0;
+//                            break;
+//                        case 950:
+//                            break;
+//                        default:
+//                            AT_cmd[0] = 0;
+//                    };
+//                    if(AT_cmd[0]!=0){
+//                        xbee_at_cmd_no_cb(AT_cmd,at_parm_test,parmlen,0,&rf_state.at_packet);
+//                        xbee_send_at_cmd();
+//                    }
+//                }
+
+//                if(timer_state.systime==1000){
+//                    //fake an rx message
+//                    xbee_rx_ip_packet_t ip_rx;
+//                    char* req = "GET /test HTTP/1.0\r\n"
+//                        "Host: 0.0.0.0:5000\r\n"
+//                        "User-Agent: ApacheBench/2.3\r\n"
+//                        "Accept: */*\r\n";
+//                    ip_rx.raw_packet.length = strlen(req)+15;
+//                    ip_rx.raw_packet.raw_data = malloc(ip_rx.raw_packet.length);
+//                    memcpy(ip_rx.raw_packet.raw_data+14,req,strlen(req));
+//                    ip_rx.options.checksum_error = 0;
+//                    ip_rx.options.frame_id = XBEE_API_FRAME_RX_IPV4;
+//                    ip_rx.options.protocol = XBEE_NET_IPPROTO_TCP;
+//                    ip_rx.options.source_port = 9876;
+//                    ip_rx.options.dest_port = 80;
+//                    ip_rx.options.source_addr[0] = 192;
+//                    ip_rx.options.source_addr[1] = 168;
+//                    ip_rx.options.source_addr[2] = 1;
+//                    ip_rx.options.source_addr[3] = 12;
+//                    ip_rx.options.total_packet_length = ip_rx.raw_packet.length-15;
+//                    ip_rx.raw_packet.dynamic = 1;
+//                    if(CB_WriteMany(&rf_state.ip_rx_buffer,&ip_rx,sizeof(xbee_rx_ip_packet_t),1)==SUCCESS){
+//                        //success
+//                    } else {
+//                        //if we cannot add it to the circular buffer, free the memory
+//                        free(ip_rx.raw_packet.raw_data);
+//                    }
+//                }
+
                 if(timer_state.systime&0b100000){
                     LED_3=!LED_3;
                 }
