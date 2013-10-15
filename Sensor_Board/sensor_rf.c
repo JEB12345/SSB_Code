@@ -320,6 +320,7 @@ return_value_t rf_init()
     rf_state.cur_packet_timeout_ctr = 0;
     rf_state.pending_rx_packet.valid = 0;
     rf_state.cur_modem_status = XBEE_MODEM_STATUS_RESET;
+    rf_state.num_ip_rx_pkt_handlers = 0;
     rf_state.init_return = RET_OK;
     //init Circular buffers
     if(rf_state.init_return==RET_OK){
@@ -500,6 +501,10 @@ void network()
                 break;
             }
     }
+
+void rf_add_ip_rx_packet_handler(bool (*ip_rx_pkt_handler)(xbee_rx_ip_packet_t*))
+{
+    rf_state.ip_rx_pkt_handlers[rf_state.num_ip_rx_pkt_handlers++] = ip_rx_pkt_handler;
 }
 
 void rf_transmit_spi_packet()
@@ -781,9 +786,30 @@ void rf_process()
     uint16_t at_cmd;
     xbee_rx_ip_packet_t ip_rx;
     void (*transmitted_cb)() = 0;
+    unsigned i;
+    bool ip_rx_handled;
 
     if(rf_state.init_XBEE_return!=RET_OK){
         return; //XBEE not functional
+    }
+
+    //Handle a packet currently in the IP RX buffer
+    if(CB_ReadMany(&rf_state.ip_rx_buffer,&ip_rx,sizeof(xbee_rx_ip_packet_t))==SUCCESS)
+    {
+        ip_rx_handled = 0;
+        for(i=0;i<rf_state.num_ip_rx_pkt_handlers;++i){
+            if(rf_state.ip_rx_pkt_handlers[i](&ip_rx)){
+                //packet handled
+                ip_rx_handled = 1;
+                break;
+            }
+        }
+        if(!ip_rx_handled){
+            if(ip_rx.raw_packet.dynamic){
+                free(ip_rx.raw_packet.raw_data);
+                ip_rx.raw_packet.raw_data = 0;
+            }
+        }
     }
 
     while(rf_state.process_lock); //wait for interrupt handler
@@ -1017,7 +1043,7 @@ void rf_process()
                 ip_rx.options.source_addr[2] = rf_state.pending_rx_packet.raw_data[6];
                 ip_rx.options.source_addr[3] = rf_state.pending_rx_packet.raw_data[7];
                 ip_rx.options.total_packet_length = ip_rx.raw_packet.length-15;
-                if(CB_WriteMany(&rf_state.ip_rx_buffer,&ip_rx,sizeof(xbee_rx_ip_packet_t),1)){
+                if(CB_WriteMany(&rf_state.ip_rx_buffer,&ip_rx,sizeof(xbee_rx_ip_packet_t),1)==SUCCESS){
                     //success
                 } else {
                     //if we cannot add it to the circular buffer, free the memory

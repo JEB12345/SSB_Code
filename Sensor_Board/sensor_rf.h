@@ -55,11 +55,20 @@ extern "C" {
     #define xbee_at_cmd_data(_X)    ((_X)+8)
 
     /**
+     * returns a pointer to the actual IP packet data (if any) in an IPv4 RX frame
+     * @param _X
+     */
+    #define xbee_ip_rx_rf_data(_X)    ((_X)+14)
+
+    #define xbee_ip_rx_rf_data_len(_X) ((*(_X)).length-15)
+
+    /**
      * Start transmission of the current AT command
      */
     #define xbee_send_at_cmd() (rf_state.xbee_at_req=1)
 
     /**
+<<<<<<< HEAD
      *@brief xbee_at_rawdata_size This function takes any full length raw AT command packet of and returns the size of the data
      *
      * @param _X raw AT command packet
@@ -72,6 +81,15 @@ extern "C" {
      * @param _X raw IPv4 command packet
      */
     #define xbee_ip_rawdata_size(_X)   (sizeof(_X)-LENGTH_XBEE_IPv4_FRAME_NODATA)
+
+    /* Registers a packet handler for received IP packets
+     * A packet handler will be called when there is data in the IP RX buffer.
+     * If the packet handler returns true, we assume that the data was handled (and freed by the packet handler if necessary).
+     * If the packet handler returns false, the packet is passed onto the next packet handler.
+     * In case all handlers return false, the packet is freed if necessary.
+     * @param ip_rx_pkt_handler function pointer to the packet handler to register
+     */
+    void rf_add_ip_rx_packet_handler(bool (*ip_rx_pkt_handler)(xbee_rx_ip_packet_t*));
 
     /**
      * This function evaluates the pending callbacks.
