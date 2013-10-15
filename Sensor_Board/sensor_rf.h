@@ -47,7 +47,25 @@ extern "C" {
      * Same function, but without callbacks.
      */
     return_value_t xbee_at_cmd_no_cb(const char *atxx, const uint8_t *parmval, int parmlen, bool queued, xbee_at_packet_t* at_data);
-    
+
+    /**
+     * Allocates the data array for an IP packet.
+     * The callbacks are also initialized (to NULL).
+     * @param allocateAmount desired number of bytes for the IP payload
+     * @param ip_data the IP packet to initialize
+     * @return RET_OK if the array could be allocated, else RET_ERROR
+     */
+    return_value_t allocate_ip_packet(uint16_t allocateAmount, xbee_tx_ip_packet_t* ip_data);
+
+    /**
+     * Schedules an IP packet for transmission by adding it to the cyclic buffer.
+     * The data array will be automatically freed after transmission.
+     * @param ip_data the IP packet to transmit
+     * @return RET_OK if the packet was successfully added to the transmit buffer, else RET_ERROR
+     */
+    return_value_t transmit_ip_packet(xbee_tx_ip_packet_t* ip_data);
+
+
     /**
      * returns a pointer to the actual parameter data (if any) in an AT cmd response packet
      * @param _X
