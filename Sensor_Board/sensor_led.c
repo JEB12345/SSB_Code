@@ -65,9 +65,9 @@ void led_rgb_off()
 
 void led_rgb_on()
 {
-    RGB_RED = 0;
-    RGB_BLUE = 0;
-    RGB_GREEN = 0;
+//    RGB_RED = 0;
+//    RGB_BLUE = 0;
+//    RGB_GREEN = 0;
     
     RGB_LED_ON = 1;
 }

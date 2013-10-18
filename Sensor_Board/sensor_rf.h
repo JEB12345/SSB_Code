@@ -65,6 +65,7 @@ extern "C" {
      */
     return_value_t transmit_ip_packet(xbee_tx_ip_packet_t* ip_data);
 
+    void xbee_free_packet(xbee_packet_t* pkt);
 
     /**
      * returns a pointer to the actual parameter data (if any) in an AT cmd response packet

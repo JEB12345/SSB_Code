@@ -7,6 +7,8 @@
  */
 
 #include <p33Exxxx.h>
+#include "sensor_memdebug.h"
+#include "sensor_http.h"
 #include <dma.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,11 +18,13 @@
 #include "superball_circularbuffer.h"
 #include "xbee_API.h"
 #include "sensor_led.h"
+#include "sensor_iptest.h"
 
 
 #define SPI_BUFFER_SIZE_TX 16*sizeof(xbee_tx_ip_packet_t)
 #define SPI_BUFFER_SIZE_RX 16*sizeof(xbee_rx_ip_packet_t)
 
+uint8_t TEST_RX_BUFFER[500];
 volatile rf_data rf_state;
 network_data network_state;
 //CircularBuffer TxCB;
@@ -102,7 +106,7 @@ return_value_t spi2_init() {
     // SPI Clock Freq of 3.5Mhz
     // Fsck = Fp/PPRE*SPRE => 3,500,000 = 70,000,000/(4*5)
     SPI2CON1bits.PPRE = 2;      // Primary Prescale 4:1
-    SPI2CON1bits.SPRE = 3;      // Secondary Prescale 5:1
+    SPI2CON1bits.SPRE = 0;//3;      // Secondary Prescale 5:1
 
     // SPI2CON2 Register Settings
     SPI2CON2bits.FRMEN = 0;     // Framed Mode 0=Disabled, 1=Enabled
@@ -237,65 +241,6 @@ return_value_t xbee_init() {
         rf_state.init_XBEE_return = RET_ERROR;
         return rf_state.init_XBEE_return;
     }
-//    LED_3 = 1;
-    /*
-//    tx_spi_buffer_array[0] = 0x01;
-  //  tx_spi_buffer_array[1] = 0x02;
-   // tx_spi_buffer_array[2] = 0x03;
-    TxBufferKEN[0]= 1;
-    TxBufferKEN[1]= 2;
-    TxBufferKEN[2]= 3;
-
-    DMA2CONbits.CHEN = 0;
-    DMA3CONbits.CHEN = 0;
-    DMA2CNT = 2;
-    DMA3CNT = 2;
-    DMA2CONbits.CHEN = 1;
-    DMA3CONbits.CHEN = 1;
-    uint32_t dma2 = rf_state.dma2_int_cnt;
-    uint32_t dma3 = rf_state.dma3_int_cnt;
-
-    //SPI2BUF = tx_spi_buffer_array[0];
-    XBEE_nSSEL = 0;
-    
-    DMA2REQbits.FORCE = 1;//start transfer
-    //wait for dma interrupt
-    while(dma3==rf_state.dma3_int_cnt){
-        LED_4 = 1;
-    }
-    LED_4 = 0;
-    if(RxBufferKEN[0]==0x7E){
-        LED_1 = 1;
-    } else {
-        LED_1 = 0;
-    }
-    XBEE_nSSEL = 1;
-
-    
-
-    //DO IT AGAIN TO MAKE SURE:)
-    XBEE_nSSEL = 0;
-    for(i=0;i<16*50;++i){
-    TxBufferKEN[i]= SPI_BUFFER_SIZE-i;
-    }
-    TxBufferKEN[0] = RxBufferKEN[0];
-    TxBufferKEN[1] = RxBufferKEN[1];
-    TxBufferKEN[2] = RxBufferKEN[2];
-    DMA2CONbits.CHEN = 0; //NEEDED OR WE CAN ONLY DO ONE TRANSFER!!!
-    DMA3CONbits.CHEN = 0;
-    DMA2CNT = SPI_BUFFER_SIZE-1;
-    DMA3CNT = SPI_BUFFER_SIZE-1;
-    DMA2CONbits.CHEN = 1;
-    DMA3CONbits.CHEN = 1;
-    dma3 = rf_state.dma3_int_cnt;
-
-    DMA2REQbits.FORCE = 1;//start transfer
-    //wait for dma interrupt
-    while(dma3==rf_state.dma3_int_cnt){
-        LED_3 = 1;
-    }
-    LED_3 = 0;
-    XBEE_nSSEL = 1;*/
 
     rf_state.xbee_state = XBEE_STATE_IDLE_TRANSMIT_IP;
 
@@ -314,6 +259,7 @@ return_value_t rf_init()
     rf_state.cur_tx_ip_packet.raw_packet.valid = 0;
     rf_state.cur_tx_at_packet.raw_packet.valid = 0;
     rf_state.cur_rx_raw_packet.valid = 0;
+    rf_state.cur_rx_raw_packet.raw_data = NULL;
     rf_state.dma2_int_cnt = rf_state.dma3_int_cnt = 0;
     rf_state.init_return = RET_OK;
     rf_state.cur_raw_packet = 0;
@@ -322,6 +268,14 @@ return_value_t rf_init()
     rf_state.cur_modem_status = XBEE_MODEM_STATUS_RESET;
     rf_state.num_ip_rx_pkt_handlers = 0;
     rf_state.init_return = RET_OK;
+    rf_state.attn_detected = 1;
+    rf_state.receive_header_int = 1;
+    rf_state.nATTN_timeout = 20;
+     //interrupt pin
+    RPINR1bits.INT2R = 94;
+    INTCON2bits.INT2EP = 1;//falling edge interrupt
+    IFS1bits.INT2IF = 0;
+    IEC1bits.INT2IE = 1;
     //init Circular buffers
     if(rf_state.init_return==RET_OK){
         if(CB_Init(&rf_state.ip_tx_buffer,tx_spi_buffer_array,  SPI_BUFFER_SIZE_TX)==SUCCESS) {
@@ -353,6 +307,8 @@ return_value_t rf_init()
             rf_state.init_return = RET_ERROR;
         }
     }
+
+   
     rf_state.process_lock = 0;
     return rf_state.init_return;
 }
@@ -364,115 +320,180 @@ return_value_t network_init()
     network_state.cur_state = 0;
     network_state.connection_pending = 1;
     rf_state.cur_network_status = INIT_IN_PROCESS;
+    return RET_OK;
 }
+
+#define AT_CMD_STR_TO_UINT16(_X)    ((((uint16_t)(_X)[0])<<8)|((_X)[1]&0xFF))
 
 bool at_init_response_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length, bool dynamic)
 {
+    network_state.cur_state = 1;
     // Check to see if we got a valid packet from the raw data
     if(status != 0)
     {
         if(raw_packet == NULL)
         {
             network_state.callback_success = 0;
-            if(dynamic == 1)
-            {
-                free(raw_packet);
-            }
-            return 0;
+            return 1;
         }
         else
         {
             network_state.callback_success = 0;
-            if(dynamic == 1)
-            {
-                free(raw_packet);
-            }
+//            if(dynamic == 1)
+//            {
+//                free(raw_packet);
+//            }
             return 1;
         }
     }
 
-    uint8_t* at_resp_param;
+    uint8_t at_resp_param;
 
-    if(at_cmd == "AI")
+    if(at_cmd == AT_CMD_STR_TO_UINT16("AI"))
     {
-        at_resp_param = xbee_at_cmd_data(raw_packet);
+        at_resp_param = *xbee_at_cmd_data(raw_packet);
+        switch(at_resp_param){
+            case 0x01:
+                led_rgb_set(255,0,0);
+//                LED_1 = 1;
+//                LED_2 = 0;
+//                LED_3 = 0;
+//                LED_4 = 0;
+                break;
+            case 0x00:
+                led_rgb_set(0,255,0);
+//                LED_1 = 0;
+//                LED_2 = 1;
+//                LED_3 = 0;
+//                LED_4 = 1;
+                break;
+            case 0x02:
+                led_rgb_set(50,200,0);
+//                LED_1 = 1;
+//                LED_2 = 1;
+//                LED_3 = 0;
+//                LED_4 = 0;
+                break;
+            case 0xFF:
+                led_rgb_set(0,0,255);
+//                LED_1 = 0;
+//                LED_2 = 0;
+//                LED_3 = 1;
+//                LED_4 = 0;
+                break;
+            case 0x42:
+                led_rgb_set(50,0,255);
+//                LED_1 = 1;
+//                LED_2 = 0;
+//                LED_3 = 1;
+//                LED_4 = 0;
+                break;
+            default:
+                led_rgb_set(0,100,200);
+//                LED_1 = 1;
+//                LED_2 = 0;
+//                LED_3 = 0;
+//                LED_4 = 0;
+                break;
+        };
         if(at_resp_param == XBEE_DIAG_ASSOC_INSV)
         {
             rf_state.cur_network_status = INIT_SUCCESS;
+            rf_state.xbee_at_req = 0;
             network_state.connection_pending = 0;
         }
         else if(at_resp_param == XBEE_DIAG_ASSOC_DISCONNECTING)
         {
             network_state.callback_success = 0;
-            if(dynamic == 1)
-            {
-                free(raw_packet);
-            }
+//            if(dynamic == 1)
+//            {
+//                free(raw_packet);
+//            }
             return 1;
         }
         else if(at_resp_param == XBEE_DIAG_ASSOC_SSID_NOT_FOUND)
         {
             network_state.callback_success = 0;
-            if(dynamic == 1)
-            {
-                free(raw_packet);
-            }
+//            if(dynamic == 1)
+//            {
+//                free(raw_packet);
+//            }
             return 1;
         }
         else if(at_resp_param == XBEE_DIAG_ASSOC_SSID_NOT_CONFIGURED)
         {
             network_state.callback_success = 0;
-            if(dynamic == 1)
-            {
-                free(raw_packet);
-            }
+//            if(dynamic == 1)
+//            {
+//                free(raw_packet);
+//            }
             return 1;
         }
         else if(at_resp_param == XBEE_DIAG_ASSOC_JOIN_FAILED)
         {
             network_state.callback_success = 0;
-            if(dynamic == 1)
-            {
-                free(raw_packet);
-            }
+//            if(dynamic == 1)
+//            {
+//                free(raw_packet);
+//            }
             return 1;
         }
         else
-        {
+        {//still initializing or something
+            network_state.callback_success = 1;
+//            if(dynamic == 1)
+//            {
+//                free(raw_packet);
+//            }
+            return 1;
         }
     }
-    if(dynamic == 1)
-    {
-        free(raw_packet);
-    }
+//    if(dynamic == 1)
+//    {
+//        free(raw_packet);
+//    }
     network_state.callback_success = 1;
     return 1;
 }
 
 void network()
 {
+    if(rf_state.init_return!=RET_OK){
+        return;
+    }
     //TODO: Make the network stuff more dynamic
-    uint8_t at_init_cmd[8][2] = {XBEE_AT_EXEC_RESTORE_DEFAULTS,
-                                XBEE_AT_NET_TYPE,
-                                XBEE_AT_NET_SSID,
+    uint8_t at_init_cmd[9][2] = {
+        //XBEE_AT_EXEC_NETWORK_RESET,
+                                XBEE_AT_NET_TYPE,//XBEE_AT_EXEC_RESTORE_DEFAULTS,
+                                
                                 XBEE_AT_ADDR_SERIAL_COM_SERVICE_PORT,
                                 XBEE_AT_NET_ADDRMODE,
+                                XBEE_AT_NET_SSID,
                                 XBEE_AT_DIAG_ASSOC_INFO,
                                 XBEE_AT_ADDR_GATEWAY,
                                 XBEE_AT_ADDR_NETMASK,
                                 XBEE_AT_ADDR_IPADDR};
     // Network Type-Infrastructure, IP Mode-DHCP, SSID-"ken"
     // All other values - NULL
-    uint8_t at_init_paramval[9][31] = {NULL,2,"ken",80,0,NULL,NULL,NULL,NULL};
+    uint8_t* at_init_paramval[9];
+    uint8_t net_type[1] = {XBEE_NET_TYPE_IBSS_INFRASTRUCTURE};
+    uint8_t http_port[2] = {0,80};
+    uint8_t addr_mode[1] = {0};
+    at_init_paramval[0] = net_type;
+    at_init_paramval[1] = http_port;
+    at_init_paramval[2] = addr_mode;
+    at_init_paramval[3] = "Ken";
     // parameter size array
-    unsigned int at_init_paramlen[9] = {0,1,3,1,1,0,0,0,0};
+    unsigned at_init_paramlen[9] = {1,2,1,3,0,0,0,0};
 
     static uint8_t cmd_control = 0;
 
+    
     switch(network_state.cur_state) {
         case 0:
             xbee_at_cmd(at_init_cmd[cmd_control],at_init_paramval[cmd_control],at_init_paramlen[cmd_control],0,&rf_state.at_packet,NULL,at_init_response_cb,10);
-            network_state.cur_state = 1;
+            network_state.cur_state = 2;//waiting for response
+            xbee_send_at_cmd();
             break;
         case 1:
             if(network_state.callback_success == 0)
@@ -488,8 +509,11 @@ void network()
             }
             else
             {
-                if(cmd_control == 5)
+                if(cmd_control == 4)
                 {
+                    xbee_at_cmd(at_init_cmd[cmd_control],at_init_paramval[cmd_control],at_init_paramlen[cmd_control],0,&rf_state.at_packet,NULL,at_init_response_cb,10);
+                    network_state.cur_state = 2;//waiting for response
+                    xbee_send_at_cmd();
                     break;
                 }
                 cmd_control++;
@@ -500,7 +524,11 @@ void network()
                 }
                 break;
             }
+        default:
+            //do nothing
+            break;
     }
+}
 
 void rf_add_ip_rx_packet_handler(bool (*ip_rx_pkt_handler)(xbee_rx_ip_packet_t*))
 {
@@ -609,8 +637,6 @@ void rf_receive_spi_packet()
  */
 
 inline uint8_t compute_checksum(uint8_t* data, unsigned length){
-#define FANCYCKS
-#ifdef FANCYCKS
     //TODO: add support for more than 256 bytes (overflow...)
     uint16_t result = 0;
      unsigned int l = length - 5;
@@ -630,28 +656,12 @@ inline uint8_t compute_checksum(uint8_t* data, unsigned length){
 
       */
      return result;
-#else
-     	uint16_t result2;
-	unsigned l;
-        //uint8_t data_test[100];
-        //for(l=0;l<length;++l)
-        //    data_test[l] = data[l];
-	data+=3;
-	result2 = 0;
-	l = length-4;
-     	while(l){
-		//printf("%x\n",data[l-1]);
-        	result2 += data[--l];
-	}
-
-     	result2 = 0xFF-(result2&0xFF);
-        return result2;
-#endif
 }
 
 return_value_t allocate_ip_packet(uint16_t allocateAmount, xbee_tx_ip_packet_t* ip_data)
 {
-    ip_data->raw_packet.raw_data = malloc(allocateAmount + LENGTH_XBEE_IPv4_FRAME_NODATA);
+//    ip_data->raw_packet.raw_data = malloc(allocateAmount + LENGTH_XBEE_IPv4_FRAME_NODATA);
+    ip_data->raw_packet.raw_data = malloc_dbg(allocateAmount + LENGTH_XBEE_IPv4_FRAME_NODATA,1);
     if(ip_data->raw_packet.raw_data==NULL) {
         return RET_ERROR;
     }
@@ -712,8 +722,6 @@ return_value_t transmit_ip_packet(xbee_tx_ip_packet_t* ip_data)
     } else {
         return RET_OK;
     }
-
-    
 }
 
 return_value_t xbee_at_cmd_no_cb(const char *atxx, const uint8_t *parmval, int parmlen, bool queued, xbee_at_packet_t* at_data)
@@ -731,7 +739,8 @@ return_value_t xbee_at_cmd(const char *atxx, const uint8_t *parmval, int parmlen
 
     
     rawPacketSize = parmlen + LENGTH_XBEE_AT_FRAME_NOPARAM;
-    rawPacket = malloc(rawPacketSize);
+//    rawPacket = malloc(rawPacketSize);
+    rawPacket = malloc_dbg(rawPacketSize,2);
     if(rawPacket==NULL) {
         return RET_ERROR;
     }
@@ -790,6 +799,8 @@ void rf_tick(unsigned ms){
 
 void rf_process()
 {
+    long unsigned int sta_address;
+    bool fail;
     uint8_t cks;
     uint8_t frame_id, status;
     uint16_t at_cmd;
@@ -802,6 +813,18 @@ void rf_process()
         return; //XBEE not functional
     }
 
+    if(!XBEE_nATTN){
+        if(rf_state.nATTN_timeout==0){
+            LED_3 = 1;
+            while(1);
+        } else {
+            rf_state.nATTN_timeout--;
+        }
+    } else {
+        rf_state.nATTN_timeout = 100;
+    }
+
+
     //Handle a packet currently in the IP RX buffer
     if(CB_ReadMany(&rf_state.ip_rx_buffer,&ip_rx,sizeof(xbee_rx_ip_packet_t))==SUCCESS)
     {
@@ -813,11 +836,16 @@ void rf_process()
                 break;
             }
         }
+//        if(iptest_handle_rx_packet(&ip_rx)){
+//            ip_rx_handled = 1;
+//        }
         if(!ip_rx_handled){
-            if(ip_rx.raw_packet.dynamic){
-                free(ip_rx.raw_packet.raw_data);
-                ip_rx.raw_packet.raw_data = 0;
-            }
+            xbee_free_packet(&ip_rx.raw_packet);
+            led_rgb_set(0,0,255);
+//            if(ip_rx.raw_packet.dynamic){
+//                free(ip_rx.raw_packet.raw_data);
+//                ip_rx.raw_packet.raw_data = 0;
+//            }
         }
     }
 
@@ -860,9 +888,11 @@ void rf_process()
     //Update the state
     switch(rf_state.xbee_state){
         case XBEE_STATE_TRANSMIT:
+//            LED_2 = 1;LED_3 = 0;LED_4=0;
             //do nothing, wait till transmitted becomes active after DMA interrupt
             break;
         case XBEE_STATE_IDLE_TRANSMIT_IP:
+//            LED_2 = 0;LED_3 = 1;LED_4=0;
             if(XBEE_nATTN){
                 if(rf_state.xbee_at_req){
                     //go to TRANSMIT_AT MODE
@@ -881,16 +911,20 @@ void rf_process()
                                 } else {
                                     //discard packet. note: we do not free the data!
                                 }
-                            }
+                     }
                 }
-            } else {
+//            } else if(!rf_state.attn_detected){
+//                //xbee is slow, so wait for nATTN to go high again
+            }  else{
                 //go to receive
+                rf_state.attn_detected = 0;
                 rf_state.xbee_state = XBEE_STATE_RECEIVE_HEADER;
                 rf_receive_spi_packet();
             }
             break;
         case XBEE_STATE_IDLE_TRANSMIT_AT:
-            if(XBEE_nATTN){
+//            LED_2 = 1;LED_3 = 1;LED_4=0;
+            if(XBEE_nATTN ){
                 if(rf_state.xbee_at_req){
                     //check if there's AT data to send
                     //TODO: if there's an AT command to send, start sending it and go to XBEE_STATE_TRANSMIT
@@ -901,7 +935,7 @@ void rf_process()
                                 rf_state.xbee_state = XBEE_STATE_TRANSMIT;
                                 rf_state.cur_tx_packet_type = XBEE_API_FRAME_ATCMD;
                                 rf_state.cur_tx_at_packet = rf_state.at_packet;//copy packet
-                                rf_state.at_packet.raw_packet.valid = 0;
+                                rf_state.at_packet.raw_packet.valid = 0; //indicate that the packet is being sent out
                                 rf_transmit_spi_packet();
                             } else {
                                 //discard packet. note: we do not free the data!
@@ -911,19 +945,24 @@ void rf_process()
                     //at_req was disabled, go back to transmit_ip mode
                     rf_state.xbee_state = XBEE_STATE_IDLE_TRANSMIT_IP;
                 }
+//            } else if(!rf_state.attn_detected){
+//                //xbee is slow, so wait for nATTN to go high again
             } else {
                 //go to receive
+                rf_state.attn_detected = 0;
                 rf_state.xbee_state = XBEE_STATE_RECEIVE_HEADER;
                 rf_receive_spi_packet();
             }
             break;
         case XBEE_STATE_TRANSMITTED:
+//            LED_2 = 0;LED_3 = 0;LED_4=1;
             //free packet pointer if necessary.
-            if(rf_state.cur_raw_packet->valid && rf_state.cur_raw_packet->dynamic){
-                free(rf_state.cur_raw_packet->raw_data);
-                rf_state.cur_raw_packet->raw_data = 0;
-            }
-            if(rf_state.cur_raw_packet->valid){
+            xbee_free_packet(rf_state.cur_raw_packet);  
+            if(rf_state.cur_raw_packet->valid){// && rf_state.cur_raw_packet->dynamic){
+                
+//                free(rf_state.cur_raw_packet->raw_data);
+//                rf_state.cur_raw_packet->raw_data = 0;
+            
                 if(rf_state.cur_raw_packet->response_time_out==0){
                     //we're done with this packet
                     rf_state.cur_raw_packet->valid = 0;
@@ -945,6 +984,7 @@ void rf_process()
 
             break;
         case XBEE_STATE_PACKET_RECEIVED:
+//            LED_2 = 1;LED_3 = 0;LED_4=1;
             if(rf_state.cur_rx_raw_packet.valid){
                 //compute checksum to see if it is really valid
                 cks = compute_checksum(rf_state.cur_rx_raw_packet.raw_data,rf_state.cur_rx_raw_packet.length);
@@ -952,31 +992,80 @@ void rf_process()
                     //checksum OK
                     //handle packout outside state machine loop
                     rf_state.pending_rx_packet = rf_state.cur_rx_raw_packet;
-                    rf_state.cur_rx_raw_packet.valid = 0; //packet handled
+                    
+                    rf_state.cur_rx_raw_packet.raw_data = NULL;
+                    //rf_state.cur_rx_raw_packet.valid = 0; //packet handled
                 } else {
                     //invalid packet, free data and ignore
-                    rf_state.cur_rx_raw_packet.valid = 0;
-                    if(rf_state.cur_rx_raw_packet.dynamic){
-                        free(rf_state.cur_rx_raw_packet.raw_data);
-                        rf_state.cur_rx_raw_packet.raw_data = 0;
-                    }
+                    xbee_free_packet(&rf_state.cur_rx_raw_packet);
+//                    if(rf_state.cur_rx_raw_packet.dynamic){
+//                        free(rf_state.cur_rx_raw_packet.raw_data);
+//                        rf_state.cur_rx_raw_packet.raw_data = 0;
+//                    }
                 }                
             }
+            rf_state.cur_rx_raw_packet.valid = 0;
+            //if(XBEE_nATTN ){ //fucking slow XBEE!
             //go back to IDLE_TRANSMIT_IP or IDLE_TRANSMIT_AT depending on the at_req flag
             if(rf_state.xbee_at_req){
                 rf_state.xbee_state = XBEE_STATE_IDLE_TRANSMIT_AT;
             } else {
                 rf_state.xbee_state = XBEE_STATE_IDLE_TRANSMIT_IP;
             }
+            //}
             break;
         case XBEE_STATE_RECEIVE_FRAME:
+//            LED_2 = 0;LED_3 = 1;LED_4=1;
             //do nothing, wait till XBEE_STATE_PACKET_RECEIVED is active after the second receive DMA interrupt
             break;
         case XBEE_STATE_RECEIVE_HEADER:
-            //do nothing, we will go to XBEE_STATE_RECEIVE_FRAME automatically after a DMA interrupt
+//            LED_2 = 1;LED_3 = 1;LED_4=1;
+            //read N bytes (rest of packet)
+            if(rf_state.receive_header_int){
+                rf_state.receive_header_int = 0;
+                if(rf_state.cur_rx_raw_packet.length<1500 && rf_state.cur_rx_raw_packet.length>4){
+                    rf_state.cur_rx_raw_packet.raw_data = malloc_dbg(rf_state.cur_rx_raw_packet.length,3);
+                    if(rf_state.cur_rx_raw_packet.raw_data){
+                        //we're good, memory was allocated
+                        rf_state.cur_rx_raw_packet.raw_data[0] = 0x7E;
+                        rf_state.cur_rx_raw_packet.raw_data[1] = (rf_state.cur_rx_raw_packet.length-4)>>8;
+                        rf_state.cur_rx_raw_packet.raw_data[2] = (rf_state.cur_rx_raw_packet.length-4)&0xFF;
+                        //set up DMA
+                        DMA2CONbits.CHEN = 0;
+                        DMA3CONbits.CHEN = 0;
+                        DMA2CNT = rf_state.cur_rx_raw_packet.length-4; //data+cks bytes
+                        DMA3CNT = DMA2CNT;
+                        sta_address = (long unsigned int)TxBufferDummy;
+                        DMA2STAL = sta_address & 0xFFFF;
+                        DMA2STAH = sta_address >> 16;
+                        sta_address = (long unsigned int)(&rf_state.cur_rx_raw_packet.raw_data[3]);
+                        DMA3STAL = sta_address & 0xFFFF;
+                        DMA3STAH = sta_address >> 16;
+                        DMA2CONbits.AMODE = 0b01; //disable postincrement
+                        DMA3CONbits.AMODE = 0b00; //enable postincrement
+                        DMA2CONbits.CHEN = 1;
+                        DMA3CONbits.CHEN = 1;
+                        rf_state.xbee_state = XBEE_STATE_RECEIVE_FRAME;
+                        DMA2REQbits.FORCE = 1;
+                        fail = 0;
+
+                    } else {
+                        fail = 1;
+                    }
+                } else {
+                    fail = 1;
+                }
+                if(fail){
+                    //error, stop receiving
+                    XBEE_nSSEL = 1;
+                    rf_state.xbee_state = XBEE_STATE_PACKET_RECEIVED;
+                }
+            }
+
             break;
         case XBEE_STATE_INIT:
         default:
+//            LED_2 = 0;LED_3 = 0;LED_4=0;
             //error!!!
             break;
     };
@@ -1006,10 +1095,11 @@ void rf_process()
                         rf_state.cur_raw_packet->valid = 0; //packet is now fully handled
                     }
                 }
-                if (rf_state.pending_rx_packet.dynamic) {
-                    free(rf_state.pending_rx_packet.raw_data);
-                    rf_state.pending_rx_packet.raw_data = 0;
-                }
+                xbee_free_packet(&rf_state.pending_rx_packet);
+//                if (rf_state.pending_rx_packet.dynamic) {
+//                    free(rf_state.pending_rx_packet.raw_data);
+//                    rf_state.pending_rx_packet.raw_data = 0;
+//                }
                 break;
             case XBEE_API_FRAME_ATCMD_RESP:
                 //grab the frame id
@@ -1025,20 +1115,21 @@ void rf_process()
                         //LED_2 = 1;
                         if(rf_state.cur_raw_packet->response_received.at_cmd(frame_id, at_cmd, status, rf_state.pending_rx_packet.raw_data,rf_state.pending_rx_packet.length,rf_state.pending_rx_packet.dynamic)){
                             rf_state.cur_raw_packet->valid = 0; //packet is now fully handled
-                            //CALLBACK NEEDS TO FREE MEMORY!!!
+                            //Memory is freed after callback!!!
                         } else {
                             //AT command is not fully handled yet (e.g. scan) according to the callback
                         }                    
                 } else {
                     //no callback, free message
                     //LED_4 = 1;
-                    if (rf_state.pending_rx_packet.dynamic) {
-                        free(rf_state.pending_rx_packet.raw_data);
-                        rf_state.pending_rx_packet.raw_data = 0;
-
-                        //LED_4 = 1;
-                    }
+//                    if (rf_state.pending_rx_packet.dynamic) {
+//                        free(rf_state.pending_rx_packet.raw_data);
+//                        rf_state.pending_rx_packet.raw_data = 0;
+//
+//                        //LED_4 = 1;
+//                    }
                 }
+                xbee_free_packet(&rf_state.pending_rx_packet);
                 break;
             case XBEE_API_FRAME_RX_IPV4:                
                 ip_rx.raw_packet = rf_state.pending_rx_packet;
@@ -1052,37 +1143,53 @@ void rf_process()
                 ip_rx.options.source_addr[2] = rf_state.pending_rx_packet.raw_data[6];
                 ip_rx.options.source_addr[3] = rf_state.pending_rx_packet.raw_data[7];
                 ip_rx.options.total_packet_length = ip_rx.raw_packet.length-15;
-                if(CB_WriteMany(&rf_state.ip_rx_buffer,&ip_rx,sizeof(xbee_rx_ip_packet_t),1)==SUCCESS){
+                //LED_2 = !LED_2;
+                led_rgb_set(0,0,255);
+               if(CB_WriteMany(&rf_state.ip_rx_buffer,&ip_rx,sizeof(xbee_rx_ip_packet_t),1)==SUCCESS){
                     //success
-                } else {
+                } else
+                {
                     //if we cannot add it to the circular buffer, free the memory
-                    if (rf_state.pending_rx_packet.dynamic) {
-                        free(rf_state.pending_rx_packet.raw_data);
-                        rf_state.pending_rx_packet.raw_data = 0;
-                    }
+                    xbee_free_packet(&rf_state.pending_rx_packet);
+//                    if (rf_state.pending_rx_packet.dynamic) {
+//                        free(rf_state.pending_rx_packet.raw_data);
+//                        rf_state.pending_rx_packet.raw_data = 0;
+//
+//                    }
+//               LED_1 = !LED_1;
                 }
                 break;
             case XBEE_API_FRAME_MODEM_STATUS:
                 //grab the status
-                LED_1 = 1;
+                //LED_1 = 1;
                 status = rf_state.pending_rx_packet.raw_data[4];
                 rf_state.cur_modem_status = status;
-                if (rf_state.cur_rx_raw_packet.dynamic) {
-                    free(rf_state.cur_rx_raw_packet.raw_data);
-                    rf_state.cur_rx_raw_packet.raw_data = 0;
-                }
+//                if (rf_state.cur_rx_raw_packet.dynamic) {
+//                    free(rf_state.cur_rx_raw_packet.raw_data);
+//                    rf_state.cur_rx_raw_packet.raw_data = 0;
+//                }
+                xbee_free_packet(&rf_state.pending_rx_packet);
                 break;
             default:
                 //free unkown message
-                if (rf_state.pending_rx_packet.dynamic) {
-                        free(rf_state.pending_rx_packet.raw_data);
-                        rf_state.pending_rx_packet.raw_data = 0;
-                }
+                xbee_free_packet(&rf_state.pending_rx_packet);
+//                if (rf_state.pending_rx_packet.dynamic) {
+//                        free(rf_state.pending_rx_packet.raw_data);
+//                        rf_state.pending_rx_packet.raw_data = 0;
+//                }
                 break;
         };
         rf_state.pending_rx_packet.valid = 0;
     }
 
+}
+
+inline void xbee_free_packet(xbee_packet_t* pkt)
+{
+    if(pkt->dynamic && pkt->raw_data!=NULL){
+        free_dbg(pkt->raw_data,(uint8_t)pkt->length);
+        pkt->raw_data = NULL;
+    }
 }
 
 /***************************
@@ -1105,45 +1212,50 @@ void __attribute__((__interrupt__, __auto_psv__)) _DMA3Interrupt(void)
             //full packet received
             rf_state.cur_rx_raw_packet.valid = 1;
             rf_state.xbee_state = XBEE_STATE_PACKET_RECEIVED;
+            memcheck();
             XBEE_nSSEL = 1;
             break;
         case XBEE_STATE_RECEIVE_HEADER:
+            if(rf_state.cur_rx_raw_packet.valid){
+                fail = 1;
+            }
             rf_state.cur_rx_raw_packet.valid = 0;
             if(RxBufferHeader[0]==0x7E){                
                 rf_state.cur_rx_raw_packet.dynamic = 1;
                 rf_state.cur_rx_raw_packet.length = ((((uint16_t)RxBufferHeader[1])<<8)|(RxBufferHeader[2]&0xFF))+4;
-                //read N bytes (rest of packet)
-                if(rf_state.cur_rx_raw_packet.length<1500 && rf_state.cur_rx_raw_packet.length>4){
-                    rf_state.cur_rx_raw_packet.raw_data = malloc(rf_state.cur_rx_raw_packet.length);
-                    if(rf_state.cur_rx_raw_packet.raw_data){
-                        //we're good, memory was allocated
-                        rf_state.cur_rx_raw_packet.raw_data[0] = RxBufferHeader[0];
-                        rf_state.cur_rx_raw_packet.raw_data[1] = RxBufferHeader[1];
-                        rf_state.cur_rx_raw_packet.raw_data[2] = RxBufferHeader[2];
-                        //set up DMA
-                        DMA2CONbits.CHEN = 0;
-                        DMA3CONbits.CHEN = 0;
-                        DMA2CNT = rf_state.cur_rx_raw_packet.length-4; //data+cks bytes
-                        DMA3CNT = DMA2CNT;
-                        sta_address = (long unsigned int)TxBufferDummy;
-                        DMA2STAL = sta_address & 0xFFFF;
-                        DMA2STAH = sta_address >> 16;
-                        sta_address = (long unsigned int)(&rf_state.cur_rx_raw_packet.raw_data[3]);
-                        DMA3STAL = sta_address & 0xFFFF;
-                        DMA3STAH = sta_address >> 16;
-                        DMA2CONbits.AMODE = 0b01; //disable postincrement
-                        DMA3CONbits.AMODE = 0b00; //enable postincrement
-                        DMA2CONbits.CHEN = 1;
-                        DMA3CONbits.CHEN = 1;
-                        rf_state.xbee_state = XBEE_STATE_RECEIVE_FRAME;
-                        do_start_transmit = 1;
-
-                    } else {
-                        fail = 1;
-                    }
-                } else {
-                    fail = 1;
-                }
+                rf_state.receive_header_int = 1;
+//                //read N bytes (rest of packet)
+//                if(rf_state.cur_rx_raw_packet.length<1500 && rf_state.cur_rx_raw_packet.length>4){
+//                    rf_state.cur_rx_raw_packet.raw_data = malloc_dbg(rf_state.cur_rx_raw_packet.length,3);
+//                    if(rf_state.cur_rx_raw_packet.raw_data){
+//                        //we're good, memory was allocated
+//                        rf_state.cur_rx_raw_packet.raw_data[0] = RxBufferHeader[0];
+//                        rf_state.cur_rx_raw_packet.raw_data[1] = RxBufferHeader[1];
+//                        rf_state.cur_rx_raw_packet.raw_data[2] = RxBufferHeader[2];
+//                        //set up DMA
+//                        DMA2CONbits.CHEN = 0;
+//                        DMA3CONbits.CHEN = 0;
+//                        DMA2CNT = rf_state.cur_rx_raw_packet.length-4; //data+cks bytes
+//                        DMA3CNT = DMA2CNT;
+//                        sta_address = (long unsigned int)TxBufferDummy;
+//                        DMA2STAL = sta_address & 0xFFFF;
+//                        DMA2STAH = sta_address >> 16;
+//                        sta_address = (long unsigned int)(&rf_state.cur_rx_raw_packet.raw_data[3]);
+//                        DMA3STAL = sta_address & 0xFFFF;
+//                        DMA3STAH = sta_address >> 16;
+//                        DMA2CONbits.AMODE = 0b01; //disable postincrement
+//                        DMA3CONbits.AMODE = 0b00; //enable postincrement
+//                        DMA2CONbits.CHEN = 1;
+//                        DMA3CONbits.CHEN = 1;
+//                        rf_state.xbee_state = XBEE_STATE_RECEIVE_FRAME;
+//                        do_start_transmit = 1;
+//
+//                    } else {
+//                        fail = 1;
+//                    }
+//                } else {
+//                    fail = 1;
+//                }
             } else {
                 fail = 1;
             }
@@ -1173,5 +1285,12 @@ void __attribute__((__interrupt__, __auto_psv__)) _DMA3Interrupt(void)
 
 void __attribute__((__interrupt__, __auto_psv__)) _INT2Interrupt(void)
 {
-    //TODO
+    //detect falling edge and set flag
+    rf_state.attn_detected = 1;
+//    LED_4 = 1;
+//    LED_3 = 1;
+//    LED_2 = 1;
+//    LED_1 = 0;
+    
+    IFS1bits.INT2IF = 0;
 }

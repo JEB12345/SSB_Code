@@ -207,6 +207,9 @@ typedef union {
         network_status_t        cur_network_status;
         bool (*ip_rx_pkt_handlers[10])(xbee_rx_ip_packet_t*);
         unsigned                num_ip_rx_pkt_handlers;
+        bool                    attn_detected;
+        bool                    receive_header_int;
+        uint16_t                nATTN_timeout;
     } rf_data;
 
     typedef struct {
@@ -304,6 +307,7 @@ typedef enum {
         CircularBuffer          rx_buffer;
         const char*                   last_url;
         uint16_t                last_url_length;
+        uint32_t                num_requests;
     } http_data;
 
 

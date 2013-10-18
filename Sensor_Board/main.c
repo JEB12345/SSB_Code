@@ -9,6 +9,7 @@
 #include "sensor_adc.h"
 #include "../libs/canopen/CANopen_stack/CANopen.h"
 //#include "CO_PDO.h"
+#include "sensor_iptest.h"
 #include "sensor_can.h"
 #include "sensor_imu.h"
 #include "sensor_led.h"
@@ -18,65 +19,75 @@
 #include "xbee_API.h"
 #include "sensor_state.h"
 #include "sensor_http.h"
+#include "sensor_memdebug.h"
 //#include "sensor_hallsensors.h"
 //#include "sensor_pmsm.h"
 #include "sensor_uart.h"
 #include "sensor_timers.h"
+#include "sensor_memdebug.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <p33Exxxx.h>
+
 
 extern system_data system_state;
 extern timer_data timer_state;
 extern volatile rf_data rf_state;
 extern http_data http_state;
 
-void at_cmd_test_transmitted_tp_cb()
+bool port_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic);
+bool join_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic);
+
+bool ip_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
 {
-    
-}
-
-bool at_cmd_test_response_tp_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
-{
-    uint8_t* at_resp_param;
-    int8_t temperature;
-    //led_rgb_set(255,255,0);
-
-    at_resp_param = xbee_at_cmd_data(raw_packet);
-
-    temperature = at_resp_param[0];
-
-    if(dynamic){
-        free(raw_packet);
+    if(status==0){
+        //if you need to know the IP address
     }
-
     rf_state.xbee_at_req = 0;
     return 1;
 }
 
-
-void at_cmd_test_transmitted_cb()
+bool port_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
 {
-    //led_rgb_set(0,255,0);
+    //rf_state.xbee_at_req = 0;
+//    if(dynamic){
+//        free(raw_packet);
+//    }
+    xbee_at_cmd("MY",0,0,0,&rf_state.at_packet,0,ip_cb,100);
+    xbee_send_at_cmd();
+    LED_3=1;
+    return 1;
 }
 
-bool at_cmd_test_response_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
+bool join_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
 {
+    uint8_t data[2];
     //led_rgb_set(0,255,255);
-    LED_4 = 1;
+    //LED_4 = 1;
     if(status==1){
-        led_rgb_set(0,0,255);
+        led_rgb_set(255,0,0);
+            xbee_at_cmd("AI",0,0,0,&rf_state.at_packet,0,join_cb,500);
+            xbee_send_at_cmd();
     } else {
-        led_rgb_set(0,255,0);
-        
-    }
-    xbee_at_cmd("TP",0,0,0,&rf_state.at_packet,at_cmd_test_transmitted_tp_cb,at_cmd_test_response_tp_cb,10);
-    xbee_send_at_cmd();
-    if(dynamic){
-        free(raw_packet);
+        if(raw_packet[length-2]==0){
+            led_rgb_set(0,255,0);
+            rf_state.cur_network_status = INIT_SUCCESS;
+            //set port
+            data[0] = 0;
+            data[1] = 80;
+            xbee_at_cmd("C0",data,2,0,&rf_state.at_packet,0,port_cb,100);
+            xbee_send_at_cmd();
+            //LED_4 = 1;
+        }  else {
+            led_rgb_set(0,0,255);
+            xbee_at_cmd("AI",0,0,0,&rf_state.at_packet,0,join_cb,500);
+            xbee_send_at_cmd();
+        }
     }
 
-
+//     if(dynamic){
+//        free(raw_packet);
+//    }
 
     return 1;
 }
@@ -88,6 +99,7 @@ int main(int argc, char** argv) {
     uint32_t led_colors = 0;
     uint8_t at_parm_test[10];
     unsigned once;
+    unsigned i;
     volatile uint8_t* uart_tx_packet;
     LED_1 = 1;
     LED_2 = 0;
@@ -95,6 +107,9 @@ int main(int argc, char** argv) {
     LED_4 = 0;
     clock_init();
     pin_init();
+    init_memory();
+    for(i=0;i<100;++i)
+        P7_RB4 = !P7_RB4;
     led_init();
     LED_2 = 1;
     
@@ -131,7 +146,13 @@ int main(int argc, char** argv) {
     //int i = 0;
     once = 0;
     rf_state.init_return = RET_UNKNOWN;
+    http_state.init_return = RET_UNKNOWN;
+
+    //memtest();
+
+    rf_init();
     network_init();
+    P7_RB4 = 0;
     for(;;){
         if(timer_state.systime != timer_state.prev_systime){
             timer_state.prev_systime = timer_state.systime;
@@ -140,6 +161,10 @@ int main(int argc, char** argv) {
                 //make sure that everything in here takes less than 1ms
                 //useful for checking state consistency, synchronization, watchdog...
                 rf_tick(1);
+                //network();
+
+
+                
                 //if(can_tick()){
                     //reset device
                 //}
@@ -151,16 +176,62 @@ int main(int argc, char** argv) {
                 //if(timer_state.systime&0b10000)
                     //loadcell_start();
                 ClrWdt();
-                if(timer_state.systime==100 && !once){
-                    LED_1 = 0;
-                    LED_2 = 0;
-                    LED_3 = 0;
-                    LED_4 = 0;
-                    rf_init();
-                    once = 1;
-                    //LED_1 = 1;
-                    //while(1);
+//                if(timer_state.systime==100 && !once){
+//                    LED_1 = 0;
+//                    LED_2 = 0;
+//                    LED_3 = 0;
+//                    LED_4 = 0;
+//
+//                    once = 1;
+//                    //LED_1 = 1;
+//                    //while(1);
+//                } else
+                   
+                  //network scan
+                /*/if(timer_state.systime==100){
+                    //network reset
+                    xbee_at_cmd_no_cb("NR",at_parm_test,0,0,&rf_state.at_packet);
+                    xbee_send_at_cmd();
+                } else */
+//                if (timer_state.systime==300){
+//                    //scan
+//                    xbee_at_cmd_no_cb("AS",at_parm_test,0,0,&rf_state.at_packet);
+//                    xbee_send_at_cmd();
+//                }
+                if(timer_state.systime==100 && rf_state.cur_network_status != INIT_SUCCESS)
+                {
+                    char* at_id = "Ken";//"Apple Network";//"Nosebridge";//
+                    xbee_at_cmd("ID",at_id,strlen(at_id),0,&rf_state.at_packet,0,0,0);
+                    xbee_send_at_cmd();
                 }
+                else if(timer_state.systime==120 && rf_state.cur_network_status != INIT_SUCCESS)
+                {
+                    at_parm_test[0] = 2;
+                    xbee_at_cmd("EE",at_parm_test,1,0,&rf_state.at_packet,0,0,0);
+                    xbee_send_at_cmd();
+                }else if(timer_state.systime==140 && rf_state.cur_network_status != INIT_SUCCESS)
+                {
+                    char* at_pk = "";
+                    xbee_at_cmd("PK",at_pk,strlen(at_pk),0,&rf_state.at_packet,0,0,0);
+                    xbee_send_at_cmd();
+                }
+                else if(timer_state.systime==200 && rf_state.cur_network_status != INIT_SUCCESS)
+                {
+                    xbee_at_cmd("AI",at_parm_test,0,0,&rf_state.at_packet,0,join_cb,10000);
+                    xbee_send_at_cmd();
+                }
+                else if (rf_state.cur_network_status == INIT_SUCCESS){
+                    if(http_state.init_return==RET_UNKNOWN){
+                        http_init();
+                    } else if(http_state.init_return==RET_OK){
+                        http_process();
+                    }
+                    if(!once){
+                        iptest_init();
+                        once = 1;
+                    }
+                }
+
 //                if(timer_state.systime==500 && rf_state.init_return==RET_OK){
 //                    //send a test AT command
 //                    at_parm_test[0] = 0x1;
@@ -174,11 +245,7 @@ int main(int argc, char** argv) {
 //
 //
 //                }
-                if(timer_state.systime==700 && rf_state.init_return==RET_OK){
-                    http_init();
-                } else if(timer_state.systime>700 && http_state.init_return==RET_OK && rf_state.init_return==RET_OK){
-                    http_process();
-                }
+                
 
 //                if(timer_state.systime>800 && rf_state.init_return==RET_OK ){
 //                    char AT_cmd[2];
@@ -229,8 +296,13 @@ int main(int argc, char** argv) {
 //                }
 
                 if(timer_state.systime&0b100000){
-                    LED_3=!LED_3;
+                   LED_3=!LED_3;
+                   
                 }
+                if(timer_state.systime&0b100000000 && rf_state.cur_network_status == INIT_SUCCESS){
+
+                   led_rgb_set(0,255,0);
+                   }
                 if(timer_state.systime&0b10000 && 0){
                             uart_tx_packet = uart_tx_cur_packet();
                             //0:0XFF
@@ -273,9 +345,14 @@ int main(int argc, char** argv) {
             //untimed processes in main loop:
             //executed as fast as possible
             //these processes should NOT block the main loop
+
+            memcheck();
             if(rf_state.init_return==RET_OK){
                 rf_process();
             }
+
+
+            memcheck();
         }
     }
     return (EXIT_SUCCESS);

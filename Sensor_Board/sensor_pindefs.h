@@ -69,7 +69,7 @@ return_value_t pin_init();
 #define RB11_IO        PIN_OUTPUT
 #define RB13_IO        PIN_INPUT
 #define RE13_IO        PIN_INPUT
-#define RB4_IO         PIN_INPUT
+#define RB4_IO         PIN_OUTPUT
 #define RC10_IO        PIN_INPUT
 #define RA7_IO         PIN_INPUT
 #define RB10_IO        PIN_OUTPUT
