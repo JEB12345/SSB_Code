@@ -73,8 +73,8 @@ bool join_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_pac
             led_rgb_set(0,255,0);
             rf_state.cur_network_status = INIT_SUCCESS;
             //set port
-            data[0] = 0;
-            data[1] = 80;
+            data[0] = 0x1F;
+            data[1] = 0x90;
             xbee_at_cmd("C0",data,2,0,&rf_state.at_packet,0,port_cb,100);
             xbee_send_at_cmd();
             //LED_4 = 1;
@@ -211,7 +211,7 @@ int main(int argc, char** argv) {
                     xbee_send_at_cmd();
                 }else if(timer_state.systime==140 && rf_state.cur_network_status != INIT_SUCCESS)
                 {
-                    char* at_pk = "";
+                    char* at_pk = "hutsepot";//"tuannguyen586";
                     xbee_at_cmd("PK",at_pk,strlen(at_pk),0,&rf_state.at_packet,0,0,0);
                     xbee_send_at_cmd();
                 }
@@ -296,7 +296,7 @@ int main(int argc, char** argv) {
 //                }
 
                 if(timer_state.systime&0b100000){
-                   LED_3=!LED_3;
+                   LED_1=!LED_1;
                    
                 }
                 if(timer_state.systime&0b100000000 && rf_state.cur_network_status == INIT_SUCCESS){

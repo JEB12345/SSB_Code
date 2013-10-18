@@ -305,7 +305,7 @@ typedef enum {
         void*                   parser;
         void*                   parser_settings;
         CircularBuffer          rx_buffer;
-        const char*                   last_url;
+        char*                   last_url;
         uint16_t                last_url_length;
         uint32_t                num_requests;
     } http_data;

@@ -43,7 +43,7 @@ void init_memory()
 
 void* malloc_dbg(size_t size, uint8_t tag)
 {
-    //return malloc(size);
+    return malloc(size);
     ++mem_lock;
     if(mem_lock>1){
         led_rgb_set(100,50,0);
@@ -120,7 +120,7 @@ void* malloc_dbg(size_t size, uint8_t tag)
 
 void free_dbg(void* ptr, uint8_t tag)
 {
-    //free(ptr);return;
+    free(ptr);return;
     LED_2 = 1;
     while(mem_lock);
     ++mem_lock;
@@ -152,7 +152,7 @@ void free_dbg(void* ptr, uint8_t tag)
 
 int memcheck()
 { 
-   // return 1;
+    return 1;
     mem_element* cur = &mem;
     uint16_t offset_inc = 0;
     uint16_t i;
@@ -173,26 +173,26 @@ int memcheck()
         ++j;
         //check data
         if(cur->next==NULL||cur->prev==NULL){
-            LED_3 = 1;
+            LED_3 = 1;LED_2=1;
             while(1);
         }
         if(cur->freed){
             //error
-            LED_3 = 1;
+            LED_3 = 1;LED_2=1;
             while(1);
         }
         if(cur!=&mem && cur->mem_ptr == NULL){
-            LED_3 = 1;
+            LED_3 = 1;LED_2=1;
             while(1);//null pointer in allocated memory
         }
         if(cur!=&mem && mem_pool_used[cur->mem_pool_idx]==0){
-            LED_3 = 1;
+            LED_3 = 1;LED_2=1;
             while(1);
         }
         if(cur!=&mem){
             ptr = cur->mem_ptr;
             if(ptr!=data+cur->offset){
-                LED_3 = 1;
+                LED_3 = 1;LED_2=1;
                 while(1);
             }
 
@@ -201,14 +201,14 @@ int memcheck()
             //check if we wrote beyond the buffer
             for(i=0;i<MEMDBG_GUARDSIZE;++i){
                 if(cur->mem_ptr[cur->size+i]!=0){
-                    LED_3 = 1;
+                    LED_3 = 1;LED_2=1;
                     while(1);
                 }
             }
         }
         if(cur->offset<offset_inc){
             //not increasing!!!
-            LED_3=1;
+            LED_3 = 1;LED_2=1;
             while(1);
         }
         offset_inc = cur->offset;

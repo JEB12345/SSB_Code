@@ -270,7 +270,7 @@ return_value_t rf_init()
     rf_state.init_return = RET_OK;
     rf_state.attn_detected = 1;
     rf_state.receive_header_int = 1;
-    rf_state.nATTN_timeout = 20;
+    rf_state.nATTN_timeout = 250;
      //interrupt pin
     RPINR1bits.INT2R = 94;
     INTCON2bits.INT2EP = 1;//falling edge interrupt
@@ -813,15 +813,17 @@ void rf_process()
         return; //XBEE not functional
     }
 
-    if(!XBEE_nATTN){
+    //Check for XBEE freeze (XBEE wifi keeps the nATTN pin low forever, causing an infinite unsuccessful read loop
+    //TODO: how can we get out of this loop?
+    if(!XBEE_nATTN && rf_state.xbee_state!=XBEE_STATE_INIT ){
         if(rf_state.nATTN_timeout==0){
             LED_3 = 1;
-            while(1);
+            //while(1);
         } else {
             rf_state.nATTN_timeout--;
         }
     } else {
-        rf_state.nATTN_timeout = 100;
+        rf_state.nATTN_timeout = 250;
     }
 
 

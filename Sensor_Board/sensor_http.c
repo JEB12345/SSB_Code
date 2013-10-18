@@ -93,20 +93,21 @@ void http_process()
 
         LED_1 = !LED_1;
     //check if we found a url
-    if(http_state.last_url!=0 && http_state.last_url_length>0){
+    if(http_state.last_url!=0 && http_state.last_url_length>0 && rf_data_len>3 && rf_data_p[0]=='G' && rf_data_p[1]=='E'&&rf_data_p[2]=='T'){
         http_state.num_requests++;
         //we have a url
         led_rgb_set(50,0,255);
+        http_state.last_url[http_state.last_url_length]=0;
         //prepare response
         char* resp =
-        "{\"result\": \"SUPERball says hi! Number of HTTP requests received: %lu\", \"error\": null, \"id\": 1}\r\n"
+        "{\"result\": {\"message\":\"SUPERball says hi! Number of HTTP requests received: %lu\",\"url\":\"%s\"}, \"error\": null, \"id\": 1}\r\n"
         "\r\n";
         char* header = "HTTP/1.1 200 OK\r\n"
         "Content-Type: text/html\r\n"
         "Content-Length: %u\r\n"
         "\r\n";//application/json-rpc\r\n"
 
-        sprintf(http_resp_buffer,resp,http_state.num_requests);
+        sprintf(http_resp_buffer,resp,http_state.num_requests,http_state.last_url);
         sprintf(http_header_buffer,header,strlen(http_resp_buffer));
 
         xbee_tx_ip_packet_t resp_pkt;
@@ -150,7 +151,7 @@ void http_process()
 
 bool http_handle_rx_packet(xbee_rx_ip_packet_t* pkt)
 {
-    if(pkt->options.protocol != XBEE_NET_IPPROTO_TCP || pkt->options.dest_port!=HTTP_PORT){
+    if(pkt->options.protocol != XBEE_NET_IPPROTO_TCP){// || pkt->options.dest_port!=HTTP_PORT){
         return 0;
     }
     //add to circular buffer
