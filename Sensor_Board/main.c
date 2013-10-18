@@ -53,7 +53,8 @@ bool port_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_pac
 //    if(dynamic){
 //        free(raw_packet);
 //    }
-    xbee_at_cmd("MY",0,0,0,&rf_state.at_packet,0,ip_cb,100);
+    //xbee_at_cmd("MY",0,0,0,&rf_state.at_packet,0,ip_cb,100);
+    xbee_at_cmd("VR",0,0,0,&rf_state.at_packet,0,ip_cb,100);
     xbee_send_at_cmd();
     LED_3=1;
     return 1;
@@ -211,7 +212,7 @@ int main(int argc, char** argv) {
                     xbee_send_at_cmd();
                 }else if(timer_state.systime==140 && rf_state.cur_network_status != INIT_SUCCESS)
                 {
-                    char* at_pk = "hutsepot";//"tuannguyen586";
+                    char* at_pk = "";
                     xbee_at_cmd("PK",at_pk,strlen(at_pk),0,&rf_state.at_packet,0,0,0);
                     xbee_send_at_cmd();
                 }
