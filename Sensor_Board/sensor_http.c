@@ -91,10 +91,11 @@ void http_process()
     settings->on_url = http_handle_url;
     http_parser_execute(parser,settings,rf_data_p,(size_t)rf_data_len);
 
-        LED_1 = !LED_1;
+        
     //check if we found a url
     if(http_state.last_url!=0 && http_state.last_url_length>0 && rf_data_len>3 && rf_data_p[0]=='G' && rf_data_p[1]=='E'&&rf_data_p[2]=='T'){
         http_state.num_requests++;
+        LED_1 = !LED_1;
         //we have a url
         led_rgb_set(50,0,255);
         http_state.last_url[http_state.last_url_length]=0;

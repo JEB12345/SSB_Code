@@ -56,7 +56,7 @@ bool port_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_pac
     //xbee_at_cmd("MY",0,0,0,&rf_state.at_packet,0,ip_cb,100);
     xbee_at_cmd("VR",0,0,0,&rf_state.at_packet,0,ip_cb,100);
     xbee_send_at_cmd();
-    LED_3=1;
+    //LED_3=1;
     return 1;
 }
 
@@ -102,6 +102,7 @@ int main(int argc, char** argv) {
     unsigned once;
     unsigned i;
     volatile uint8_t* uart_tx_packet;
+    volatile uint8_t* uart_rx_packet;
     LED_1 = 1;
     LED_2 = 0;
     LED_3 = 0;
@@ -153,6 +154,9 @@ int main(int argc, char** argv) {
 
     rf_init();
     network_init();
+    led_rgb_set(100,0,255);
+    timer_state.prev_systime = 0;
+    timer_state.systime = 0;
     P7_RB4 = 0;
     for(;;){
         if(timer_state.systime != timer_state.prev_systime){
@@ -162,6 +166,10 @@ int main(int argc, char** argv) {
                 //make sure that everything in here takes less than 1ms
                 //useful for checking state consistency, synchronization, watchdog...
                 rf_tick(1);
+                if(timer_state.systime&0b100){
+                    memcheck();
+                }
+                //can_tick();
                 //network();
 
 
@@ -201,7 +209,7 @@ int main(int argc, char** argv) {
 //                }
                 if(timer_state.systime==100 && rf_state.cur_network_status != INIT_SUCCESS)
                 {
-                    char* at_id = "Ken";//"Apple Network";//"Nosebridge";//
+                    char* at_id = "Ken";"Apple Network";//"Nosebridge";//
                     xbee_at_cmd("ID",at_id,strlen(at_id),0,&rf_state.at_packet,0,0,0);
                     xbee_send_at_cmd();
                 }
@@ -212,7 +220,7 @@ int main(int argc, char** argv) {
                     xbee_send_at_cmd();
                 }else if(timer_state.systime==140 && rf_state.cur_network_status != INIT_SUCCESS)
                 {
-                    char* at_pk = "";
+                    char* at_pk ="";
                     xbee_at_cmd("PK",at_pk,strlen(at_pk),0,&rf_state.at_packet,0,0,0);
                     xbee_send_at_cmd();
                 }
@@ -297,7 +305,7 @@ int main(int argc, char** argv) {
 //                }
 
                 if(timer_state.systime&0b100000){
-                   LED_1=!LED_1;
+                   LED_4=!LED_4;
                    
                 }
                 if(timer_state.systime&0b100000000 && rf_state.cur_network_status == INIT_SUCCESS){
@@ -347,13 +355,40 @@ int main(int argc, char** argv) {
             //executed as fast as possible
             //these processes should NOT block the main loop
 
-            memcheck();
+            //memcheck();
             if(rf_state.init_return==RET_OK){
                 rf_process();
             }
 
 
-            memcheck();
+            //memcheck();
+
+            uart_rx_packet = uart_rx_cur_packet();
+        if (uart_rx_packet != 0) {
+            //led_toggle();
+            if(uart_rx_packet[0]==0xFF){
+                
+                //0:0XFF
+                //1:LEN
+                //2:(UPDATE BRAKE COAST DIR MODE)1
+                //3:PWMH1
+                //4:PWML1
+                //5:TORQUEH1
+                //6:TORQUEL1
+                //7:(UPDATE BRAKE COAST DIR MODE)2
+                //8:PWMH2
+                //9:PWML2
+                //10:TORQUEH2
+                //11:TORQUEL2
+                //12:(LED)
+                //13:(RESET)
+                //14:CS
+
+            }
+            uart_rx_packet_consumed();
+
+        }
+
         }
     }
     return (EXIT_SUCCESS);

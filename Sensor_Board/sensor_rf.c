@@ -608,6 +608,21 @@ void rf_receive_spi_packet()
     Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
     Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
     Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+    Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
     DMA2REQbits.FORCE = 1;//start transfer
 }
 
@@ -818,7 +833,7 @@ void rf_process()
     if(!XBEE_nATTN && rf_state.xbee_state!=XBEE_STATE_INIT ){
         if(rf_state.nATTN_timeout==0){
             LED_3 = 1;
-            //while(1);
+//            while(1);
         } else {
             rf_state.nATTN_timeout--;
         }

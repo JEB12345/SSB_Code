@@ -18,7 +18,7 @@ return_value_t timers_init()
     IFS0bits.T1IF = 0; 		// Clear Timer1 Interrupt Flag
     IEC0bits.T1IE = 1; 		// Enable Timer1 interrupt
     T1CONbits.TON = 1; 		// Start Timer
-
+    timer_state.systime = 0;
     timer_state.init_return = RET_OK;
     return timer_state.init_return;
 }
