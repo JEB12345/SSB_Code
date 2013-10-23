@@ -17,6 +17,7 @@ http_data http_state;
 uint8_t http_rx_buffer[HTTP_RX_BUFFER_SIZE*sizeof(xbee_rx_ip_packet_t)];
 char    http_header_buffer[200];
 char    http_resp_buffer[1000];
+extern loadcell_data loadcell_state;
 
 bool http_handle_rx_packet(xbee_rx_ip_packet_t* pkt);
 
@@ -101,14 +102,14 @@ void http_process()
         http_state.last_url[http_state.last_url_length]=0;
         //prepare response
         char* resp =
-        "{\"result\": {\"message\":\"SUPERball says hi! Number of HTTP requests received: %lu\",\"url\":\"%s\"}, \"error\": null, \"id\": 1}\r\n"
+        "{\"result\": {\"message\":\"HTTP req. received: %lu, sg error: %u num err: %lu %lu %lu %lu\",\"url\":\"%s\",\"force\":[%lu,%lu,%lu,%lu]}, \"error\": null, \"id\": 1}\r\n"
         "\r\n";
         char* header = "HTTP/1.1 200 OK\r\n"
         "Content-Type: text/html\r\n"
         "Content-Length: %u\r\n"
         "\r\n";//application/json-rpc\r\n"
 
-        sprintf(http_resp_buffer,resp,http_state.num_requests,http_state.last_url);
+        sprintf(http_resp_buffer,resp,http_state.num_requests,loadcell_state.error,loadcell_state.num_measurements[0],loadcell_state.num_measurements[1],loadcell_state.num_measurements[2],loadcell_state.num_measurements[3],http_state.last_url,loadcell_state.values[0],loadcell_state.values[1],loadcell_state.values[2],loadcell_state.values[3]);
         sprintf(http_header_buffer,header,strlen(http_resp_buffer));
 
         xbee_tx_ip_packet_t resp_pkt;

@@ -140,7 +140,7 @@ return_value_t loadcell_init()
     spi_wait();
     //write the CONFIGURATION register
     config_byte_1 =  0b10000000;
-    config_byte_2 = 0b11110000;
+    config_byte_2 = 0b1111;//0b11110000;
     config_byte_3 = 0b01011000;
     loadcell_state.spi_state = SPI_VARIOUS;
     SPI1BUF = config_byte_1;
@@ -174,16 +174,25 @@ void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
             break;
         case SPI_SG_READ_DATA_2:
             loadcell_state.sg_data_1 = SPI1BUF;
+//            if(loadcell_state.sg_data_1!=0){
+//                LED_1=!LED_1;
+//            }
             SPI1BUF = 0x0;
             loadcell_state.spi_state = SPI_SG_READ_DATA_3;
             break;
         case SPI_SG_READ_DATA_3:
             loadcell_state.sg_data_2 = SPI1BUF;
+//            if(loadcell_state.sg_data_2!=0){
+//                LED_2=!LED_2;
+//            }
             SPI1BUF = 0x0;
             loadcell_state.spi_state = SPI_SG_READ_DATA_4;
             break;
         case SPI_SG_READ_DATA_4:
             loadcell_state.sg_data_3 = SPI1BUF;
+//            if(loadcell_state.sg_data_3!=0){
+//                LED_3=!LED_3;
+//            }
             SPI1BUF = 0x0;
             loadcell_state.spi_state = SPI_SG_READ_DATA_END;
             break;
@@ -193,28 +202,34 @@ void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
 
             //copy the data to the right location
             if(!(loadcell_state.sg_status&0b10000000)){
+                loadcell_state.error = (loadcell_state.sg_status&0b1000000)>0; //error
                 //ready bit is not set, so data is available
-                if(loadcell_state.sg_status&0b00000100)
+                if(!(loadcell_state.sg_status&0b00000100))
                 {
-                    /*switch(loadcell_state.sg_status&0b11){
-                        case 0:
-                            LED_1 = !LED_1;
-                            break;
-                        case 1:
-                            LED_2 = !LED_2;
-                            break;
-                        case 2:
-                            LED_3 = !LED_3;
-                            break;
-                        case 3:
-                            LED_4 = !LED_4;
-                            break;
-                    }*/
+//                    switch(loadcell_state.sg_status&0b11){
+//                        case 0:
+//                            LED_1 = !LED_1;
+//                            break;
+//                        case 1:
+//                            LED_2 = !LED_2;
+//                            break;
+//                        case 2:
+//                            LED_3 = !LED_3;
+//                            break;
+//                        case 3:
+//                            LED_4 = !LED_4;
+//                            break;
+//                    }
                     //one of the correct channels was converted, store the result
                     loadcell_state.values[loadcell_state.sg_status&0b11] =
                             (((uint32_t)(loadcell_state.sg_data_1&0xFF))<<16)
                             | (((uint32_t)(loadcell_state.sg_data_2&0xFF))<<8)
                             | (((uint32_t)(loadcell_state.sg_data_3&0xFF)));
+//                    if(loadcell_state.values[0]>0){
+//                        LED_2 = !LED_2;
+//                        LED_3 = !LED_3;
+//                        LED_1 = !LED_1;
+//                    }
                     loadcell_state.num_measurements[loadcell_state.sg_status&0b11]++;
 
                 }
