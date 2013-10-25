@@ -209,7 +209,7 @@ int main(int argc, char** argv) {
 //                }
                 if(timer_state.systime==100 && rf_state.cur_network_status != INIT_SUCCESS)
                 {
-                    char* at_id = "Ken";"Apple Network";//"Nosebridge";//
+                    char* at_id = "Ken";//
                     xbee_at_cmd("ID",at_id,strlen(at_id),0,&rf_state.at_packet,0,0,0);
                     xbee_send_at_cmd();
                 }
@@ -220,7 +220,7 @@ int main(int argc, char** argv) {
                     xbee_send_at_cmd();
                 }else if(timer_state.systime==140 && rf_state.cur_network_status != INIT_SUCCESS)
                 {
-                    char* at_pk ="";
+                    char* at_pk = "tensegrity";
                     xbee_at_cmd("PK",at_pk,strlen(at_pk),0,&rf_state.at_packet,0,0,0);
                     xbee_send_at_cmd();
                 }
