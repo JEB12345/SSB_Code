@@ -28,7 +28,7 @@ return_value_t led_init()
 void led_update()
 {
     static uint16_t state = 0;
-
+    
     if(RGB_LED_ON == 1){
         RGB_RED = led_state.rgb_red<=state;
         RGB_GREEN =led_state.rgb_green<=state;

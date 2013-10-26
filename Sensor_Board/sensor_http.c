@@ -79,7 +79,7 @@ void http_process()
     if(CB_ReadMany(&http_state.rx_buffer,&rx_pkt,sizeof(xbee_rx_ip_packet_t))!=SUCCESS){
         return;//empty buffer
     } else {
-        LED_2 = !LED_2;
+        //LED_2 = !LED_2;
     }
 
     //we have a packet to handle, handle it now!
@@ -96,20 +96,20 @@ void http_process()
     //check if we found a url
     if(http_state.last_url!=0 && http_state.last_url_length>0 && rf_data_len>3 && rf_data_p[0]=='G' && rf_data_p[1]=='E'&&rf_data_p[2]=='T'){
         http_state.num_requests++;
-        LED_1 = !LED_1;
+        LED_3 = !LED_3;
         //we have a url
         led_rgb_set(50,0,255);
         http_state.last_url[http_state.last_url_length]=0;
         //prepare response
         char* resp =
-        "{\"result\": {\"message\":\"HTTP req. received: %lu, sg error: %u num err: %lu %lu %lu %lu\",\"url\":\"%s\",\"force\":[%lu,%lu,%lu,%lu]}, \"error\": null, \"id\": 1}\r\n"
+        "{\"result\": {\"message\":\"req. %lu\",\"url\":\"%s\",\"force\":[%lu,%lu,%lu,%lu]}, \"error\": null, \"id\": 1}\r\n"
         "\r\n";
         char* header = "HTTP/1.1 200 OK\r\n"
         "Content-Type: text/html\r\n"
         "Content-Length: %u\r\n"
         "\r\n";//application/json-rpc\r\n"
 
-        sprintf(http_resp_buffer,resp,http_state.num_requests,loadcell_state.error,loadcell_state.num_measurements[0],loadcell_state.num_measurements[1],loadcell_state.num_measurements[2],loadcell_state.num_measurements[3],http_state.last_url,loadcell_state.values[0],loadcell_state.values[1],loadcell_state.values[2],loadcell_state.values[3]);
+        sprintf(http_resp_buffer,resp,http_state.num_requests,http_state.last_url,loadcell_state.values[0],loadcell_state.values[1],loadcell_state.values[2],loadcell_state.values[3]);
         sprintf(http_header_buffer,header,strlen(http_resp_buffer));
 
         xbee_tx_ip_packet_t resp_pkt;
@@ -134,9 +134,10 @@ void http_process()
 //                    free(resp_pkt.raw_packet.raw_data);
 //                    resp_pkt.raw_packet.raw_data = 0;
 //                }
-
+                //LED_2 = !LED_3;
             } else {
                 //successfully added to the transmit buffer
+                //LED_2 = 1;
             }
         } else {
             //could not allocate response packet.

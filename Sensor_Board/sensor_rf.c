@@ -925,6 +925,7 @@ void rf_process()
                                     rf_state.xbee_state = XBEE_STATE_TRANSMIT;
                                     rf_state.cur_tx_packet_type = XBEE_API_FRAME_TX_IPV4;
                                     rf_transmit_spi_packet();
+                                    
                                 } else {
                                     //discard packet. note: we do not free the data!
                                 }
@@ -1103,6 +1104,7 @@ void rf_process()
                 
                 frame_id = rf_state.pending_rx_packet.raw_data[4];
                 //grab the status
+                LED_2  = LED_3;
                 status = rf_state.pending_rx_packet.raw_data[5];
                 if (rf_state.cur_raw_packet && rf_state.cur_raw_packet->valid && rf_state.cur_tx_packet_type == XBEE_API_FRAME_TX_IPV4) {
                     //there is a pending packet

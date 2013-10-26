@@ -14,6 +14,9 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
+//#define DEBUG_MEMORY
+
+#ifdef DEBUG_MEMORY
 #define MEMDBG_GUARDSIZE    8
 #define MEMDBG_SIZE         4000
 #define MEMDBG_POOLSIZE     25
@@ -28,6 +31,7 @@ extern "C" {
         uint8_t tag;
         uint16_t mem_pool_idx;
     } mem_element;
+#endif
 
 void memtest();
 

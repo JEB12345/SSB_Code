@@ -312,7 +312,7 @@ int main(int argc, char** argv) {
 
                    led_rgb_set(0,255,0);
                    }
-                if(timer_state.systime&0b10000 && 0){
+                if(timer_state.systime&0b10000 ){
                             uart_tx_packet = uart_tx_cur_packet();
                             //0:0XFF
                             //1:LEN
@@ -333,9 +333,9 @@ int main(int argc, char** argv) {
                             uart_tx_packet[1] = 0xFF;//CMD
                             uart_tx_packet[2] = 14;
                             uart_tx_packet[3] = 0b11110;
-                            uart_tx_packet[4] = 0x0;//PWM
+                            uart_tx_packet[4] = 0xFF;//PWM
                             uart_tx_packet[5] = 0xFF;
-                            uart_tx_packet[6] = 0xFF;//TORQUE
+                            uart_tx_packet[6] = 0x0;//TORQUE
                             uart_tx_packet[7] = 0xFF;
                             uart_tx_packet[8] = 0b00000;
                             uart_tx_packet[9] = 0x0;//PWM
@@ -347,7 +347,7 @@ int main(int argc, char** argv) {
                             uart_tx_compute_cks(uart_tx_packet);
                             uart_tx_update_index();
                             uart_tx_start_transmit();
-                            
+                            led_rgb_set(0,255,100);
                         }
             }            
         } else {

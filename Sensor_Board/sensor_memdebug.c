@@ -4,6 +4,7 @@
 #include <xc.h>
 #include <stddef.h>
 
+#ifdef DEBUG_MEMORY
 uint8_t data[MEMDBG_SIZE];
 mem_element mem;
 mem_element mem_end;
@@ -13,9 +14,11 @@ volatile uint8_t mem_lock;
 uint16_t t_sizes[MEMDBG_POOLSIZE+1];
 uint16_t t_offsets[MEMDBG_POOLSIZE+1];
 uint8_t t_tags[MEMDBG_POOLSIZE+1];
+#endif
 
 void init_memory()
 {
+#ifdef DEBUG_MEMORY
     unsigned i;
     mem.freed = 0;
     mem.next = &mem_end;
@@ -39,11 +42,14 @@ void init_memory()
     for(i=0;i<MEMDBG_GUARDSIZE;++i){
         data[i] = 0;
     }
+#endif
 }
 
 void* malloc_dbg(size_t size, uint8_t tag)
 {
+#ifndef DEBUG_MEMORY
     return malloc(size);
+#else
     ++mem_lock;
     if(mem_lock>1){
         led_rgb_set(100,50,0);
@@ -116,11 +122,14 @@ void* malloc_dbg(size_t size, uint8_t tag)
         }
     }
     --mem_lock;
+#endif
 }
 
 void free_dbg(void* ptr, uint8_t tag)
 {
+#ifndef DEBUG_MEMORY
     free(ptr);return;
+#else
     LED_2 = 1;
     while(mem_lock);
     ++mem_lock;
@@ -148,11 +157,14 @@ void free_dbg(void* ptr, uint8_t tag)
         mem_pool_used[cur->mem_pool_idx] = 0;
     }
     --mem_lock;
+#endif
 }
 
 int memcheck()
-{ 
+{
+#ifndef DEBUG_MEMORY
     return 1;
+#else
     mem_element* cur = &mem;
     uint16_t offset_inc = 0;
     uint16_t i;
@@ -216,6 +228,7 @@ int memcheck()
         cur = cur->next;        
     }
     return 1;
+#endif
 }
 
 

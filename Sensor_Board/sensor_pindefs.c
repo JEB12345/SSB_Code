@@ -54,6 +54,8 @@ return_value_t pin_init()
     _SDI2R = 40;     // Map SPI2 DI to RP40
     _RP39R = 8;      // Map SPI2 DO to RP39
     TRISBbits.TRISB7 = 0;
+
+    //TRISCbits.TRISC9 = 0;
     _RP57R = 9;      // Map SPI2 CLK to RP57
     CNPUEbits.CNPUE14 = 1;// XBEE_nATTN pull up
 
@@ -139,7 +141,7 @@ return_value_t pin_init()
 #if RA7_IO==PIN_OUTPUT
     TRISAbits.TRISA7 = 0;
 #endif
-    _RP42R = 0;
+    _RP42R = 9;
 #if RB10_IO==PIN_OUTPUT
     TRISBbits.TRISB10 = 0;
 #endif
@@ -150,21 +152,21 @@ return_value_t pin_init()
     //Hall sensors
     //ENABLE PULL-UPS
     
-    CNPUBbits.CNPUB15 = 1;
-    CNPUGbits.CNPUG7 = 1;
-    CNPUGbits.CNPUG9 = 1; 
+//    CNPUBbits.CNPUB15 = 1;
+//    CNPUGbits.CNPUG7 = 1;
+//    CNPUGbits.CNPUG9 = 1;
     //peripheral pin select
     RPINR7bits.IC1R = 47;   //RB15
     RPINR7bits.IC2R = 119;  //RG7
     RPINR8bits.IC3R = 121;  //RB9
 
     //FAULT and OCTW
-    CNPUBbits.CNPUB1 = 1;
-    CNPUBbits.CNPUB2 = 1;
+//    CNPUBbits.CNPUB1 = 1;
+//    CNPUBbits.CNPUB2 = 1;
 
     //UART 1
-    _RP43R = 0b1; //RB11 uart 1 tx
-    RPINR18bits.U1RXR = 44; //RB12 uart 1 rx
+    _RP43R = 0b1; //RB11 uart 1 tx GREY
+    RPINR18bits.U1RXR = 44; //RB12 uart 1 rx PURPLE
 
 
     return RET_OK;
