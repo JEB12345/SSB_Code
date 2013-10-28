@@ -34,7 +34,7 @@ extern system_data system_state;
 extern timer_data timer_state;
 extern volatile rf_data rf_state;
 extern http_data http_state;
-
+extern motor_cmd_data motor_cmd_state[2];
 bool port_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic);
 bool join_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic);
 
@@ -332,11 +332,11 @@ int main(int argc, char** argv) {
                             uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
                             uart_tx_packet[1] = 0xFF;//CMD
                             uart_tx_packet[2] = 14;
-                            uart_tx_packet[3] = 0b11110;
-                            uart_tx_packet[4] = 0xFF;//PWM
-                            uart_tx_packet[5] = 0xFF;
-                            uart_tx_packet[6] = 0x0;//TORQUE
-                            uart_tx_packet[7] = 0xFF;
+                            uart_tx_packet[3] = 0b10110 | (motor_cmd_state[0].brake<<3);
+                            uart_tx_packet[4] = motor_cmd_state[0].vel>>8;//0xFF;//PWM
+                            uart_tx_packet[5] = motor_cmd_state[0].vel&0xFF;//0xFF;
+                            uart_tx_packet[6] = motor_cmd_state[0].torque>>8;//0xFF;//TORQUE
+                            uart_tx_packet[7] = motor_cmd_state[0].torque&0xFF;
                             uart_tx_packet[8] = 0b00000;
                             uart_tx_packet[9] = 0x0;//PWM
                             uart_tx_packet[10] = 0x0;

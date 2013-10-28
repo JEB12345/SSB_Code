@@ -106,7 +106,7 @@ return_value_t spi2_init() {
     // SPI Clock Freq of 3.5Mhz
     // Fsck = Fp/PPRE*SPRE => 3,500,000 = 70,000,000/(4*5)
     SPI2CON1bits.PPRE = 2;      // Primary Prescale 4:1
-    SPI2CON1bits.SPRE = 0;//3;      // Secondary Prescale 5:1
+    SPI2CON1bits.SPRE = 3;      // Secondary Prescale 5:1
 
     // SPI2CON2 Register Settings
     SPI2CON2bits.FRMEN = 0;     // Framed Mode 0=Disabled, 1=Enabled

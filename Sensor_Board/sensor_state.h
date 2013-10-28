@@ -305,13 +305,18 @@ typedef enum {
         return_value_t          init_return;
         void*                   parser;
         void*                   parser_settings;
+        void*                   json_parser;
         CircularBuffer          rx_buffer;
         char*                   last_url;
         uint16_t                last_url_length;
         uint32_t                num_requests;
     } http_data;
 
-
+    typedef struct {
+        bool                    brake;
+        uint16_t                vel;
+        uint16_t                torque;
+    } motor_cmd_data;
 
 #ifdef	__cplusplus
 }
