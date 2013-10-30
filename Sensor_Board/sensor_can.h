@@ -12,8 +12,8 @@
 extern "C" {
 #endif
     return_value_t can_init();
-    unsigned can_tick();
-
+    //unsigned can_tick();
+    void can_process();
 
 #ifdef	__cplusplus
 }

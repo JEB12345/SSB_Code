@@ -1,0 +1,21 @@
+<map id="src/sync.c" name="src/sync.c">
+<area shape="rect" id="node3" href="$data_8h_source.html" title="data.h" alt="" coords="577,161,633,189"/>
+<area shape="rect" id="node42" href="$sync_8h_source.html" title="sync.h" alt="" coords="5,238,64,266"/>
+<area shape="rect" id="node56" href="$canfestival_8h_source.html" title="canfestival.h" alt="" coords="1152,83,1245,111"/>
+<area shape="rect" id="node70" href="$sysdep_8h_source.html" title="sysdep.h" alt="" coords="904,83,973,111"/>
+<area shape="rect" id="node7" href="$def_8h_source.html" title="def.h" alt="" coords="581,315,632,343"/>
+<area shape="rect" id="node11" href="$can_8h_source.html" title="can.h" alt="" coords="707,315,760,343"/>
+<area shape="rect" id="node14" href="$objdictdef_8h_source.html" title="objdictdef.h" alt="" coords="936,238,1024,266"/>
+<area shape="rect" id="node16" href="$objacces_8h.html" title="Responsible for accessing the object dictionary." alt="" coords="443,315,525,343"/>
+<area shape="rect" id="node19" href="$sdo_8h_source.html" title="sdo.h" alt="" coords="861,238,912,266"/>
+<area shape="rect" id="node28" href="$pdo_8h_source.html" title="pdo.h" alt="" coords="643,238,696,266"/>
+<area shape="rect" id="node34" href="$states_8h_source.html" title="states.h" alt="" coords="771,238,837,266"/>
+<area shape="rect" id="node38" href="$lifegrd_8h.html" title="lifegrd.h" alt="" coords="283,238,349,266"/>
+<area shape="rect" id="node44" href="$nmtSlave_8h_source.html" title="nmtSlave.h" alt="" coords="88,238,173,266"/>
+<area shape="rect" id="node48" href="$nmtMaster_8h_source.html" title="nmtMaster.h" alt="" coords="475,238,568,266"/>
+<area shape="rect" id="node51" href="$emcy_8h.html" title="Declarations of the functions that manage EMCY (emergency) messages." alt="" coords="197,238,259,266"/>
+<area shape="rect" id="node9" href="$config_8h_source.html" title="config.h" alt="" coords="587,393,653,421"/>
+<area shape="rect" id="node21" href="$timer_8h_source.html" title="timer.h" alt="" coords="1128,315,1189,343"/>
+<area shape="rect" id="node59" href="$can__driver_8h_source.html" title="can_driver.h" alt="" coords="1048,238,1139,266"/>
+<area shape="rect" id="node64" href="$timers__driver_8h_source.html" title="timers_driver.h" alt="" coords="1264,238,1368,266"/>
+</map>

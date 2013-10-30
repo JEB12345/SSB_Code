@@ -1,0 +1,10 @@
+<map id="Communication Objects" name="Communication Objects">
+<area shape="rect" id="node1" href="$group__pdo.html" title="Process Data Object\l (PDO)" alt="" coords="344,5,483,49"/>
+<area shape="rect" id="node2" href="$group__synco.html" title="Synchronisation Object" alt="" coords="336,71,491,99"/>
+<area shape="rect" id="node3" href="$group__lss.html" title="LSS offers the possibility to inquire and change the settings of certain parameters of the local laye..." alt="" coords="339,122,488,166"/>
+<area shape="rect" id="node4" href="$group__emcyo.html" title="Emergency Object" alt="" coords="351,189,476,217"/>
+<area shape="rect" id="node5" href="$group__heartbeato.html" title="Heartbeat Object" alt="" coords="355,239,472,267"/>
+<area shape="rect" id="node6" href="$group__userapi.html" title="User API" alt="" coords="7,189,79,217"/>
+<area shape="rect" id="node7" href="$group__nodeguardo.html" title="Node&#45;guarding Object" alt="" coords="340,290,487,318"/>
+<area shape="rect" id="node8" href="$group__sdo.html" title="Service Data Object\l (SDO)" alt="" coords="345,341,481,385"/>
+</map>

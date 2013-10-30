@@ -35,6 +35,7 @@ extern timer_data timer_state;
 extern volatile rf_data rf_state;
 extern http_data http_state;
 extern motor_cmd_data motor_cmd_state[2];
+extern can_data can_state;
 bool port_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic);
 bool join_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic);
 
@@ -115,7 +116,7 @@ int main(int argc, char** argv) {
     led_init();
     LED_2 = 1;
     
-    //can_init();
+    can_init(1000000);
      
     
     LED_3 = 1;
@@ -354,7 +355,9 @@ int main(int argc, char** argv) {
             //untimed processes in main loop:
             //executed as fast as possible
             //these processes should NOT block the main loop
-
+            if(can_state.init_return ==RET_OK){
+                can_process();
+            }
             //memcheck();
             if(rf_state.init_return==RET_OK){
                 rf_process();

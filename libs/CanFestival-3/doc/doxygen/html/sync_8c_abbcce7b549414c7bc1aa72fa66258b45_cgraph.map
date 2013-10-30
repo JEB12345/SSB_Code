@@ -1,0 +1,8 @@
+<map id="SyncAlarm" name="SyncAlarm">
+<area shape="rect" id="node3" href="$sync_8c.html#adee64da8e8e5ff05f1ff2be3c7fe2e5f" title="Transmit a SYNC message and trigger sync TPDOs." alt="" coords="139,30,224,58"/>
+<area shape="rect" id="node5" href="$sync_8c.html#ade5dd12cef515c82dae1fddc34d4e711" title="This function is called when the node is receiving a SYNC message (cob&#45;id = 0x80)." alt="" coords="288,5,392,33"/>
+<area shape="rect" id="node13" href="$sync_8c.html#a097cddb0103b1a8f56ecf976b03936a3" title="Transmit a SYNC message on CAN bus." alt="" coords="272,55,408,83"/>
+<area shape="rect" id="node7" href="$group__pdo.html#ga95c3686cda4e9e6f7c847d2d0bb88fe8" title="Function iterates on all TPDO and look TPDO transmit type and content change before sending it..." alt="" coords="456,5,571,33"/>
+<area shape="rect" id="node9" href="$pdo_8c.html#a889902163641f6fc8039550cb11ec320" title="Copy all the data to transmit in process_var Prepare the PDO defined at index to be sent *pwCobId : r..." alt="" coords="619,5,696,33"/>
+<area shape="rect" id="node11" href="$pdo_8c.html#ae468510c9f77f502207d961d26389918" title="CopyBits" alt="" coords="745,5,817,33"/>
+</map>

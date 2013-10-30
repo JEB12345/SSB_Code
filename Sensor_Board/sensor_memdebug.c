@@ -2,6 +2,7 @@
 #include "sensor_pindefs.h"
 #include "sensor_led.h"
 #include <xc.h>
+#include <stdlib.h>
 #include <stddef.h>
 
 #ifdef DEBUG_MEMORY
