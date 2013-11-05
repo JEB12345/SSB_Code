@@ -13,7 +13,7 @@ extern "C" {
 #endif
     return_value_t can_init();
     //unsigned can_tick();
-    void can_process();
+    uint8_t can_process();
 
 #ifdef	__cplusplus
 }
