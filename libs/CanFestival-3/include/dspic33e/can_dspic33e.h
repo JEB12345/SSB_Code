@@ -26,11 +26,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 // AVR implementation of the CANopen driver includes
 // Hardware related macros and ATMEL lib can_drv
-#include "config.h"
+#include "../config.h"
 //#include "can_drv.h"
+#include "canfestival.h"
+#include <p33Exxxx.h>
 
 // Canfestivals includes
-#include "can.h"
+#include "../can.h"
 
 /************************* To be called by user app ***************************/
 //
@@ -39,4 +41,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //unsigned char canReceive(Message *m);
 //unsigned char canChangeBaudRate_driver( CAN_HANDLE fd, char* baud);
 
+uint8_t canReceive(Message *m);
+
+
 #endif
+

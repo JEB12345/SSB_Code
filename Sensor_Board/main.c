@@ -7,10 +7,9 @@
 
 #include "sensor_clock.h" //always include first, as this sets a number of config variables
 #include "sensor_adc.h"
-#include "../libs/canopen/CANopen_stack/CANopen.h"
-//#include "CO_PDO.h"
 #include "sensor_iptest.h"
-#include "sensor_can.h"
+//#include "sensor_can.h"
+#include "../libs/CanFestival-3/include/dspic33e/can_dspic33e.h"
 #include "sensor_imu.h"
 #include "sensor_led.h"
 #include "sensor_loadcell.h"
@@ -311,7 +310,6 @@ int main(int argc, char** argv) {
 
                 if(timer_state.systime&0b100000){
                    LED_4=!LED_4;
-                   
                 }
                 if(timer_state.systime&0b100000000 && rf_state.cur_network_status == INIT_SUCCESS){
 
@@ -354,13 +352,20 @@ int main(int argc, char** argv) {
                             uart_tx_start_transmit();
                             led_rgb_set(0,255,100);
                         }
+
             }            
         } else {
             //untimed processes in main loop:
             //executed as fast as possible
             //these processes should NOT block the main loop
+
 //            if(can_state.init_return ==RET_OK){
-//                can_process();
+//                if(can_process()){
+//                    LED_1 = 1;
+//                }
+//                else{
+//                    LED_1 = 0;
+//                }
 //            }
             //memcheck();
             if(rf_state.init_return==RET_OK){
