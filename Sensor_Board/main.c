@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
     led_init();
     LED_2 = 1;
     
-    can_init(1000000);
+    //can_init(1000000);
      
     
     LED_3 = 1;
@@ -155,7 +155,11 @@ int main(int argc, char** argv) {
 
     rf_init();
     network_init();
+
+    imu_init();
+
     led_rgb_set(100,0,255);
+
     timer_state.prev_systime = 0;
     timer_state.systime = 0;
     P7_RB4 = 0;
@@ -355,9 +359,9 @@ int main(int argc, char** argv) {
             //untimed processes in main loop:
             //executed as fast as possible
             //these processes should NOT block the main loop
-            if(can_state.init_return ==RET_OK){
-                can_process();
-            }
+//            if(can_state.init_return ==RET_OK){
+//                can_process();
+//            }
             //memcheck();
             if(rf_state.init_return==RET_OK){
                 rf_process();
