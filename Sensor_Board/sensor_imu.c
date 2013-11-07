@@ -6,44 +6,7 @@
 
 imu_data imu_state;
 
-volatile enum I2C_STATES i2c_state;
-volatile enum I2C_STATES i2c_err;
-volatile uint8_t acc_read_register;
-volatile uint8_t acc_read_num;
-volatile uint8_t acc_read_data[25];
-//volatile uint8 acc_read_done;
-volatile uint8_t i2c_address, i2c_address_2;
-volatile uint16_t acc_cnt, i2c_err_5, i2c_err_2, i2c_err_sum;
-volatile uint8_t acc_write_num;
-volatile uint8_t acc_write_data[20];
-volatile uint8_t acc_write_register;
-volatile uint8_t acc_write_done;
-volatile uint8_t i2c_dev[128];
-volatile uint8_t scan_address;
-
-enum I2C_STATES {
-    IDLE,
-    GYRO_WAIT_START,
-
-    WAIT_START_READ_STATE, //beginning of transaction to read the
-    ADDRESS_READ_STATE,
-    REGISTER_ADDRESS_READ_STATE,
-    RS_READ_STATE,
-    REGISTER_ADDRESS_READ_READ_STATE,
-    BYTE_READ_READ_STATE,
-    STOP_READ_STATE,
-    NEXT_BYTE_READ_STATE,
-
-    WAIT_START_WRITE_STATE,
-    ADDRESS_WRITE_STATE,
-    BYTE_WRITE_STATE,
-    STOP_WRITE_STATE,
-    WAIT_START_SCAN_STATE,
-    ADDRESS_SCAN_STATE
-
-};
-
-void i2c_scan();
+void i2c_scan(); //internal helper function
 
 return_value_t imu_init()
 {
@@ -71,7 +34,7 @@ return_value_t imu_init()
 
     I2C1STATbits.BCL = 0;
 
-    i2c_state = IDLE;
+    imu_state.i2c_state = IDLE;
     if (I2C1STATbits.RBF)
         temp = I2C1RCV;
 
@@ -80,7 +43,106 @@ return_value_t imu_init()
     }
     i2c_scan();
 
+    //check if the gyro/acc chip was found
+    if(!imu_state.i2c_dev[IMU_ADDR]){
+        imu_state.init_return = RET_ERROR; //not found
+    } else {
+        //put the module in active mode
+        imu_state.i2c_err = IDLE;
+        I2C1STATbits.IWCOL = 0;
+        imu_state.i2c_state = WAIT_START_WRITE_STATE;
+        imu_state.i2c_address = IMU_ADDR<<1;
+        I2C1STATbits.BCL = 0;
+        imu_state.acc_write_register = 107;
+        imu_state.acc_write_num = 1;
+        imu_state.acc_write_data[0] = 0b00000000;
+        imu_state.acc_write_done = 0;
+        I2C1CONbits.SEN = 1; //start i2c transaction
+        while (imu_state.i2c_state != IDLE);
+        for(i=0;i<1000;++i){
+            Nop();
+        }
+        //put the gyro/acc in pass-through mode so we can check for the magnetometer
+        imu_state.i2c_err = IDLE;
+        I2C1STATbits.IWCOL = 0;
+        imu_state.i2c_state = WAIT_START_WRITE_STATE;
+        imu_state.i2c_address = IMU_ADDR<<1;
+        I2C1STATbits.BCL = 0;
+        imu_state.acc_write_register = 0x6A;
+        imu_state.acc_write_num = 1;
+        imu_state.acc_write_data[0] = 0b00000000;
+        imu_state.acc_write_done = 0;
+        I2C1CONbits.SEN = 1; //start i2c transaction
+        for(i=0;i<1000;++i){
+            Nop();
+        }
+        while (imu_state.i2c_state != IDLE);
+        imu_state.i2c_err = IDLE;
+        I2C1STATbits.IWCOL = 0;
+        imu_state.i2c_state = WAIT_START_WRITE_STATE;
+        imu_state.i2c_address = IMU_ADDR<<1;
+        I2C1STATbits.BCL = 0;
+        imu_state.acc_write_register = 55;
+        imu_state.acc_write_num = 1;
+        imu_state.acc_write_data[0] = 0b00000010;
+        imu_state.acc_write_done = 0;
+        I2C1CONbits.SEN = 1; //start i2c transaction
+        while (imu_state.i2c_state != IDLE);
+
+        //if you want to test the address
+//        for(i=0;i<1000;++i){
+//            Nop();
+//        }
+//
+//        I2C1STATbits.BCL = 0;
+//        I2C1CONbits.SEN = 1;
+//        imu_state.i2c_err = IDLE;
+//        I2C1STATbits.IWCOL = 0;
+//        imu_state.i2c_state = WAIT_START_READ_STATE;
+//        imu_state.i2c_address = IMU_ADDR<<1;
+//        imu_state.i2c_address_2 = (IMU_ADDR<<1)|1;
+//        I2C1STATbits.BCL = 0;
+//        imu_state.acc_read_register = 117;
+//        imu_state.acc_read_num = 1;
+//
+//        I2C1CONbits.SEN = 1; //start i2c transaction
+//        while (imu_state.i2c_state != IDLE);
+//
+//        if(imu_state.acc_read_data[0]==0x68){
+//            LED_1 = 1;
+//        } else {
+//            LED_1 = 0;
+//        }
+
+        i2c_scan();
+        //check if we can now find the 6 DOF IMU and the magnetometer
+//        LED_3 = imu_state.i2c_dev[IMU_ADDR];
+//        LED_4 = imu_state.i2c_dev[MAGNETOMETER_ADDR];
+        if(imu_state.i2c_dev[IMU_ADDR] && imu_state.i2c_dev[MAGNETOMETER_ADDR]){
+            imu_state.init_return = RET_OK;
+        } else {
+            imu_state.init_return = RET_ERROR;
+        }
+    }
+
     return imu_state.init_return;
+}
+
+void imu_read_state(){
+    if (imu_state.i2c_state != IDLE)
+        return;
+    I2C1STATbits.BCL = 0;
+    I2C1CONbits.SEN = 1;
+    imu_state.i2c_err = IDLE;
+    I2C1STATbits.IWCOL = 0;
+    imu_state.i2c_state = WAIT_START_READ_STATE;
+    imu_state.i2c_address = IMU_ADDR << 1;
+    imu_state.i2c_address_2 = (IMU_ADDR << 1) | 1;
+    I2C1STATbits.BCL = 0;
+    imu_state.acc_read_register = 59;
+    imu_state.acc_read_num = 20;
+
+    I2C1CONbits.SEN = 1; //start i2c transaction           
 }
 
 void i2c_scan() {
@@ -89,25 +151,24 @@ void i2c_scan() {
     uint16_t i;
 
     for (address = 0; address < 128; ++address) {
-        i2c_dev[address] = 0;
-        while (i2c_state != IDLE);
+        imu_state.i2c_dev[address] = 0;
+        while (imu_state.i2c_state != IDLE);
         I2C1STATbits.IWCOL = 0;
         if (I2C1STATbits.RBF)
             temp = I2C1RCV; //clears the RBF flag
-        i2c_state = WAIT_START_SCAN_STATE;
+        imu_state.i2c_state = WAIT_START_SCAN_STATE;
 
-        i2c_address = address<<1;
-        scan_address = address;
+        imu_state.i2c_address = address<<1;
+        imu_state.scan_address = address;
 
         I2C1STATbits.BCL = 0;
         I2C1CONbits.SEN = 1;
 
-        while (i2c_state != IDLE);
+        while (imu_state.i2c_state != IDLE);
         for(i=0;i<1000;++i){
             Nop();
         }
     }
-    
     if(address > 0)
         address = 0;
 }
@@ -116,144 +177,126 @@ void __attribute__((__interrupt__, no_auto_psv)) _MI2C1Interrupt(void) {
     static uint8_t byte_cnt;
     //master interrupt
 
-    switch (i2c_state) {
+    switch (imu_state.i2c_state) {
         case GYRO_WAIT_START:
             if (I2C1CONbits.SEN) {
                 //something went wrong (this should be low)
                 //reset to idle
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_state = IDLE;
+                imu_state.i2c_state = IDLE;
             }
             break;
         case WAIT_START_WRITE_STATE:
             if (!I2C1STATbits.S) {
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = WAIT_START_WRITE_STATE;
-                i2c_state = IDLE;
+                imu_state.i2c_err = WAIT_START_WRITE_STATE;
+                imu_state.i2c_state = IDLE;
             } else {
                 //send address
-                i2c_state = ADDRESS_WRITE_STATE;
-                I2C1TRN = i2c_address;
+                imu_state.i2c_state = ADDRESS_WRITE_STATE;
+                I2C1TRN = imu_state.i2c_address;
             }
             break;
         case ADDRESS_WRITE_STATE:
             if (I2C1STATbits.ACKSTAT) {
                 //NACK RECEIVED
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = ADDRESS_WRITE_STATE;
-                i2c_state = IDLE;
+                imu_state.i2c_err = ADDRESS_WRITE_STATE;
+                imu_state.i2c_state = IDLE;
             } else {
                 //ACK RECEIVED
                 //send register address
-                i2c_state = BYTE_WRITE_STATE;
+                imu_state.i2c_state = BYTE_WRITE_STATE;
                 byte_cnt = 0;
-                I2C1TRN = acc_write_register;
+                I2C1TRN = imu_state.acc_write_register;
             }
             break;
         case BYTE_WRITE_STATE:
             if (I2C1STATbits.ACKSTAT) {
                 //NACK RECEIVED
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = BYTE_WRITE_STATE;
-                i2c_state = IDLE;
+                imu_state.i2c_err = BYTE_WRITE_STATE;
+                imu_state.i2c_state = IDLE;
             } else {
                 //ACK RECEIVED
                 //send data byte
-                if (++byte_cnt >= acc_write_num) {
-                    i2c_state = STOP_WRITE_STATE;
+                if (++byte_cnt >= imu_state.acc_write_num) {
+                    imu_state.i2c_state = STOP_WRITE_STATE;
                 } else {
-                    i2c_state = BYTE_WRITE_STATE;
+                    imu_state.i2c_state = BYTE_WRITE_STATE;
                 }
-                I2C1TRN = acc_write_data[byte_cnt - 1];
+                I2C1TRN = imu_state.acc_write_data[byte_cnt - 1];
             }
             break;
         case STOP_WRITE_STATE:
             if (I2C1CONbits.ACKEN) {
                 //NACK was not sent: error
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = STOP_WRITE_STATE;
-                i2c_state = IDLE;
+                imu_state.i2c_err = STOP_WRITE_STATE;
+                imu_state.i2c_state = IDLE;
             } else {
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_state = IDLE;
-                acc_write_done = 1; //success
+                imu_state.i2c_state = IDLE;
+                imu_state.acc_write_done = 1; //success
             }
             break;
 
         case WAIT_START_READ_STATE:
             if (!I2C1STATbits.S) {
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = WAIT_START_READ_STATE;
-                i2c_state = IDLE;
+                imu_state.i2c_err = WAIT_START_READ_STATE;
+                imu_state.i2c_state = IDLE;
 
             } else {
                 //send address
-                i2c_state = ADDRESS_READ_STATE;
-                I2C1TRN = i2c_address; //0xD2; //0x38; //WRITE
+                imu_state.i2c_state = ADDRESS_READ_STATE;
+                I2C1TRN = imu_state.i2c_address; //0xD2; //0x38; //WRITE
             }
             break;
         case ADDRESS_READ_STATE:
             if (I2C1STATbits.ACKSTAT) {
                 //NACK RECEIVED
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = ADDRESS_READ_STATE;
-                i2c_state = IDLE;
+                imu_state.i2c_err = ADDRESS_READ_STATE;
+                imu_state.i2c_state = IDLE;
             } else {
                 //ACK RECEIVED
                 //send register address
-                i2c_state = REGISTER_ADDRESS_READ_STATE;
-                I2C1TRN = acc_read_register;
+                imu_state.i2c_state = REGISTER_ADDRESS_READ_STATE;
+                I2C1TRN = imu_state.acc_read_register;
             }
             break;
         case REGISTER_ADDRESS_READ_STATE:
             if (I2C1STATbits.ACKSTAT) {
                 //NACK RECEIVED
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = REGISTER_ADDRESS_READ_STATE;
-                i2c_state = IDLE;
+                imu_state.i2c_err = REGISTER_ADDRESS_READ_STATE;
+                imu_state.i2c_state = IDLE;
             } else {
                 //ACK RECEIVED
                 //send a repeated start bit
-                i2c_state = RS_READ_STATE;
+                imu_state.i2c_state = RS_READ_STATE;
                 I2C1CONbits.RSEN = 1; //repeated start bit
             }
             break;
         case RS_READ_STATE:
-            Nop();
-            Nop();
-            Nop();
-            Nop();
-            Nop();
-            Nop();
-            Nop();
-            Nop();
-            Nop();
-            Nop();
-            Nop();
-            Nop();
-            /*if(I2C1CONbits.RSEN = 1){
-                //didn't send the repeated start, weird
-                I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = ACC_RS_READ_STATE;
-                i2c_state = IDLE;
-            } else */
         {
             //send device address with read
-            i2c_state = REGISTER_ADDRESS_READ_READ_STATE;
-            I2C1TRN = i2c_address_2; //0xD3;//0x39;
+            imu_state.i2c_state = REGISTER_ADDRESS_READ_READ_STATE;
+            I2C1TRN = imu_state.i2c_address_2; //0xD3;//0x39;
         }
             break;
         case REGISTER_ADDRESS_READ_READ_STATE:
             if (I2C1STATbits.ACKSTAT) {
                 //NACK RECEIVED
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = REGISTER_ADDRESS_READ_READ_STATE;
-                i2c_state = IDLE;
+                imu_state.i2c_err = REGISTER_ADDRESS_READ_READ_STATE;
+                imu_state.i2c_state = IDLE;
             } else {
                 //ACK RECEIVED
                 //we can now start reading registers
                 byte_cnt = 0;
-                i2c_state = BYTE_READ_READ_STATE;
+                imu_state.i2c_state = BYTE_READ_READ_STATE;
                 I2C1CONbits.RCEN = 1;
             }
             break;
@@ -261,22 +304,22 @@ void __attribute__((__interrupt__, no_auto_psv)) _MI2C1Interrupt(void) {
             if (!I2C1STATbits.RBF) {
                 //nothing received, error
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = BYTE_READ_READ_STATE;
-                i2c_state = IDLE;
+                imu_state.i2c_err = BYTE_READ_READ_STATE;
+                imu_state.i2c_state = IDLE;
             } else {
                 //data received
                 //copy data to output buffer
-                acc_read_data[byte_cnt++] = I2C1RCV;
+                imu_state.acc_read_data[byte_cnt++] = I2C1RCV;
                 //check if we need to send a nack or ack
-                if (byte_cnt >= acc_read_num) {
+                if (byte_cnt >= imu_state.acc_read_num) {
                     //send NACK
                     I2C1CONbits.ACKDT = 1;
-                    i2c_state = STOP_READ_STATE;
+                    imu_state.i2c_state = STOP_READ_STATE;
                     I2C1CONbits.ACKEN = 1;
                 } else {
                     //send ACK
                     I2C1CONbits.ACKDT = 0;
-                    i2c_state = NEXT_BYTE_READ_STATE;
+                    imu_state.i2c_state = NEXT_BYTE_READ_STATE;
                     I2C1CONbits.ACKEN = 1;
                 }
             }
@@ -285,10 +328,10 @@ void __attribute__((__interrupt__, no_auto_psv)) _MI2C1Interrupt(void) {
             if (I2C1CONbits.ACKEN) {
                 //ACK was not sent: error
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = NEXT_BYTE_READ_STATE;
-                i2c_state = IDLE;
+                imu_state.i2c_err = NEXT_BYTE_READ_STATE;
+                imu_state.i2c_state = IDLE;
             } else {
-                i2c_state = BYTE_READ_READ_STATE;
+                imu_state.i2c_state = BYTE_READ_READ_STATE;
                 I2C1CONbits.RCEN = 1; //get next byte
             }
             break;
@@ -296,11 +339,11 @@ void __attribute__((__interrupt__, no_auto_psv)) _MI2C1Interrupt(void) {
             if (I2C1CONbits.ACKEN) {
                 //NACK was not sent: error
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = STOP_READ_STATE;
-                i2c_state = IDLE;
+                imu_state.i2c_err = STOP_READ_STATE;
+                imu_state.i2c_state = IDLE;
             } else {
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_state = IDLE;
+                imu_state.i2c_state = IDLE;
                 //acc_read_done = 1; //success
                 //update gyro or accelerometer
 //                if(update_acc){
@@ -324,34 +367,34 @@ void __attribute__((__interrupt__, no_auto_psv)) _MI2C1Interrupt(void) {
         case WAIT_START_SCAN_STATE:
             if (!I2C1STATbits.S) {
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = WAIT_START_SCAN_STATE;
-                i2c_state = IDLE;
+                imu_state.i2c_err = WAIT_START_SCAN_STATE;
+                imu_state.i2c_state = IDLE;
 
             } else {
                 //send address
-                i2c_state = ADDRESS_SCAN_STATE;
-                I2C1TRN = i2c_address;
+                imu_state.i2c_state = ADDRESS_SCAN_STATE;
+                I2C1TRN = imu_state.i2c_address;
             }
             break;
         case ADDRESS_SCAN_STATE:
             if (I2C1STATbits.ACKSTAT) {
                 //NACK RECEIVED
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = ADDRESS_SCAN_STATE;
-                i2c_state = IDLE;
+                imu_state.i2c_err = ADDRESS_SCAN_STATE;
+                imu_state.i2c_state = IDLE;
 
             } else {
                 //ACK RECEIVED
                 //send register address
                 I2C1CONbits.PEN = 1; //stop bit
-                i2c_err = IDLE;
-                i2c_state = IDLE;
-                i2c_dev[scan_address] = 1;
+                imu_state.i2c_err = IDLE;
+                imu_state.i2c_state = IDLE;
+                imu_state.i2c_dev[imu_state.scan_address] = 1;
                 
             }
             break;
         default:
-            i2c_state = IDLE;
+            imu_state.i2c_state = IDLE;
     };
 
     IFS1bits.MI2C1IF = 0;

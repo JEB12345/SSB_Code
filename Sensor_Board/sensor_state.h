@@ -63,9 +63,46 @@
         XBEE_STATE_TRANSMITTED
     } xbee_state_t;
 
+    enum I2C_STATES {
+    IDLE,
+    GYRO_WAIT_START,
+
+    WAIT_START_READ_STATE, //beginning of transaction to read the
+    ADDRESS_READ_STATE,
+    REGISTER_ADDRESS_READ_STATE,
+    RS_READ_STATE,
+    REGISTER_ADDRESS_READ_READ_STATE,
+    BYTE_READ_READ_STATE,
+    STOP_READ_STATE,
+    NEXT_BYTE_READ_STATE,
+
+    WAIT_START_WRITE_STATE,
+    ADDRESS_WRITE_STATE,
+    BYTE_WRITE_STATE,
+    STOP_WRITE_STATE,
+    WAIT_START_SCAN_STATE,
+    ADDRESS_SCAN_STATE
+
+};
+
     //maintain all state variables here
     typedef struct {
         return_value_t          init_return;
+        volatile enum I2C_STATES i2c_state;
+        volatile enum I2C_STATES i2c_err;
+        volatile uint8_t acc_read_register;
+        volatile uint8_t acc_read_num;
+        volatile uint8_t acc_read_data[25];
+        //volatile uint8 acc_read_done;
+        volatile uint8_t i2c_address, i2c_address_2;
+        volatile uint16_t acc_cnt, i2c_err_5, i2c_err_2, i2c_err_sum;
+        volatile uint8_t acc_write_num;
+        volatile uint8_t acc_write_data[20];
+        volatile uint8_t acc_write_register;
+        volatile uint8_t acc_write_done;
+        volatile uint8_t i2c_dev[128];
+        volatile uint8_t scan_address;
+        
         int volatile            state;
     } imu_data;
     

@@ -34,6 +34,7 @@ extern timer_data timer_state;
 extern volatile rf_data rf_state;
 extern http_data http_state;
 extern motor_cmd_data motor_cmd_state[2];
+extern imu_data imu_state;
 extern can_data can_state;
 bool port_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic);
 bool join_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic);
@@ -172,6 +173,9 @@ int main(int argc, char** argv) {
                 rf_tick(1);
                 if(timer_state.systime&0b100){
                     memcheck();
+                }
+                if(imu_state.init_return==RET_OK){
+                    imu_read_state();
                 }
                 //can_tick();
                 //network();

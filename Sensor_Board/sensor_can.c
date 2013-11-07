@@ -33,7 +33,7 @@
 #include "../libs/CanFestival-3/include/dspic33e/can_dspic33e.h"
 #include "../libs/CanFestival-3/include/dspic33e/canfestival.h"
 #include "ObjDict.h"
-#include "dma.h"
+#include <dma.h>
 
 can_data can_state;
 extern CO_Data ObjDict_Data;
@@ -44,7 +44,7 @@ static unsigned int ecan1TXMsgBuf[8];
 static volatile Message rxbuffer[CAN_RX_BUF_SIZE]; //this is an internal buffer for received messages
 static volatile uint8_t rxbuffer_start;
 static volatile uint8_t rxbuffer_stop;
-Message* m;
+static Message* m;
 
 return_value_t can_init()
 {

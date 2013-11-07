@@ -23,6 +23,7 @@ char    http_header_buffer[200];
 char    http_resp_buffer[1000];
 extern loadcell_data loadcell_state;
 extern motor_cmd_data motor_cmd_state[2];
+extern  imu_data imu_state;
 
 
 bool http_handle_rx_packet(xbee_rx_ip_packet_t* pkt);
@@ -196,15 +197,22 @@ void http_process()
         led_rgb_set(50,0,255);
         http_state.last_url[http_state.last_url_length]=0;
         //prepare response
+//        char* resp =
+//        "{\"result\": {\"message\":\"req. %lu\",\"url\":\"%s\",\"force\":[%lu,%lu,%lu,%lu]}, \"error\": null, \"id\": 1}\r\n"
+//        "\r\n";
+//        sprintf(http_resp_buffer,resp,http_state.num_requests,http_state.last_url,loadcell_state.values[0],loadcell_state.values[1],loadcell_state.values[2],loadcell_state.values[3]);
+//
+
         char* resp =
-        "{\"result\": {\"message\":\"req. %lu\",\"url\":\"%s\",\"force\":[%lu,%lu,%lu,%lu]}, \"error\": null, \"id\": 1}\r\n"
+        "{\"result\": {\"message\":\"req. %lu\",\"url\":\"%s\",\"acc\":[%d,%d,%d]}, \"error\": null, \"id\": 1}\r\n"
         "\r\n";
+        sprintf(http_resp_buffer,resp,http_state.num_requests,http_state.last_url,(imu_state.acc_read_data[0]<<8)|imu_state.acc_read_data[1],(imu_state.acc_read_data[2]<<8)|imu_state.acc_read_data[3],(imu_state.acc_read_data[4]<<8)|imu_state.acc_read_data[5]);
+
         char* header = "HTTP/1.1 200 OK\r\n"
         "Content-Type: text/html\r\n"
         "Content-Length: %u\r\n"
         "\r\n";//application/json-rpc\r\n"
 
-        sprintf(http_resp_buffer,resp,http_state.num_requests,http_state.last_url,loadcell_state.values[0],loadcell_state.values[1],loadcell_state.values[2],loadcell_state.values[3]);
         sprintf(http_header_buffer,header,strlen(http_resp_buffer));
 
 
