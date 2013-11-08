@@ -9,7 +9,6 @@
 #include "sensor_adc.h"
 #include "sensor_iptest.h"
 //#include "sensor_can.h"
-#include "../libs/CanFestival-3/include/dspic33e/can_dspic33e.h"
 #include "sensor_imu.h"
 #include "sensor_led.h"
 #include "sensor_loadcell.h"
@@ -24,6 +23,7 @@
 #include "sensor_uart.h"
 #include "sensor_timers.h"
 #include "sensor_memdebug.h"
+#include <dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <p33Exxxx.h>

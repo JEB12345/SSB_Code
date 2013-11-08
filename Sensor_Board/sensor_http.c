@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <dspic_http-parser/http_parser.h>
+#include <dspic_jsmn/jsmn.h>
 #include "superball_circularbuffer.h"
-#include "../libs/http-parser/http_parser.h"
 #include "xbee_API.h"
 #include "sensor_http.h"
 #include "sensor_state.h"
@@ -11,7 +12,7 @@
 #include "sensor_led.h"
 #include "sensor_pindefs.h"
 #include "sensor_memdebug.h"
-#include "../libs/jsmn/jsmn.h"
+
 http_parser* parser;
 http_parser_settings* settings;
 jsmn_parser* json_parser;

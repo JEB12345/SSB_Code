@@ -102,7 +102,6 @@
         volatile uint8_t acc_write_done;
         volatile uint8_t i2c_dev[128];
         volatile uint8_t scan_address;
-        
         int volatile            state;
     } imu_data;
     

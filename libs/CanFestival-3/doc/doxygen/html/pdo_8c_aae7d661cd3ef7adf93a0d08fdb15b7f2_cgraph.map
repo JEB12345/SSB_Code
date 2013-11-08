@@ -1,9 +1,0 @@
-<map id="proceedPDO" name="proceedPDO">
-<area shape="rect" id="node3" href="$pdo_8c.html#a889902163641f6fc8039550cb11ec320" title="Copy all the data to transmit in process_var Prepare the PDO defined at index to be sent *pwCobId : r..." alt="" coords="185,5,263,33"/>
-<area shape="rect" id="node5" href="$pdo_8c.html#ae468510c9f77f502207d961d26389918" title="CopyBits" alt="" coords="368,30,440,58"/>
-<area shape="rect" id="node8" href="$group__timer.html#ga991b3cfaac2f201b14d5530f75985c21" title="Delete an alarm before expiring." alt="" coords="187,106,261,134"/>
-<area shape="rect" id="node10" href="$group__pdo.html#gae983f9075bd04d0afff7391891a0d7c3" title="Set timer for PDO event." alt="" coords="149,157,299,185"/>
-<area shape="rect" id="node12" href="$group__timer.html#ga11c2616d78f06ed9144ef662f757b128" title="Set an alarm to execute a callback function when expired." alt="" coords="187,207,261,235"/>
-<area shape="rect" id="node14" href="$group__timer.html#ga4dccc204d52176bd547ab34d6858f5ba" title="Get the time elapsed since latest timer occurence." alt="" coords="347,182,461,210"/>
-<area shape="rect" id="node16" href="$group__timer.html#gab8d05dee70f04b5c5190ab00e84da106" title="Set a timerfor a given time." alt="" coords="368,233,440,261"/>
-</map>

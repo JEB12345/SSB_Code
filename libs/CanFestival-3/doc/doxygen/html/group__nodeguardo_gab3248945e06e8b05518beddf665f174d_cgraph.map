@@ -1,7 +1,0 @@
-<map id="proceedNODE_GUARD" name="proceedNODE_GUARD">
-<area shape="rect" id="node3" href="$group__heartbeato.html#gac1fe275595c601d9dfed7cb9f5e3373e" title="ConsumerHeartbeatAlarm" alt="" coords="211,5,381,33"/>
-<area shape="rect" id="node5" href="$group__timer.html#ga991b3cfaac2f201b14d5530f75985c21" title="Delete an alarm before expiring." alt="" coords="259,55,333,83"/>
-<area shape="rect" id="node7" href="$group__timer.html#ga11c2616d78f06ed9144ef662f757b128" title="Set an alarm to execute a callback function when expired." alt="" coords="259,106,333,134"/>
-<area shape="rect" id="node9" href="$group__timer.html#ga4dccc204d52176bd547ab34d6858f5ba" title="Get the time elapsed since latest timer occurence." alt="" coords="429,81,544,109"/>
-<area shape="rect" id="node11" href="$group__timer.html#gab8d05dee70f04b5c5190ab00e84da106" title="Set a timerfor a given time." alt="" coords="451,131,523,159"/>
-</map>

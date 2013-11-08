@@ -1,9 +1,0 @@
-<map id="writeNetworkDictCallBack" name="writeNetworkDictCallBack">
-<area shape="rect" id="node3" href="$sdo_8c.html#a77f638cbd9aca7bb67056e0cda945651" title="_writeNetworkDict" alt="" coords="225,131,351,159"/>
-<area shape="rect" id="node5" href="$sdo_8c.html#a83b35f348d36c23421eb1753df96fc33" title="GetSDOClientFromNodeId" alt="" coords="401,5,575,33"/>
-<area shape="rect" id="node7" href="$sdo_8c.html#a58d1f9691977617601beb9e5b4123252" title="Search for an unused line in the transfers array to store a new SDO. ie a line which value of the fie..." alt="" coords="431,55,545,83"/>
-<area shape="rect" id="node9" href="$sdo_8c.html#a3a6660620ea5fb37d311afc3d9a301c2" title="Search for the line, in the transfers array, which contains the beginning of the reception of a fragm..." alt="" coords="425,106,551,134"/>
-<area shape="rect" id="node11" href="$sdo_8c.html#aa570e2c8e69527298b428563a38ced9f" title="Initialize some fields of the structure." alt="" coords="625,182,711,210"/>
-<area shape="rect" id="node13" href="$sdo_8c.html#a42d33be015d4c4c83c73f1f0e588f481" title="Reset an unused line." alt="" coords="439,207,537,235"/>
-<area shape="rect" id="node16" href="$sdo_8c.html#a2f61d90737fb951b4b33c05e9b9810d7" title="Transmit a SDO frame on the bus bus_id." alt="" coords="449,258,527,286"/>
-</map>

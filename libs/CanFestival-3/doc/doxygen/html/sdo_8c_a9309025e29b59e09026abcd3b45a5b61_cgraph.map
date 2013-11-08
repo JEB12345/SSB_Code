@@ -1,6 +1,0 @@
-<map id="SDOTimeoutAlarm" name="SDOTimeoutAlarm">
-<area shape="rect" id="node3" href="$sdo_8c.html#a42d33be015d4c4c83c73f1f0e588f481" title="Reset an unused line." alt="" coords="188,5,287,33"/>
-<area shape="rect" id="node7" href="$sdo_8c.html#a8d0032d382891d6804947e9514fe3720" title="Transmit a SDO error to the client. The reasons may be : Read/Write to a undefined object Read/Write ..." alt="" coords="184,55,291,83"/>
-<area shape="rect" id="node5" href="$sdo_8c.html#aa570e2c8e69527298b428563a38ced9f" title="Initialize some fields of the structure." alt="" coords="340,5,425,33"/>
-<area shape="rect" id="node9" href="$sdo_8c.html#a2f61d90737fb951b4b33c05e9b9810d7" title="Transmit a SDO frame on the bus bus_id." alt="" coords="344,55,421,83"/>
-</map>
