@@ -352,50 +352,50 @@ bool at_init_response_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint
     if(at_cmd == AT_CMD_STR_TO_UINT16("AI"))
     {
         at_resp_param = *xbee_at_cmd_data(raw_packet);
-        switch(at_resp_param){
-            case 0x01:
-                led_rgb_set(255,0,0);
-//                LED_1 = 1;
-//                LED_2 = 0;
-//                LED_3 = 0;
-//                LED_4 = 0;
-                break;
-            case 0x00:
-                led_rgb_set(0,255,0);
-//                LED_1 = 0;
-//                LED_2 = 1;
-//                LED_3 = 0;
-//                LED_4 = 1;
-                break;
-            case 0x02:
-                led_rgb_set(50,200,0);
-//                LED_1 = 1;
-//                LED_2 = 1;
-//                LED_3 = 0;
-//                LED_4 = 0;
-                break;
-            case 0xFF:
-                led_rgb_set(0,0,255);
-//                LED_1 = 0;
-//                LED_2 = 0;
-//                LED_3 = 1;
-//                LED_4 = 0;
-                break;
-            case 0x42:
-                led_rgb_set(50,0,255);
-//                LED_1 = 1;
-//                LED_2 = 0;
-//                LED_3 = 1;
-//                LED_4 = 0;
-                break;
-            default:
-                led_rgb_set(0,100,200);
-//                LED_1 = 1;
-//                LED_2 = 0;
-//                LED_3 = 0;
-//                LED_4 = 0;
-                break;
-        };
+//        switch(at_resp_param){
+//            case 0x01:
+//                led_rgb_set(255,0,0);
+////                LED_1 = 1;
+////                LED_2 = 0;
+////                LED_3 = 0;
+////                LED_4 = 0;
+//                break;
+//            case 0x00:
+//                led_rgb_set(0,255,0);
+////                LED_1 = 0;
+////                LED_2 = 1;
+////                LED_3 = 0;
+////                LED_4 = 1;
+//                break;
+//            case 0x02:
+//                led_rgb_set(50,200,0);
+////                LED_1 = 1;
+////                LED_2 = 1;
+////                LED_3 = 0;
+////                LED_4 = 0;
+//                break;
+//            case 0xFF:
+//                led_rgb_set(0,0,255);
+////                LED_1 = 0;
+////                LED_2 = 0;
+////                LED_3 = 1;
+////                LED_4 = 0;
+//                break;
+//            case 0x42:
+//                led_rgb_set(50,0,255);
+////                LED_1 = 1;
+////                LED_2 = 0;
+////                LED_3 = 1;
+////                LED_4 = 0;
+//                break;
+//            default:
+//                led_rgb_set(0,100,200);
+////                LED_1 = 1;
+////                LED_2 = 0;
+////                LED_3 = 0;
+////                LED_4 = 0;
+//                break;
+//        };
         if(at_resp_param == XBEE_DIAG_ASSOC_INSV)
         {
             rf_state.cur_network_status = INIT_SUCCESS;

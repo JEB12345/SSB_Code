@@ -49,7 +49,7 @@ static Message* m;
 return_value_t can_init()
 {
     can_state.init_return = RET_OK;
-    if(!canInit(1000000))
+    if(!canInit(1000))
     {
         //fail
         can_state.init_return = RET_ERROR;

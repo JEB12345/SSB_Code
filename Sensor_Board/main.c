@@ -131,7 +131,7 @@ int main(int argc, char** argv) {
     //pmsm_init();
     LED_4 = 1;
     state_init();
-    uart_init();
+    //uart_init();
     led_rgb_off();
     LED_1 = 0;
     LED_2 = 0;
@@ -156,9 +156,13 @@ int main(int argc, char** argv) {
     rf_init();
     network_init();
 
-    imu_init();
+    imu_state.init_return = RET_UNKNOWN;
+    //imu_init();
 
     led_rgb_set(100,0,255);
+
+    can_state.init_return = RET_UNKNOWN;
+    can_init();
 
     timer_state.prev_systime = 0;
     timer_state.systime = 0;
@@ -180,7 +184,29 @@ int main(int argc, char** argv) {
                 //can_tick();
                 //network();
 
-
+                if(can_state.init_return==RET_OK){
+                    //LED_2 = 1;
+                    can_process();
+                    if(1){
+                       // can_process();
+                        Message m;
+                        m.cob_id = 98;
+                        m.data[0]=timer_state.systime>>8;
+                        m.data[1]=timer_state.systime&0xFF;
+                        m.data[2]=0;
+                        m.data[3]=0;
+                        m.data[4]=1;
+                        m.data[5]=9;
+                        m.data[6]=5;
+                        m.data[7]=121;
+                        m.len=8;
+                        m.rtr=0;
+                        canSend(0,&m);
+                    }
+                    
+                } else {
+                    //LED_3 = 1;
+                }
                 
                 //if(can_tick()){
                     //reset device
@@ -315,47 +341,51 @@ int main(int argc, char** argv) {
                 if(timer_state.systime&0b100000){
                    LED_4=!LED_4;
                 }
-                if(timer_state.systime&0b100000000 && rf_state.cur_network_status == INIT_SUCCESS){
-
-                   led_rgb_set(0,255,0);
+                if(timer_state.systime&0b100000000 ){
+                    if(rf_state.cur_network_status == INIT_SUCCESS){
+                        led_rgb_set(0,255,0);
+                    } else {
+                        led_rgb_set(0,0,255);
+                    }
+                   
                    }
-                if(timer_state.systime&0b10000 ){
-                            uart_tx_packet = uart_tx_cur_packet();
-                            //0:0XFF
-                            //1:LEN
-                            //2:(UPDATE BRAKE COAST DIR MODE)1
-                            //3:PWMH1
-                            //4:PWML1
-                            //5:TORQUEH1
-                            //6:TORQUEL1
-                            //7:(UPDATE BRAKE COAST DIR MODE)2
-                            //8:PWMH2
-                            //9:PWML2
-                            //10:TORQUEH2
-                            //11:TORQUEL2
-                            //12:(LED)
-                            //13:(RESET)
-                            //14:CS
-                            uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
-                            uart_tx_packet[1] = 0xFF;//CMD
-                            uart_tx_packet[2] = 14;
-                            uart_tx_packet[3] = 0b10110 | (motor_cmd_state[0].brake<<3);
-                            uart_tx_packet[4] = motor_cmd_state[0].vel>>8;//0xFF;//PWM
-                            uart_tx_packet[5] = motor_cmd_state[0].vel&0xFF;//0xFF;
-                            uart_tx_packet[6] = motor_cmd_state[0].torque>>8;//0xFF;//TORQUE
-                            uart_tx_packet[7] = motor_cmd_state[0].torque&0xFF;
-                            uart_tx_packet[8] = 0b00000;
-                            uart_tx_packet[9] = 0x0;//PWM
-                            uart_tx_packet[10] = 0x0;
-                            uart_tx_packet[11] = 0x0; //TORQUE
-                            uart_tx_packet[12] = 0x0;
-                            uart_tx_packet[13] = (timer_state.systime&0b100000)>0; //LED
-                            uart_tx_packet[14] = 1; //RESET
-                            uart_tx_compute_cks(uart_tx_packet);
-                            uart_tx_update_index();
-                            uart_tx_start_transmit();
-                            led_rgb_set(0,255,100);
-                        }
+//                if(timer_state.systime&0b10000 ){
+//                            uart_tx_packet = uart_tx_cur_packet();
+//                            //0:0XFF
+//                            //1:LEN
+//                            //2:(UPDATE BRAKE COAST DIR MODE)1
+//                            //3:PWMH1
+//                            //4:PWML1
+//                            //5:TORQUEH1
+//                            //6:TORQUEL1
+//                            //7:(UPDATE BRAKE COAST DIR MODE)2
+//                            //8:PWMH2
+//                            //9:PWML2
+//                            //10:TORQUEH2
+//                            //11:TORQUEL2
+//                            //12:(LED)
+//                            //13:(RESET)
+//                            //14:CS
+//                            uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
+//                            uart_tx_packet[1] = 0xFF;//CMD
+//                            uart_tx_packet[2] = 14;
+//                            uart_tx_packet[3] = 0b10110 | (motor_cmd_state[0].brake<<3);
+//                            uart_tx_packet[4] = motor_cmd_state[0].vel>>8;//0xFF;//PWM
+//                            uart_tx_packet[5] = motor_cmd_state[0].vel&0xFF;//0xFF;
+//                            uart_tx_packet[6] = motor_cmd_state[0].torque>>8;//0xFF;//TORQUE
+//                            uart_tx_packet[7] = motor_cmd_state[0].torque&0xFF;
+//                            uart_tx_packet[8] = 0b00000;
+//                            uart_tx_packet[9] = 0x0;//PWM
+//                            uart_tx_packet[10] = 0x0;
+//                            uart_tx_packet[11] = 0x0; //TORQUE
+//                            uart_tx_packet[12] = 0x0;
+//                            uart_tx_packet[13] = (timer_state.systime&0b100000)>0; //LED
+//                            uart_tx_packet[14] = 1; //RESET
+//                            uart_tx_compute_cks(uart_tx_packet);
+//                            uart_tx_update_index();
+//                            uart_tx_start_transmit();
+//                            //led_rgb_set(0,255,100);
+//                        }
 
             }            
         } else {
@@ -379,31 +409,31 @@ int main(int argc, char** argv) {
 
             //memcheck();
 
-            uart_rx_packet = uart_rx_cur_packet();
-        if (uart_rx_packet != 0) {
-            //led_toggle();
-            if(uart_rx_packet[0]==0xFF){
-                
-                //0:0XFF
-                //1:LEN
-                //2:(UPDATE BRAKE COAST DIR MODE)1
-                //3:PWMH1
-                //4:PWML1
-                //5:TORQUEH1
-                //6:TORQUEL1
-                //7:(UPDATE BRAKE COAST DIR MODE)2
-                //8:PWMH2
-                //9:PWML2
-                //10:TORQUEH2
-                //11:TORQUEL2
-                //12:(LED)
-                //13:(RESET)
-                //14:CS
-
-            }
-            uart_rx_packet_consumed();
-
-        }
+//            uart_rx_packet = uart_rx_cur_packet();
+//        if (uart_rx_packet != 0) {
+//            //led_toggle();
+//            if(uart_rx_packet[0]==0xFF){
+//
+//                //0:0XFF
+//                //1:LEN
+//                //2:(UPDATE BRAKE COAST DIR MODE)1
+//                //3:PWMH1
+//                //4:PWML1
+//                //5:TORQUEH1
+//                //6:TORQUEL1
+//                //7:(UPDATE BRAKE COAST DIR MODE)2
+//                //8:PWMH2
+//                //9:PWML2
+//                //10:TORQUEH2
+//                //11:TORQUEL2
+//                //12:(LED)
+//                //13:(RESET)
+//                //14:CS
+//
+//            }
+//            uart_rx_packet_consumed();
+//
+//        }
 
         }
     }

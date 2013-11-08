@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../../../../Sensor_Board/ObjDict.h"
 #include "../../../../Sensor_Board/sensor_pindefs.h"
 
-Message* m;
+static Message* m;
 ///////////////////////////////////////////////////////////////////////////////
 ////////////////////// USER FUNCTIONS Replace when this is a library //////////
 
@@ -43,7 +43,7 @@ Message* m;
 
 
 static unsigned int ecan1RXMsgBuf[32][8] __attribute__((aligned(32 * 16)));
-static unsigned int ecan1TXMsgBuf[8];
+static unsigned int ecan1TXMsgBuf[32][8] __attribute__((aligned(32 * 16)));
 #define CAN_RX_BUF_SIZE 5
 static volatile Message rxbuffer[CAN_RX_BUF_SIZE]; //this is an internal buffer for received messages
 static volatile uint8_t rxbuffer_start;
@@ -67,10 +67,11 @@ OUTPUT	1 if successful
     // 0 normal, 1 disable, 2 loopback, 3 listen-only, 4 configuration, 7 listen all messages
     uint8_t desired_mode = 0;//(parameters[0] & 0x001C) >> 2;
     rxbuffer_start = rxbuffer_stop = 0;
-    if(bitrate!=1000000){
+    if(bitrate!=1000){
         //fail
         return 0;
     }
+     C1CTRL1bits.WIN = 0; // Allow configuration of masks and filters
 
     //CONFIG CAN
     // Make sure the ECAN module is in configuration mode.
@@ -79,7 +80,7 @@ OUTPUT	1 if successful
     C1CTRL1bits.REQOP = 4;
     while (C1CTRL1bits.OPMODE != 4);
 
-    C1CTRL1bits.WIN = 1; // Allow configuration of masks and filters
+   
 
     //1Mbaud
     // Setup our frequencies for time quanta calculations.
@@ -88,11 +89,18 @@ OUTPUT	1 if successful
     C1CFG1bits.BRP = 4; //9 = (140MHz/(2*(14*1Mbaud)))-1 [14 TQ/bit = Bit Time]
     // Based on Bit Time
     // 14 = 1(Sync Segment) + 5(Propagation Seg.) + 5(Phase Seg. 1) + 3(Phase Seg. 2)
-    C1CFG2bits.PRSEG = 5;//5*TQ; // Set propagation segment time
-    C1CFG2bits.SEG1PH = 5;//5*TQ; // Set segment 1 time
+//    C1CFG2bits.PRSEG = 5;//5*TQ; // Set propagation segment time
+//    C1CFG2bits.SEG1PH = 5;//5*TQ; // Set segment 1 time
+//    C1CFG2bits.SEG2PHTS = 0x1; // Keep segment 2 time programmable
+//    C1CFG2bits.SEG2PH = 3;//3*TQ ; // Set phase segment 2 time
+//    C1CFG1bits.SJW = 2;//Phase Seg. 2 > SJW => 3 > 2;
+//    C1CFG2bits.SAM = 1; // Triple-sample for majority rules at bit sample point
+
+     C1CFG1bits.SJW = 0;//(parameters[3] & 0x0600) >> 9;
+    C1CFG2bits.PRSEG = 0;//5*TQ//b; // Set propagation segment time
+    C1CFG2bits.SEG1PH = 5;//4*TQ//a; // Set segment 1 time
     C1CFG2bits.SEG2PHTS = 0x1; // Keep segment 2 time programmable
-    C1CFG2bits.SEG2PH = 3;//3*TQ ; // Set phase segment 2 time
-    C1CFG1bits.SJW = 2;//Phase Seg. 2 > SJW => 3 > 2;
+    C1CFG2bits.SEG2PH = 5;//4*TQ //c; // Set phase segment 2 time
     C1CFG2bits.SAM = 1; // Triple-sample for majority rules at bit sample point
 
     // No FIFO, 32 Buffers
@@ -100,7 +108,7 @@ OUTPUT	1 if successful
 
     // Clear all interrupt bits
     C1RXFUL1 = C1RXFUL2 = C1RXOVF1 = C1RXOVF2 = 0x0000;
-
+     C1CTRL1bits.WIN = 1; // Allow configuration of masks and filters
     // Configure buffer settings.
     C1TR01CON = 0;
     //buffer 0 is transmit
@@ -118,14 +126,14 @@ OUTPUT	1 if successful
     DMA1PAD = (volatile unsigned int)&C1TXD;
     DMA1STAL = (unsigned int)ecan1TXMsgBuf;
     DMA1STAH = 0x0;
-//    config = DMA1CON|0b1000000000000000;
-//    irq = 70; //CAN TX
-//    count = 7;   //8 words per transfer
-//    pad_address = (volatile unsigned int)&C1TXD;
-//    //sta_address = ecan1MsgBuf;
-//    stb_address = 0x0;
-//    OpenDMA1( config, irq, (long unsigned int)ecan1TXMsgBuf,
-//        stb_address,pad_address, count );
+    config = DMA1CON|0b1000000000000000;
+    irq = 70; //CAN TX
+    count = 7;   //8 words per transfer
+    pad_address = (volatile unsigned int)&C1TXD;
+    //sta_address = ecan1MsgBuf;
+    stb_address = 0x0;
+    OpenDMA1( config, irq, (long unsigned int)ecan1TXMsgBuf,
+        stb_address,pad_address, count );
 
     //RX
     DMA0CONbits.SIZE = 0;
@@ -134,40 +142,41 @@ OUTPUT	1 if successful
     DMA0CONbits.MODE = 0; // Peripheral Indirect Addressing
     DMA0REQ = 34; // CAN1 RX
     DMA0CNT = 7; // 8 words per transfer
-    DMA0PAD = (volatile unsigned int)&C1TXD;
-    DMA0STAL = (unsigned int)ecan1TXMsgBuf;
+    DMA0PAD = (volatile unsigned int)&C1RXD;
+    DMA0STAL = (unsigned int)ecan1RXMsgBuf;
     DMA0STAH = 0x0;
-//    config = DMA0CON|0b1000000000000000;
-//    irq = 0x22;// Select ECAN1 RX as DMA Request source
-//    count = 7;   //8 words per transfer
-//    IEC0bits.DMA0IE = 0; // Enable DMA Channel 0 interrupt
-//    //DMA0CONbits.CHEN = 1; // Enable DMA Channel 0
-//    pad_address = (volatile unsigned int)&C1RXD;
-//    stb_address = 0x0;
-//    OpenDMA0( config, irq, (long unsigned int)ecan1RXMsgBuf,
-//        stb_address,pad_address, count );
+    config = DMA0CON|0b1000000000000000;
+    irq = 0x22;// Select ECAN1 RX as DMA Request source
+    count = 7;   //8 words per transfer
+    //DMA0CONbits.CHEN = 1; // Enable DMA Channel 0
+    pad_address = (volatile unsigned int)&C1RXD;
+    stb_address = 0x0;
+    OpenDMA0( config, irq, (long unsigned int)ecan1RXMsgBuf,
+        stb_address,pad_address, count );
+
 
     // Enable DMA
     IFS0bits.DMA0IF = 0;
     DMA0CONbits.CHEN = 1;
     DMA1CONbits.CHEN = 1;
+    IEC0bits.DMA0IE = 0; // Disable DMA Channel 0 interrupt (everything is handled in the CAN interrupt)
 
     // Setup message filters and masks.
 
     C1FMSKSEL1bits.F0MSK=0x0; //Filter 0 will use mask 0
-    //C1RXM0SIDbits.SID = 0x000; // accept all
-    C1FEN1bits.FLTEN0 = 0;
-    //C1RXF0SIDbits.SID = 0x7EE;// set filter
+    C1RXM0SIDbits.SID = 0x0;//0x000; // accept all
+    //C1FEN1bits.FLTEN0 = 1;
+    C1RXF0SIDbits.SID = 0x0;//0x7EE;// set filter
 
     C1RXM0SIDbits.MIDE = 0x1; //only receive standard frames
     C1RXF0SIDbits.EXIDE= 0x0;
-    C1BUFPNT1bits.F0BP = 0x1; //use message buffer 1 to receive data
-    //C1FEN1bits.FLTEN0=0x1; //Filter 0 enabled for Identifier match with incoming message
+    C1BUFPNT1bits.F0BP = 0x0;//0x1; //use message buffer 1 to receive data
+    C1FEN1bits.FLTEN0=0x1; //Filter 0 enabled for Identifier match with incoming message
 
     C1CTRL1bits.WIN = 0;
 
     // Place ECAN1 into normal mode
-    desired_mode = 0b0;
+    desired_mode = 0;
     C1CTRL1bits.REQOP = desired_mode;
     while (C1CTRL1bits.OPMODE != desired_mode);
 
@@ -175,7 +184,7 @@ OUTPUT	1 if successful
     IEC2bits.C1IE = 1; // Enable interrupts for ECAN1 peripheral
     C1INTEbits.TBIE = 1; // Enable TX buffer interrupt
     C1INTEbits.RBIE = 1; // Enable RX buffer interrupt
-
+//    C1INTEbits.ERRIE = 1;
     return 1;
 }
 
@@ -218,22 +227,23 @@ OUTPUT	1 if  hardware -> CAN frame
         word2 |= 0x0200;
     }
     
-    ecan1TXMsgBuf[0] = word0;
-    ecan1TXMsgBuf[1] = word1;
-    ecan1TXMsgBuf[2] = ((word2 & 0xFFF0) + m->len);
-    ecan1TXMsgBuf[3] = ((uint16_t) m->data[1] << 8 | ((uint16_t) m->data[0]));
-    ecan1TXMsgBuf[4] = ((uint16_t) m->data[3] << 8 | ((uint16_t) m->data[2]));
-    ecan1TXMsgBuf[5] = ((uint16_t) m->data[5] << 8 | ((uint16_t) m->data[4]));
-    ecan1TXMsgBuf[6] = ((uint16_t) m->data[7] << 8 | ((uint16_t) m->data[6]));
+    ecan1TXMsgBuf[1][0] = word0;
+    ecan1TXMsgBuf[1][1] = word1;
+    ecan1TXMsgBuf[1][2] = ((word2 & 0xFFF0) + m->len);
+    ecan1TXMsgBuf[1][3] = (((uint16_t) m->data[1]) << 8) |m->data[0];
+    ecan1TXMsgBuf[1][4] = (((uint16_t) m->data[3]) << 8) |m->data[2];
+    ecan1TXMsgBuf[1][5] = (((uint16_t) m->data[5]) << 8) |m->data[4];
+    ecan1TXMsgBuf[1][6] = (((uint16_t) m->data[7]) << 8) |m->data[6];
 
     // Set the correct transfer intialization bit (TXREQ) based on message buffer.
     //offset = message->buffer >> 1;
     //bufferCtrlRegAddr = (uint16_t *) (&C1TR01CON + offset);
     //bit_to_set = 1 << (3 | ((message->buffer & 1) << 3));
     //*bufferCtrlRegAddr |= bit_to_set;
-    C1TR01CONbits.TXEN0 = 1;
+    C1TR01CONbits.TXEN1 = 1;
     C1TR01CONbits.TX0PRI = 0;
-    C1TR01CONbits.TXREQ0 = 1;
+    C1TR01CONbits.TXREQ1 = 1;
+
 }
 
 unsigned char canReceive(Message *m)
@@ -265,12 +275,12 @@ char canChangeBaudRate_driver( CAN_HANDLE fd, char* baud)
 ////////////////////// USER FUNCTIONS Replace when this is a library //////////
 can_data can_state;
 extern CO_Data ObjDict_Data;
-Message* m;
+static Message* m;
 
 return_value_t can_init()
 {
     can_state.init_return = RET_OK;
-    if(!canInit(1000000))
+    if(!canInit(1000))
     {
         //fail
         can_state.init_return = RET_ERROR;
@@ -297,10 +307,16 @@ uint8_t can_process()
 }
 ///////////////////////////////////////////////////////////////////////////////
 ////////////////////// USER FUNCTIONS Replace when this is a library //////////
+//void __attribute__((__interrupt__, __auto_psv__)) _DMA0Interrupt(void)
+//{
+//    LED_3 = !LED_2;
+////    while(1);
+//    IFS0bits.DMA0IF = 0;
+//}
 
-void __attribute__((interrupt, no_auto_psv)) _DMA0Interrupt(void)
+void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
 {
-    LED_2 = 1;
+    // while(1);
     // Give us a CAN message struct to populate and use
     Message* m;
     uint8_t ide = 0;
@@ -318,6 +334,7 @@ void __attribute__((interrupt, no_auto_psv)) _DMA0Interrupt(void)
     // If the interrupt was fired because of a received message
     // package it all up and store in the queue.
     if (C1INTFbits.RBIF) {
+        LED_2 = !LED_2;
         //find current message in buffer, we overwrite old messages in case the buffer overflows
         //(thus we can handle emergencies etc.)
         m = &rxbuffer[rxbuffer_stop++];
@@ -383,6 +400,7 @@ void __attribute__((interrupt, no_auto_psv)) _DMA0Interrupt(void)
     }
 
     // Clear the general ECAN1 interrupt flag.
-    IFS0bits.DMA0IF = 0;
+    //IFS0bits.DMA0IF = 0;
+    IFS2bits.C1IF = 0;
 
 }
