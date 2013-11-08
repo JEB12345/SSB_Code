@@ -1,0 +1,51 @@
+<map id="canDispatch" name="canDispatch">
+<area shape="rect" id="node3" href="$emcy_8h.html#a1d5b0a7a06668cdac55141b7076e0fe5" title="This function is responsible to process an EMCY canopen&#45;message." alt="" coords="179,157,283,185"/>
+<area shape="rect" id="node5" href="$nmtSlave_8c.html#a97d175ea168c149c99b01dcde0989743" title="Threat the reception of a NMT message from the master." alt="" coords="147,207,315,235"/>
+<area shape="rect" id="node76" href="$group__nodeguardo.html#gab3248945e06e8b05518beddf665f174d" title="This function is responsible to process a canopen&#45;message which seams to be an NMT Error Control Mess..." alt="" coords="923,106,1080,134"/>
+<area shape="rect" id="node81" href="$pdo_8c.html#aae7d661cd3ef7adf93a0d08fdb15b7f2" title="Compute a PDO frame reception bus_id is hardware dependant." alt="" coords="953,613,1049,641"/>
+<area shape="rect" id="node89" href="$sdo_8c.html#a2a93a7c780472b1d8666d89aa270f661" title="Treat a SDO frame reception call the function sendSDO." alt="" coords="535,917,631,945"/>
+<area shape="rect" id="node118" href="$sync_8c.html#ade5dd12cef515c82dae1fddc34d4e711" title="This function is called when the node is receiving a SYNC message (cob&#45;id = 0x80)." alt="" coords="531,410,635,438"/>
+<area shape="rect" id="node7" href="$group__statemachine.html#ga3020f2e5762f6e389a21382ec827b6a6" title="Returns the nodId." alt="" coords="364,106,444,134"/>
+<area shape="rect" id="node9" href="$group__statemachine.html#gad47a53979b9311a374d029f7923abbe1" title="Define the node ID. Initialize the object dictionary." alt="" coords="364,157,444,185"/>
+<area shape="rect" id="node11" href="$group__statemachine.html#ga0a5004efd1dedbee82a4f21ec5c44fb5" title="Change the state of the node." alt="" coords="369,207,439,235"/>
+<area shape="rect" id="node13" href="$states_8c.html#a915991eebf7c2ac6c929c6c9cfbd7d03" title="switchCommunicationState" alt="" coords="493,258,672,286"/>
+<area shape="rect" id="node15" href="$sdo_8c.html#a1f4f07eccc4890a11ccf4f632da7740b" title="Reset all SDO buffers." alt="" coords="755,613,832,641"/>
+<area shape="rect" id="node21" href="$sync_8c.html#a2e0bf669f5b40dfbdda0f12a5ae3631a" title="startSYNC" alt="" coords="752,309,835,337"/>
+<area shape="rect" id="node23" href="$sync_8c.html#a41c47dbd59d22bf9bab6cd288cf27164" title="stopSYNC" alt="" coords="960,511,1043,539"/>
+<area shape="rect" id="node39" href="$lifegrd_8h.html#aeb614e7da7ad05814be22489ee022b87" title="Start the life guarding service (heartbeat/node guarding). This service handles NMT error control mes..." alt="" coords="748,55,839,83"/>
+<area shape="rect" id="node49" href="$lifegrd_8h.html#a7bd167c1fa9ac8e87a4bac7735a58966" title="Stop the life guarding service (heartbeat/node guarding)." alt="" coords="743,359,844,387"/>
+<area shape="rect" id="node57" href="$emcy_8h.html#ac1ae9a72b60fc7dfde81d1c70b3f3196" title="Start EMCY consumer and producer." alt="" coords="743,207,844,235"/>
+<area shape="rect" id="node61" href="$emcy_8h.html#a7b6a2abe14c9416b18bfbce1665247fb" title="Stop EMCY producer and consumer." alt="" coords="737,5,849,33"/>
+<area shape="rect" id="node63" href="$pdo_8c.html#a474688163fc6e1ffe47d56143a051714" title="Initialize PDO feature." alt="" coords="760,461,827,489"/>
+<area shape="rect" id="node71" href="$pdo_8c.html#a745aea83aebbc1ec052a98f18586cb35" title="Stop PDO feature." alt="" coords="963,207,1040,235"/>
+<area shape="rect" id="node74" href="$nmtSlave_8c.html#aaced28a97b2c256320dfde3c4b36a7d5" title="Transmit the boot&#45;Up frame when the slave is moving from initialization state to pre_operational stat..." alt="" coords="732,157,855,185"/>
+<area shape="rect" id="node17" href="$sdo_8c.html#a42d33be015d4c4c83c73f1f0e588f481" title="Reset an unused line." alt="" coords="952,714,1051,742"/>
+<area shape="rect" id="node19" href="$sdo_8c.html#aa570e2c8e69527298b428563a38ced9f" title="Initialize some fields of the structure." alt="" coords="1179,765,1264,793"/>
+<area shape="rect" id="node27" href="$sync_8c.html#a82595787f641ab85980d83522f1158b0" title="OnCOB_ID_SyncUpdate" alt="" coords="920,309,1083,337"/>
+<area shape="rect" id="node30" href="$group__timer.html#ga11c2616d78f06ed9144ef662f757b128" title="Set an alarm to execute a callback function when expired." alt="" coords="1184,106,1259,134"/>
+<area shape="rect" id="node36" href="$sync_8c.html#abbcce7b549414c7bc1aa72fa66258b45" title="SyncAlarm" alt="" coords="959,359,1044,387"/>
+<area shape="rect" id="node25" href="$group__timer.html#ga991b3cfaac2f201b14d5530f75985c21" title="Delete an alarm before expiring." alt="" coords="1184,435,1259,463"/>
+<area shape="rect" id="node32" href="$group__timer.html#ga4dccc204d52176bd547ab34d6858f5ba" title="Get the time elapsed since latest timer occurence." alt="" coords="1355,81,1469,109"/>
+<area shape="rect" id="node34" href="$group__timer.html#gab8d05dee70f04b5c5190ab00e84da106" title="Set a timerfor a given time." alt="" coords="1376,131,1448,159"/>
+<area shape="rect" id="node41" href="$group__heartbeato.html#ga8896f6846e4d020390f6953f3d98aa21" title="Start heartbeat consumer and producer with respect to 0x1016 and 0x1017 object dictionary entries..." alt="" coords="955,5,1048,33"/>
+<area shape="rect" id="node46" href="$group__nodeguardo.html#ga3f81fed5eb843c8baf131915f5826649" title="Start node guarding with respect to 0x100C and 0x100D in the object dictionary." alt="" coords="952,55,1051,83"/>
+<area shape="rect" id="node44" href="$group__heartbeato.html#gac1fe275595c601d9dfed7cb9f5e3373e" title="ConsumerHeartbeatAlarm" alt="" coords="1136,30,1307,58"/>
+<area shape="rect" id="node51" href="$group__heartbeato.html#ga1b73047269c2a02065e12af18c6053c7" title="Stop heartbeat consumer and producer." alt="" coords="951,410,1052,438"/>
+<area shape="rect" id="node54" href="$group__nodeguardo.html#gac259820ffbdf98861fc0e75646fba119" title="Stop producing node guarding messages." alt="" coords="947,461,1056,489"/>
+<area shape="rect" id="node59" href="$emcy_8c.html#a11265d2ea7926d22310f1802ae722c5b" title="OnNumberOfErrorsUpdate" alt="" coords="916,157,1087,185"/>
+<area shape="rect" id="node65" href="$group__pdo.html#ga95c3686cda4e9e6f7c847d2d0bb88fe8" title="Function iterates on all TPDO and look TPDO transmit type and content change before sending it..." alt="" coords="944,562,1059,590"/>
+<area shape="rect" id="node67" href="$pdo_8c.html#a889902163641f6fc8039550cb11ec320" title="Copy all the data to transmit in process_var Prepare the PDO defined at index to be sent *pwCobId : r..." alt="" coords="1183,562,1260,590"/>
+<area shape="rect" id="node69" href="$pdo_8c.html#ae468510c9f77f502207d961d26389918" title="CopyBits" alt="" coords="1376,587,1448,615"/>
+<area shape="rect" id="node86" href="$group__pdo.html#gae983f9075bd04d0afff7391891a0d7c3" title="Set timer for PDO event." alt="" coords="1147,663,1296,691"/>
+<area shape="rect" id="node91" href="$sdo_8c.html#a50665fc13aa385b1b523013cf9166523" title="Called when an internal SDO abort occurs. Release the line * Only if server * If client, the line must be released manually in the core application. The reason of that is to permit the program to read the transfers structure before its reset, because many informations are stored on it : index, subindex, data received or trasmited, ... In all cases, sends a SDO abort." alt="" coords="753,917,833,945"/>
+<area shape="rect" id="node93" href="$sdo_8c.html#a3a6660620ea5fb37d311afc3d9a301c2" title="Search for the line, in the transfers array, which contains the beginning of the reception of a fragm..." alt="" coords="939,967,1064,995"/>
+<area shape="rect" id="node98" href="$sdo_8c.html#a2f61d90737fb951b4b33c05e9b9810d7" title="Transmit a SDO frame on the bus bus_id." alt="" coords="1183,891,1260,919"/>
+<area shape="rect" id="node100" href="$sdo_8c.html#a58d1f9691977617601beb9e5b4123252" title="Search for an unused line in the transfers array to store a new SDO. ie a line which value of the fie..." alt="" coords="736,1018,851,1046"/>
+<area shape="rect" id="node103" href="$sdo_8c.html#a7654021041675c1389fd2d1b590ff7cb" title="Bytes in the line structure which must be transmited (or received)" alt="" coords="720,1069,867,1097"/>
+<area shape="rect" id="node106" href="$sdo_8c.html#a2b662491084d03f3ad43d280a45ef23e" title="Copy data from an existant line in the argument &quot;* data&quot;." alt="" coords="751,1119,836,1147"/>
+<area shape="rect" id="node108" href="$sdo_8c.html#a29427a80fd1aeabff30bf0602fbc220f" title="Copy the data from the object dictionary to the SDO line for a network transfer." alt="" coords="732,1170,855,1198"/>
+<area shape="rect" id="node111" href="$sdo_8c.html#a2eb5309dca3a7363da5e5e7230b85d58" title="Copy the data received from the SDO line transfer to the object dictionary." alt="" coords="731,1221,856,1249"/>
+<area shape="rect" id="node113" href="$sdo_8c.html#a5efdbb02d210aad29c6d162600d3ae55" title="Add data to an existant line." alt="" coords="751,663,836,691"/>
+<area shape="rect" id="node116" href="$sdo_8c.html#a7ca56a650c5daaa24c89370f3b3d7bb0" title="Store in the line structure the nb of bytes which must be transmited (or received)" alt="" coords="721,765,865,793"/>
+<area shape="rect" id="node96" href="$sdo_8c.html#a8d0032d382891d6804947e9514fe3720" title="Transmit a SDO error to the client. The reasons may be : Read/Write to a undefined object Read/Write ..." alt="" coords="948,917,1055,945"/>
+</map>

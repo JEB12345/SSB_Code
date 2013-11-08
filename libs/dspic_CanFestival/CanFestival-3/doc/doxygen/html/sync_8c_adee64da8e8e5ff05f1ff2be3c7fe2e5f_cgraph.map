@@ -1,0 +1,7 @@
+<map id="sendSYNC" name="sendSYNC">
+<area shape="rect" id="node3" href="$sync_8c.html#ade5dd12cef515c82dae1fddc34d4e711" title="This function is called when the node is receiving a SYNC message (cob&#45;id = 0x80)." alt="" coords="155,5,259,33"/>
+<area shape="rect" id="node11" href="$sync_8c.html#a097cddb0103b1a8f56ecf976b03936a3" title="Transmit a SYNC message on CAN bus." alt="" coords="139,55,275,83"/>
+<area shape="rect" id="node5" href="$group__pdo.html#ga95c3686cda4e9e6f7c847d2d0bb88fe8" title="Function iterates on all TPDO and look TPDO transmit type and content change before sending it..." alt="" coords="323,5,437,33"/>
+<area shape="rect" id="node7" href="$pdo_8c.html#a889902163641f6fc8039550cb11ec320" title="Copy all the data to transmit in process_var Prepare the PDO defined at index to be sent *pwCobId : r..." alt="" coords="485,5,563,33"/>
+<area shape="rect" id="node9" href="$pdo_8c.html#ae468510c9f77f502207d961d26389918" title="CopyBits" alt="" coords="612,5,684,33"/>
+</map>

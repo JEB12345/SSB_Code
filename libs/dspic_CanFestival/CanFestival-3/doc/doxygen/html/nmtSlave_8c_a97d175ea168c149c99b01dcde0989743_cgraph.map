@@ -1,0 +1,44 @@
+<map id="proceedNMTstateChange" name="proceedNMTstateChange">
+<area shape="rect" id="node3" href="$group__statemachine.html#ga3020f2e5762f6e389a21382ec827b6a6" title="Returns the nodId." alt="" coords="223,359,303,387"/>
+<area shape="rect" id="node5" href="$group__statemachine.html#gad47a53979b9311a374d029f7923abbe1" title="Define the node ID. Initialize the object dictionary." alt="" coords="223,410,303,438"/>
+<area shape="rect" id="node7" href="$group__statemachine.html#ga0a5004efd1dedbee82a4f21ec5c44fb5" title="Change the state of the node." alt="" coords="228,461,297,489"/>
+<area shape="rect" id="node9" href="$states_8c.html#a915991eebf7c2ac6c929c6c9cfbd7d03" title="switchCommunicationState" alt="" coords="352,461,531,489"/>
+<area shape="rect" id="node11" href="$sdo_8c.html#a1f4f07eccc4890a11ccf4f632da7740b" title="Reset all SDO buffers." alt="" coords="603,55,680,83"/>
+<area shape="rect" id="node17" href="$sync_8c.html#a2e0bf669f5b40dfbdda0f12a5ae3631a" title="startSYNC" alt="" coords="600,537,683,565"/>
+<area shape="rect" id="node19" href="$sync_8c.html#a41c47dbd59d22bf9bab6cd288cf27164" title="stopSYNC" alt="" coords="797,435,880,463"/>
+<area shape="rect" id="node47" href="$lifegrd_8h.html#aeb614e7da7ad05814be22489ee022b87" title="Start the life guarding service (heartbeat/node guarding). This service handles NMT error control mes..." alt="" coords="596,309,687,337"/>
+<area shape="rect" id="node77" href="$lifegrd_8h.html#a7bd167c1fa9ac8e87a4bac7735a58966" title="Stop the life guarding service (heartbeat/node guarding)." alt="" coords="1017,410,1119,438"/>
+<area shape="rect" id="node81" href="$emcy_8h.html#ac1ae9a72b60fc7dfde81d1c70b3f3196" title="Start EMCY consumer and producer." alt="" coords="591,587,692,615"/>
+<area shape="rect" id="node85" href="$emcy_8h.html#a7b6a2abe14c9416b18bfbce1665247fb" title="Stop EMCY producer and consumer." alt="" coords="585,638,697,666"/>
+<area shape="rect" id="node87" href="$pdo_8c.html#a474688163fc6e1ffe47d56143a051714" title="Initialize PDO feature." alt="" coords="1035,549,1101,577"/>
+<area shape="rect" id="node97" href="$pdo_8c.html#a745aea83aebbc1ec052a98f18586cb35" title="Stop PDO feature." alt="" coords="603,157,680,185"/>
+<area shape="rect" id="node100" href="$nmtSlave_8c.html#aaced28a97b2c256320dfde3c4b36a7d5" title="Transmit the boot&#45;Up frame when the slave is moving from initialization state to pre_operational stat..." alt="" coords="580,689,703,717"/>
+<area shape="rect" id="node13" href="$sdo_8c.html#a42d33be015d4c4c83c73f1f0e588f481" title="Reset an unused line." alt="" coords="789,5,888,33"/>
+<area shape="rect" id="node15" href="$sdo_8c.html#aa570e2c8e69527298b428563a38ced9f" title="Initialize some fields of the structure." alt="" coords="1025,5,1111,33"/>
+<area shape="rect" id="node23" href="$sync_8c.html#a82595787f641ab85980d83522f1158b0" title="OnCOB_ID_SyncUpdate" alt="" coords="757,537,920,565"/>
+<area shape="rect" id="node26" href="$group__timer.html#ga11c2616d78f06ed9144ef662f757b128" title="Set an alarm to execute a callback function when expired." alt="" coords="1031,207,1105,235"/>
+<area shape="rect" id="node32" href="$sync_8c.html#abbcce7b549414c7bc1aa72fa66258b45" title="SyncAlarm" alt="" coords="796,587,881,615"/>
+<area shape="rect" id="node21" href="$group__timer.html#ga991b3cfaac2f201b14d5530f75985c21" title="Delete an alarm before expiring." alt="" coords="1475,359,1549,387"/>
+<area shape="rect" id="node28" href="$group__timer.html#ga4dccc204d52176bd547ab34d6858f5ba" title="Get the time elapsed since latest timer occurence." alt="" coords="1243,258,1357,286"/>
+<area shape="rect" id="node30" href="$group__timer.html#gab8d05dee70f04b5c5190ab00e84da106" title="Set a timerfor a given time." alt="" coords="1264,309,1336,337"/>
+<area shape="rect" id="node34" href="$sync_8c.html#adee64da8e8e5ff05f1ff2be3c7fe2e5f" title="Transmit a SYNC message and trigger sync TPDOs." alt="" coords="1025,679,1111,707"/>
+<area shape="rect" id="node36" href="$sync_8c.html#a097cddb0103b1a8f56ecf976b03936a3" title="Transmit a SYNC message on CAN bus." alt="" coords="1232,730,1368,758"/>
+<area shape="rect" id="node38" href="$sync_8c.html#ade5dd12cef515c82dae1fddc34d4e711" title="This function is called when the node is receiving a SYNC message (cob&#45;id = 0x80)." alt="" coords="1248,679,1352,707"/>
+<area shape="rect" id="node40" href="$group__pdo.html#ga95c3686cda4e9e6f7c847d2d0bb88fe8" title="Function iterates on all TPDO and look TPDO transmit type and content change before sending it..." alt="" coords="1455,654,1569,682"/>
+<area shape="rect" id="node42" href="$pdo_8c.html#a889902163641f6fc8039550cb11ec320" title="Copy all the data to transmit in process_var Prepare the PDO defined at index to be sent *pwCobId : r..." alt="" coords="1635,654,1712,682"/>
+<area shape="rect" id="node44" href="$pdo_8c.html#ae468510c9f77f502207d961d26389918" title="CopyBits" alt="" coords="1761,654,1833,682"/>
+<area shape="rect" id="node49" href="$group__heartbeato.html#ga8896f6846e4d020390f6953f3d98aa21" title="Start heartbeat consumer and producer with respect to 0x1016 and 0x1017 object dictionary entries..." alt="" coords="792,309,885,337"/>
+<area shape="rect" id="node63" href="$group__nodeguardo.html#ga3f81fed5eb843c8baf131915f5826649" title="Start node guarding with respect to 0x100C and 0x100D in the object dictionary." alt="" coords="789,157,888,185"/>
+<area shape="rect" id="node51" href="$group__heartbeato.html#gad32067289c0105a381c2dcec74311226" title="OnHeartbeatProducerUpdate" alt="" coords="975,359,1161,387"/>
+<area shape="rect" id="node58" href="$group__heartbeato.html#gac1fe275595c601d9dfed7cb9f5e3373e" title="ConsumerHeartbeatAlarm" alt="" coords="983,309,1153,337"/>
+<area shape="rect" id="node60" href="$group__heartbeato.html#gab762f7a046fafea414bb71a456c56709" title="ProducerHeartbeatAlarm" alt="" coords="1219,359,1381,387"/>
+<area shape="rect" id="node53" href="$group__heartbeato.html#ga1b73047269c2a02065e12af18c6053c7" title="Stop heartbeat consumer and producer." alt="" coords="1249,410,1351,438"/>
+<area shape="rect" id="node65" href="$group__nodeguardo.html#ga6ca299d2e686313a85093b8a381af80a" title="OnNodeGuardUpdate" alt="" coords="996,157,1140,185"/>
+<area shape="rect" id="node72" href="$group__nodeguardo.html#ga58b22c95490ed51c5fd5608ac4f5d148" title="The guardTime &#45; Timer Callback." alt="" coords="1008,106,1128,134"/>
+<area shape="rect" id="node67" href="$group__nodeguardo.html#gac259820ffbdf98861fc0e75646fba119" title="Stop producing node guarding messages." alt="" coords="1245,207,1355,235"/>
+<area shape="rect" id="node74" href="$group__nmtmaster.html#gaf63689baeabb15103c2b7afe8885c5c4" title="Transmit a NodeGuard message on the network to the slave whose nodeId is node ID." alt="" coords="1211,106,1389,134"/>
+<area shape="rect" id="node83" href="$emcy_8c.html#a11265d2ea7926d22310f1802ae722c5b" title="OnNumberOfErrorsUpdate" alt="" coords="753,638,924,666"/>
+<area shape="rect" id="node89" href="$objacces_8h.html#a11e9f24840d05a6a622955b51f91af53" title="Scan the index of object dictionary. Used only by setODentry and getODentry." alt="" coords="1251,578,1349,606"/>
+<area shape="rect" id="node91" href="$pdo_8c.html#a3e9718d5f111be6a018a94c681f7ba07" title="TPDO_Communication\l_Parameter_Callback" alt="" coords="1223,511,1377,555"/>
+<area shape="rect" id="node94" href="$group__pdo.html#gae983f9075bd04d0afff7391891a0d7c3" title="Set timer for PDO event." alt="" coords="1437,519,1587,547"/>
+</map>
