@@ -117,6 +117,7 @@
 
     typedef struct {
         return_value_t          init_return;
+        char                    is_master;
         int volatile            state;
     } can_data;
 

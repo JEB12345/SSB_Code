@@ -26,7 +26,6 @@ extern loadcell_data loadcell_state;
 extern motor_cmd_data motor_cmd_state[2];
 extern  imu_data imu_state;
 
-
 bool http_handle_rx_packet(xbee_rx_ip_packet_t* pkt);
 
 return_value_t http_init()
@@ -84,12 +83,7 @@ int http_handle_body (http_parser *p, const char *buf, size_t len)
     uint8_t index;
     int j;
     unsigned i;
-    //char testb[100];
     char conv_buf[10];
-//    for(i=0;i<len;++i){
-//        testb[i] = buf[i];
-//    }
-    //parse json
     jsmn_init(json_parser);
     err = jsmn_parse(json_parser,buf,json_tokens,NUM_JSON_TOKENS,len);
     if(err==JSMN_SUCCESS){
@@ -99,13 +93,6 @@ int http_handle_body (http_parser *p, const char *buf, size_t len)
             //we received a request, handle it
             index = 1;
             while(1){
-//                if(json_tokens[index].type==JSMN_STRING&& strlen("M1BRAKE")==json_tokens[index].end-json_tokens[index].start){
-//                    for(i=0;i<json_tokens[index].end-json_tokens[index].start;++i){
-//                        testb[i] = buf[json_tokens[index].start+i];
-//                    }
-//                    //LED_3=!LED_3;
-//                    //j = strncmp("M1BRAKE",&buf[json_tokens[index].start]);
-//                }
                 if(json_tokens[index].type==JSMN_STRING && strlen("M1BRAKE")==json_tokens[index].end-json_tokens[index].start && strncmp("M1BRAKE",&buf[json_tokens[index].start],strlen("M1BRAKE"))==0)
                 {
                     //implement brake command
@@ -173,9 +160,7 @@ void http_process()
     //check if top packet in circular buffer is a TCP packet on port 80
     if(CB_ReadMany(&http_state.rx_buffer,&rx_pkt,sizeof(xbee_rx_ip_packet_t))!=SUCCESS){
         return;//empty buffer
-    } else {
-        //LED_2 = !LED_2;
-    }
+    } 
 
     //we have a packet to handle, handle it now!
     rf_data_p = xbee_ip_rx_rf_data(rx_pkt.raw_packet.raw_data); //actual packet data
@@ -193,17 +178,10 @@ void http_process()
     //check if we found a url
     if(http_state.last_url!=0 && http_state.last_url_length>0){//    && rf_data_len>3 && rf_data_p[0]=='G' && rf_data_p[1]=='E'&&rf_data_p[2]=='T'){
         http_state.num_requests++;
-        //LED_3 = !LED_3;
-        //we have a url
         led_rgb_set(50,0,255);
         http_state.last_url[http_state.last_url_length]=0;
-        //prepare response
-//        char* resp =
-//        "{\"result\": {\"message\":\"req. %lu\",\"url\":\"%s\",\"force\":[%lu,%lu,%lu,%lu]}, \"error\": null, \"id\": 1}\r\n"
-//        "\r\n";
-//        sprintf(http_resp_buffer,resp,http_state.num_requests,http_state.last_url,loadcell_state.values[0],loadcell_state.values[1],loadcell_state.values[2],loadcell_state.values[3]);
-//
 
+        //prepare response
         char* resp =
         "{\"result\": {\"message\":\"req. %lu\",\"url\":\"%s\",\"acc\":[%d,%d,%d]}, \"error\": null, \"id\": 1}\r\n"
         "\r\n";
@@ -237,15 +215,7 @@ void http_process()
             if(transmit_ip_packet(&resp_pkt)!=RET_OK){
                 //packet could not be transmitted, we need to free the memory
                 xbee_free_packet(&resp_pkt.raw_packet);
-//                if(resp_pkt.raw_packet.dynamic){
-//                    free(resp_pkt.raw_packet.raw_data);
-//                    resp_pkt.raw_packet.raw_data = 0;
-//                }
-                //LED_2 = !LED_3;
-            } else {
-                //successfully added to the transmit buffer
-                //LED_2 = 1;
-            }
+            } 
         } else {
             //could not allocate response packet.
         }
@@ -253,10 +223,6 @@ void http_process()
     }
     //free the packet data
     xbee_free_packet(&rx_pkt.raw_packet);
-//    if(rx_pkt.raw_packet.dynamic){
-//        free(rx_pkt.raw_packet.raw_data);
-//        rx_pkt.raw_packet.raw_data = 0;
-//    }
 }
 
 bool http_handle_rx_packet(xbee_rx_ip_packet_t* pkt)
@@ -267,11 +233,7 @@ bool http_handle_rx_packet(xbee_rx_ip_packet_t* pkt)
     //add to circular buffer
     if(CB_WriteMany(&http_state.rx_buffer,pkt,sizeof(xbee_rx_ip_packet_t),1)!=SUCCESS){
         //buffer is full, free the packet (it's lost)
-//        if(pkt->raw_packet.dynamic){
-//            free(pkt->raw_packet.raw_data);
-//            pkt->raw_packet.raw_data = 0;
-//        }
-        //xbee_free_packet(pkt->raw_packet);
+
         return 0;
     } else {
         //packet was added to the http processing queue
