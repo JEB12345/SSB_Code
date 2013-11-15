@@ -33,6 +33,27 @@ extern "C" {
      */
     uint8_t can_process();
 
+    /**
+     * @brief can_reset_node() sends an NMT CANopen reset message to a node (or to the whole network).
+     * This will cause the target node to do a full reset.
+     *
+     * @param nodeId: id of the node to reset, or 0 to reset all slave boards
+     */
+    void can_reset_node(uint8_t nodeId);
+
+    /**
+     * @brief can_start_node() sends an NMT CANopen start message to a node (or to the whole network).
+     * This will cause the target node to do a go from pre-operational to operational mode or do nothing in case it is already in operational mode.
+     *
+     * @param nodeId: id of the node to start, or 0 to start all slave boards
+     */
+    void can_start_node(uint8_t nodeId);
+
+    /**
+     * @brief Call this function when the CAN timer has expired.
+     */
+    void can_time_dispatch();
+
 #ifdef	__cplusplus
 }
 #endif

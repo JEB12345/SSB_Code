@@ -119,6 +119,7 @@
         return_value_t          init_return;
         char                    is_master;
         int volatile            state;
+        volatile bool           timer_flag;
     } can_data;
 
     typedef struct {
@@ -293,6 +294,11 @@ typedef union {
     } motor_data;
     */
     return_value_t state_init();
+    
+    /*
+     * Resets the microcontroller and the board
+     */
+    void reset_board();
 
     #define UART_TX_PACKET_MAX_LEN  50
 #define UART_TX_PACKET_BUFF_LEN 10

@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /* Time resolution : 64bit (~585 years) */
 #define TIMEVAL uint32_t
 #define TIMEVAL_MAX ~(TIMEVAL)0
-#define MS_TO_TIMEVAL(ms) ((ms*3500L)>>2)
+#define MS_TO_TIMEVAL(ms) ((ms*35000L)>>2)
 #define US_TO_TIMEVAL(us) ((35L*us)>>2)
 
 #define TASK_HANDLE void*

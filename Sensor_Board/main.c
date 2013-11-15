@@ -5,7 +5,8 @@
  * Created on August 28, 2013, 11:31 PM
  */
 
-#include "sensor_clock.h" //always include first, as this sets a number of config variables
+#include "sensor_clock.h"
+#include "sensor_can.h" //always include first, as this sets a number of config variables
 #include "sensor_adc.h"
 #include "sensor_iptest.h"
 #include "sensor_imu.h"
@@ -95,6 +96,7 @@ int main(int argc, char** argv) {
     for(i=0;i<100;++i)
         P7_RB4 = !P7_RB4;
     led_init();
+
     timers_init();
     state_init();
     //uart_init();
@@ -124,7 +126,6 @@ int main(int argc, char** argv) {
     P7_RB4 = 0;
     // CANOpen test init for Master Node
     if(can_state.is_master){
-        LED_1 = 1;
         masterInitTest();
     }
     else{
@@ -146,22 +147,12 @@ int main(int argc, char** argv) {
                 }
                 if(can_state.init_return==RET_OK){
                     can_process();
+
                     if(can_state.is_master){
-//                        Message m;
-//                        m.cob_id = 98;
-//                        m.data[0]=timer_state.systime>>8;
-//                        m.data[1]=timer_state.systime&0xFF;
-//                        m.data[2]=0;
-//                        m.data[3]=0;
-//                        m.data[4]=1;
-//                        m.data[5]=9;
-//                        m.data[6]=5;
-//                        m.data[7]=121;
-//                        m.len=8;
-//                        m.rtr=0;
-                        //can_sync();
-                        Message m;
-                        //canSend(0,&m);
+                        if(timer_state.systime==2000){
+                            //test reset slaves
+                            can_reset_node(0);
+                        }
                     }
                     
                 }
@@ -323,6 +314,9 @@ int main(int argc, char** argv) {
             //memcheck();
             if(rf_state.init_return==RET_OK){
                 rf_process();
+            }
+            if(can_state.init_return==RET_OK){
+                can_time_dispatch();
             }
 
 

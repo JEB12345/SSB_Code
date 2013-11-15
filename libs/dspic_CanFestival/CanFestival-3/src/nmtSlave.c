@@ -34,6 +34,9 @@
 #include "../include/states.h"
 #include "../include/dspic33e/canfestival.h"
 #include "../include/sysdep.h"
+//#include "../../../../Sensor_Board/sensor_pindefs.h"
+//#include "../../../../Sensor_Board/sensor_led.h"
+//#include <p33Exxxx.h>
 
 /*!
 ** put the slave in the state wanted by the master
@@ -43,6 +46,9 @@
 **/
 void proceedNMTstateChange(CO_Data* d, Message *m)
 {
+    UNS8 d0, d1;
+    d0 = m->data[0];
+    d1 = m->data[1];
   if( d->nodeState == Pre_operational ||
       d->nodeState == Operational ||
       d->nodeState == Stopped ) {
@@ -52,9 +58,9 @@ void proceedNMTstateChange(CO_Data* d, Message *m)
     /* Check if this NMT-message is for this node */
     /* byte 1 = 0 : all the nodes are concerned (broadcast) */
 
-    if( ( (*m).data[1] == 0 ) || ( (*m).data[1] == *d->bDeviceNodeId ) ){
+    if( ( d1 == 0 ) || ( d1 == *d->bDeviceNodeId ) ){
 
-      switch( (*m).data[0]){ /* command specifier (cs) */
+      switch( d0){ /* command specifier (cs) */
       case NMT_Start_Node:
         if ( (d->nodeState == Pre_operational) || (d->nodeState == Stopped) )
           setState(d,Operational);
@@ -76,6 +82,10 @@ void proceedNMTstateChange(CO_Data* d, Message *m)
          if(d->NMT_Slave_Node_Reset_Callback != NULL)
             d->NMT_Slave_Node_Reset_Callback(d);
         setState(d,Initialisation);
+//        LED_2 = 0;
+//        LED_3 = 1;
+//        LED_4 = 1;
+//        while(1);
         break;
 
       case NMT_Reset_Comunication:

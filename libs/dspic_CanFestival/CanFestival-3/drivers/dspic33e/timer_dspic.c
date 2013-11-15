@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 // Includes for the Canfestival driver
 #include "../../include/dspic33e/applicfg.h"
 #include "../../include/timer.h"
+#include "../../../../../Sensor_Board/sensor_state.h"
 #include <p33Exxxx.h>
 
 //NOTE TO JONATHAN: I'm using TIMER2/3 in 32 bit mode
@@ -33,6 +34,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /************************** Modul variables **********************************/
 // Store the last timer value to calculate the elapsed time
 static volatile TIMEVAL last_time_set = 0;
+extern can_data can_state;
 
 void initTimer(void)
 /******************************************************************************
@@ -41,7 +43,7 @@ INPUT	void
 OUTPUT	void
 ******************************************************************************/
 {
-     /* Set timer 1 as main clock */
+    T3CONbits.TON = 0;
     T2CONbits.TON = 0; 		// Disable Timer
     T2CONbits.TCS = 0; 		// Select internal instruction cycle clock
     T2CONbits.TGATE = 0; 	// Disable Gated Timer mode
@@ -49,17 +51,19 @@ OUTPUT	void
     T2CONbits.T32 = 1;          //32 bit mode
     PR2 = 0xFFFF;
     PR3 = 0xFFFF;
-    TMR3HLD = 0x00;
-    TMR2 = 0x00; 			// Clear timer register
     TMR3 = 0x00;
+    //TMR3HLD = 0x00;
+    TMR2 = 0x00; 			// Clear timer register
+    //TMR3 = 0x00;
     IFS0bits.T2IF = 0; 		// Clear Timer2 Interrupt Flag
     IEC0bits.T2IE = 0; 		// Disable Timer2 interrupt
-    
-    IPC2bits.T3IP = 0x06; 		// Set Timer3 Interrupt Priority Level to 6 = very high priority
+    IPC2bits.T3IP = 0x01;
+    //IPC2bits.T3IP = 0x06; 		// Set Timer3 Interrupt Priority Level to 6 = very high priority
     IFS0bits.T3IF = 0; 		// Clear Timer3 Interrupt Flag 
     IEC0bits.T3IE = 0; 		// Disable Timer3 interrupt for now
 
-    T2CONbits.TON = 1; 		// Start Timer
+    T2CONbits.TON = 1; 		// Don't start Timer
+    can_state.timer_flag = 0; 
 }
 
 void setTimer(TIMEVAL value)
@@ -70,19 +74,21 @@ OUTPUT	void
 ******************************************************************************/
 {
     uint32_t tmp;
+    T2CONbits.TON = 0;
     IEC0bits.T3IE = 0; 		// Disable Timer3 interrupt for now
     //store current elapsed time
     tmp = TMR3;
     tmp<<=16;
     last_time_set += TMR2;
     last_time_set += TMR3;
-    TMR3HLD = 0;
+    TMR3 = 0;
     TMR2= 0;
-    TMR3=0;
+    //TMR3=0;
     PR2 = value&0xFFFF;
     PR3 = value>>16;
     IFS0bits.T3IF = 0; 		// Clear Timer3 Interrupt Flag
     IEC0bits.T3IE = 1; 		// Enabe Timer3 interrupt
+    T2CONbits.TON = 1;
 }
 
 inline TIMEVAL getElapsedTime(void)
@@ -109,7 +115,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _T3Interrupt(void)
     uint32_t tmp;
 
     IEC0bits.T3IE = 0; 	// Disable Timer3 interrupt
-    IFS0bits.T1IF = 0; // Clear Timer 1 Interrupt Flag
+    IFS0bits.T3IF = 0; // Clear Timer 1 Interrupt Flag
 
     //store current elapsed time
     tmp = TMR3;
@@ -117,8 +123,16 @@ void __attribute__((__interrupt__, no_auto_psv)) _T3Interrupt(void)
     last_time_set += TMR2;
     last_time_set += TMR3;
 
+
+
+//    while(1){
+//        LATAbits.LATA11 = !LATAbits.LATA11;
+//        Nop();Nop();Nop();Nop();Nop();Nop();Nop();
+//    }
+
+    can_state.timer_flag = 1;
     //dispatch!
-    TimeDispatch();   // Call the time handler of the stack to adapt the elapsed time
+    //TimeDispatch();   // Call the time handler of the stack to adapt the elapsed time
     //TODO: is there a way to do this in the main loop (might not be fast enough?)
 }
 

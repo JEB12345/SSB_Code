@@ -31,6 +31,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../include/data.h"
 #include "../include/sysdep.h"
+#include "../../../../Sensor_Board/sensor_pindefs.h"
+#include "../../../../Sensor_Board/sensor_led.h"
+#include <p33Exxxx.h>
 
 /** Prototypes for internals functions */
 /*!                                                                                                
@@ -63,6 +66,10 @@ e_nodeState getState(CO_Data* d)
 void canDispatch(CO_Data* d, Message *m)
 {
 	UNS16 cob_id = UNS16_LE(m->cob_id);
+//        if(m->data[0]==0x81){
+//            LED_3=1;
+//            while(1);
+//        }
 	 switch(cob_id >> 7)
 	{
 		case SYNC:		/* can be a SYNC or a EMCY message */
@@ -97,9 +104,19 @@ void canDispatch(CO_Data* d, Message *m)
 			break;
 		case NMT:
 			if (*(d->iam_a_slave))
-			{
+			{          
+//                            if(m->data[0]==0x81){
+//                                LED_3 = 1;
+//
+//                                while(1);
+//                            }
 				proceedNMTstateChange(d,m);
-			}
+			} else {
+//                            LED_1=1;
+//                            LED_2 == 1;
+//                            while(1);
+//                            led_rgb_set(0,0,255);
+                        }
             break;
 #ifdef CO_ENABLE_LSS
 		case LSS:

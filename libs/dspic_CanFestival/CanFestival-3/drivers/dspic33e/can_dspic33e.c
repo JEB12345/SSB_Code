@@ -183,7 +183,7 @@ OUTPUT	1 if successful
     return 1;
 }
 
-char canSend(CAN_PORT notused, Message *m)
+unsigned char canSend(CAN_PORT notused, Message *m)
 /******************************************************************************
 The driver send a CAN message passed from the CANopen stack
 INPUT	CAN_PORT is not used (only 1 avaiable)
@@ -198,8 +198,6 @@ OUTPUT	1 if  hardware -> CAN frame
     uint16_t bit_to_set;
     uint16_t offset;
     uint16_t *bufferCtrlRegAddr;
-
-    //TODO: cancel previous message??? Don't use a buffer for transmitting (so emergency etc. works)
 
     // Divide the identifier into bit-chunks for storage
     // into the registers.
@@ -221,14 +219,17 @@ OUTPUT	1 if  hardware -> CAN frame
         word0 |= 0x2;
         word2 |= 0x0200;
     }
+
+    //TODO: use multiple transmit buffers
+    while(C1TR01CONbits.TXREQ1 == 1);
     
     ecan1TXMsgBuf[1][0] = word0;
     ecan1TXMsgBuf[1][1] = word1;
     ecan1TXMsgBuf[1][2] = ((word2 & 0xFFF0) + m->len);
-    ecan1TXMsgBuf[1][3] = (((uint16_t) m->data[1]) << 8) |m->data[0];
-    ecan1TXMsgBuf[1][4] = (((uint16_t) m->data[3]) << 8) |m->data[2];
-    ecan1TXMsgBuf[1][5] = (((uint16_t) m->data[5]) << 8) |m->data[4];
-    ecan1TXMsgBuf[1][6] = (((uint16_t) m->data[7]) << 8) |m->data[6];
+    ecan1TXMsgBuf[1][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
+    ecan1TXMsgBuf[1][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
+    ecan1TXMsgBuf[1][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
+    ecan1TXMsgBuf[1][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
 
     // Set the correct transfer intialization bit (TXREQ) based on message buffer.
     //offset = message->buffer >> 1;
@@ -239,29 +240,30 @@ OUTPUT	1 if  hardware -> CAN frame
     C1TR01CONbits.TX0PRI = 0;
     C1TR01CONbits.TXREQ1 = 1;
 
+
 }
 
-unsigned char canReceive(Message *m)
+Message* canReceive()
 /******************************************************************************
 The driver pass a received CAN message to the stack
 INPUT	Message *m pointer to received CAN message
 OUTPUT	1 if a message received
 ******************************************************************************/
 {
+    Message* res = NULL;
     //get the first message in the queue (if any)
     if(rxbuffer_start!=rxbuffer_stop){
-        m = &rxbuffer[rxbuffer_start++];
+        res = &rxbuffer[rxbuffer_start++];
         if(rxbuffer_start>=CAN_RX_BUF_SIZE){
             rxbuffer_start = 0;
         }
-        return 1;
-    } else {
-        return 0;
     }
+    return res;
+    
 }
 
 /***************************************************************************/
-char canChangeBaudRate_driver( CAN_HANDLE fd, char* baud)
+unsigned char canChangeBaudRate_driver( CAN_HANDLE fd, char* baud)
 {
 	return 0; //not supported
 }
@@ -298,7 +300,7 @@ void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
     // If the interrupt was fired because of a received message
     // package it all up and store in the queue.
     if (C1INTFbits.RBIF) {
-        LATDbits.LATD8 = !LATDbits.LATD8;
+        //LATDbits.LATD8 = !LATDbits.LATD8;
         //find current message in buffer, we overwrite old messages in case the buffer overflows
         //(thus we can handle emergencies etc.)
         m = &rxbuffer[rxbuffer_stop++];
@@ -343,15 +345,15 @@ void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
             m->rtr = 0;
 
             m->len = (uint8_t) (ecan_msg_buf_ptr[2] & 0x000F);
-            m->data[0] = (uint8_t) ecan_msg_buf_ptr[3];
+            m->data[0] = (uint8_t) (ecan_msg_buf_ptr[3]&0xFF);
             m->data[1] = (uint8_t) ((ecan_msg_buf_ptr[3] & 0xFF00) >> 8);
             //LED3 != LED3;//message.payload[1];
             //LED2 =  message.payload[0];
-            m->data[2] = (uint8_t) ecan_msg_buf_ptr[4];
+            m->data[2] = (uint8_t) (ecan_msg_buf_ptr[4]&0xFF);
             m->data[3] = (uint8_t) ((ecan_msg_buf_ptr[4] & 0xFF00) >> 8);
-            m->data[4] = (uint8_t) ecan_msg_buf_ptr[5];
+            m->data[4] = (uint8_t) (ecan_msg_buf_ptr[5]&0xFF);
             m->data[5] = (uint8_t) ((ecan_msg_buf_ptr[5] & 0xFF00) >> 8);
-            m->data[6] = (uint8_t) ecan_msg_buf_ptr[6];
+            m->data[6] = (uint8_t) (ecan_msg_buf_ptr[6]&0xFF);
             m->data[7] = (uint8_t) ((ecan_msg_buf_ptr[6] & 0xFF00) >> 8);
 
             

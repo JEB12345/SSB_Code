@@ -305,7 +305,8 @@ void heartbeatInit(CO_Data* d)
   if ( *d->ProducerHeartBeatTime )
     {
       TIMEVAL time = *d->ProducerHeartBeatTime;
-      d->ProducerHeartBeatTimer = SetAlarm(d, 0, &ProducerHeartbeatAlarm, MS_TO_TIMEVAL(time), MS_TO_TIMEVAL(time));
+      //d->ProducerHeartBeatTimer = SetAlarm(d, 0, &ProducerHeartbeatAlarm, MS_TO_TIMEVAL(time), MS_TO_TIMEVAL(time));
+      d->ProducerHeartBeatTimer = SetAlarm(d, 0, &ProducerHeartbeatAlarm, MS_TO_TIMEVAL(100), MS_TO_TIMEVAL(100));
     }
 }
 

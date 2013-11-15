@@ -1,4 +1,5 @@
 #include "sensor_state.h"
+#include <p33Exxxx.h>
 
     system_data system_state;
     motor_cmd_data motor_cmd_state[2];
@@ -14,4 +15,10 @@ return_value_t state_init()
     motor_cmd_state[0].torque = 0;
     motor_cmd_state[1].torque = 0;
     return system_state.init_return;
+}
+
+void reset_board()
+{
+    asm ("RESET");
+    while(1);
 }
