@@ -1815,6 +1815,7 @@ UNS8 GetSDOClientFromNodeId( CO_Data* d, UNS8 nodeId )
 	UNS16 lastIndex;
 	UNS16 offset;
 	UNS8 nodeIdServer;
+        UNS8 subc;
 
 	offset = d->firstIndex->SDO_CLT;
 	lastIndex = d->lastIndex->SDO_CLT;
@@ -1825,7 +1826,8 @@ UNS8 GetSDOClientFromNodeId( CO_Data* d, UNS8 nodeId )
 	CliNbr = 0;
 	while (offset <= lastIndex) {
 		if (d->objdict[offset].bSubCount <= 3) {
-			MSG_ERR(0x1AC8, "Subindex 3  not found at index ", 0x1280 + CliNbr);
+                    subc = d->objdict[offset].bSubCount;
+                        MSG_ERR(0x1AC8, "Subindex 3  not found at index ", 0x1280 + CliNbr);
 			return 0xFF;
 		}
 		/* looking for the server nodeId */

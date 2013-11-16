@@ -227,7 +227,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x1200 :   Server SDO Parameter. */
                     UNS8 ObjDict_highestSubIndex_obj1200 = 2; /* number of subindex - 1*/
-                    UNS32 ObjDict_obj1200_COB_ID_Client_to_Server_Receive_SDO = 0x600;	/* 1536 */
+                    UNS32 ObjDict_obj1200_COB_ID_Client_to_Server_Receive_SDO = 0x600;	/* 1536 */ //This number is automatically increased with the nodeId (0x600+nodeId and 0x580+nodeId) in setNodeId()
                     UNS32 ObjDict_obj1200_COB_ID_Server_to_Client_Transmit_SDO = 0x580;	/* 1408 */
                     subindex ObjDict_Index1200[] = 
                      {
@@ -235,6 +235,20 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RO, uint32, sizeof (UNS32), (void*)&ObjDict_obj1200_COB_ID_Client_to_Server_Receive_SDO },
                        { RO, uint32, sizeof (UNS32), (void*)&ObjDict_obj1200_COB_ID_Server_to_Client_Transmit_SDO }
                      };
+
+/* index 0x1280 :   Client SDO 1 Parameter. */
+                    //TODO:ADDED MANUALLY!!!
+                    UNS8 ObjDict_highestSubIndex_obj1280 = 3; /* number of subindex - 1*/
+                    UNS32 ObjDict_obj1280_COB_ID_Client_to_Server_Transmit_SDO = 0x601;	/* 1536 */
+                    UNS32 ObjDict_obj1280_COB_ID_Server_to_Client_Receive_SDO = 0x581;	/* 1408 */
+                    UNS8 ObjDict_obj1280_Node_ID_of_the_SDO_Server = 0x1;	/* 1 */
+                    subindex ObjDict_Index1280[] =
+                     {
+                       { RO, uint8, sizeof (UNS8), (void*)&ObjDict_highestSubIndex_obj1280 },
+                       { RW, uint32, sizeof (UNS32), (void*)&ObjDict_obj1280_COB_ID_Client_to_Server_Transmit_SDO },
+                       { RW, uint32, sizeof (UNS32), (void*)&ObjDict_obj1280_COB_ID_Server_to_Client_Receive_SDO },
+                       { RW, uint8, sizeof (UNS8), (void*)&ObjDict_obj1280_Node_ID_of_the_SDO_Server }
+                    };
 
 /* index 0x1400 :   Receive PDO 1 Parameter. */
                     UNS8 ObjDict_highestSubIndex_obj1400 = 5; /* number of subindex - 1*/
@@ -405,6 +419,7 @@ const indextable ObjDict_objdict[] =
   { (subindex*)ObjDict_Index1017,sizeof(ObjDict_Index1017)/sizeof(ObjDict_Index1017[0]), 0x1017},
   { (subindex*)ObjDict_Index1018,sizeof(ObjDict_Index1018)/sizeof(ObjDict_Index1018[0]), 0x1018},
   { (subindex*)ObjDict_Index1200,sizeof(ObjDict_Index1200)/sizeof(ObjDict_Index1200[0]), 0x1200},
+  { (subindex*)ObjDict_Index1280,sizeof(ObjDict_Index1280)/sizeof(ObjDict_Index1280[0]), 0x1280},
   { (subindex*)ObjDict_Index1400,sizeof(ObjDict_Index1400)/sizeof(ObjDict_Index1400[0]), 0x1400},
   { (subindex*)ObjDict_Index1600,sizeof(ObjDict_Index1600)/sizeof(ObjDict_Index1600[0]), 0x1600},
   { (subindex*)ObjDict_Index1800,sizeof(ObjDict_Index1800)/sizeof(ObjDict_Index1800[0]), 0x1800},
@@ -441,21 +456,22 @@ const indextable * ObjDict_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallb
 		case 0x1017: i = 11;*callbacks = ObjDict_Index1017_callbacks; break;
 		case 0x1018: i = 12;break;
 		case 0x1200: i = 13;break;
-		case 0x1400: i = 14;break;
-		case 0x1600: i = 15;break;
-		case 0x1800: i = 16;*callbacks = ObjDict_Index1800_callbacks; break;
-		case 0x1A00: i = 17;break;
-		case 0x6000: i = 18;break;
-		case 0x6002: i = 19;break;
-		case 0x6003: i = 20;break;
-		case 0x6005: i = 21;break;
-		case 0x6006: i = 22;break;
-		case 0x6007: i = 23;break;
-		case 0x6008: i = 24;break;
-		case 0x6200: i = 25;break;
-		case 0x6202: i = 26;break;
-		case 0x6206: i = 27;break;
-		case 0x6207: i = 28;break;
+                case 0x1280: i = 14;break;
+		case 0x1400: i = 15;break;
+		case 0x1600: i = 16;break;
+		case 0x1800: i = 17;*callbacks = ObjDict_Index1800_callbacks; break;
+		case 0x1A00: i = 18;break;
+		case 0x6000: i = 19;break;
+		case 0x6002: i = 20;break;
+		case 0x6003: i = 21;break;
+		case 0x6005: i = 22;break;
+		case 0x6006: i = 23;break;
+		case 0x6007: i = 24;break;
+		case 0x6008: i = 25;break;
+		case 0x6200: i = 26;break;
+		case 0x6202: i = 27;break;
+		case 0x6206: i = 28;break;
+		case 0x6207: i = 29;break;
 		default:
 			*errorCode = OD_NO_SUCH_OBJECT;
 			return NULL;
@@ -473,20 +489,20 @@ s_PDO_status ObjDict_PDO_status[1] = {s_PDO_status_Initializer};
 
 quick_index ObjDict_firstIndex = {
   13, /* SDO_SVR */
-  0, /* SDO_CLT */
-  14, /* PDO_RCV */
-  15, /* PDO_RCV_MAP */
-  16, /* PDO_TRS */
-  17 /* PDO_TRS_MAP */
+  14, /* SDO_CLT */ //TODO: manually updated
+  15, /* PDO_RCV */
+  16, /* PDO_RCV_MAP */
+  17, /* PDO_TRS */
+  18 /* PDO_TRS_MAP */
 };
 
 quick_index ObjDict_lastIndex = {
   13, /* SDO_SVR */
-  0, /* SDO_CLT */
-  14, /* PDO_RCV */
-  15, /* PDO_RCV_MAP */
-  16, /* PDO_TRS */
-  17 /* PDO_TRS_MAP */
+  14, /* SDO_CLT */
+  15, /* PDO_RCV */
+  16, /* PDO_RCV_MAP */
+  17, /* PDO_TRS */
+  18 /* PDO_TRS_MAP */
 };
 UNS16 ObjDict_obj100C = 0x0;
  UNS8 ObjDict_obj100D = 0x0;	/* 0 */

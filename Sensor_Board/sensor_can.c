@@ -105,13 +105,19 @@ void can_start_node(uint8_t nodeId)
     masterSendNMTstateChange(&ObjDict_Data, nodeId, NMT_Start_Node);
 }
 
+static void _can_post_SlaveStateChange(CO_Data* d, UNS8 nodeId, e_nodeState newNodeState){
+    if(nodeId==0x01){
+        //TODO: You can handle state changes of other nodes here.
+    }
+}
 
 static void ConfigureSlaveNode(CO_Data* d, UNS8 nodeId)
 {
-    int i;
     setState(d, Operational);
-    can_enable_slave_heartbeat(nodeId, 50);
+    d->post_SlaveStateChange = _can_post_SlaveStateChange;
     can_start_node(nodeId);
+    can_enable_slave_heartbeat(nodeId, 33);
+    
 }
 
 static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
@@ -215,11 +221,11 @@ static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time)
             nodeId,                 // Node Id
             0x1017,                 // Index
             0x00,                   // Sub-Index
-            &s,                      // UNS8 * Size of Data
+            s,                      // UNS8 * Size of Data
             0,                      // Data type
             Timer_Data,                   // void * SourceData Location
             0);                    // UNS8 checkAccess
-    while(getWriteResultNetworkDict(&ObjDict_Data, nodeId, &abortCode) == SDO_DOWNLOAD_IN_PROGRESS);
+    //while(getWriteResultNetworkDict(&ObjDict_Data, nodeId, &abortCode) == SDO_DOWNLOAD_IN_PROGRESS);//cannot block the main loop!
 
 }
 

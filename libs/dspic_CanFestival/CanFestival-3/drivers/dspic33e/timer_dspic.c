@@ -61,8 +61,8 @@ OUTPUT	void
     //IPC2bits.T3IP = 0x06; 		// Set Timer3 Interrupt Priority Level to 6 = very high priority
     IFS0bits.T3IF = 0; 		// Clear Timer3 Interrupt Flag 
     IEC0bits.T3IE = 0; 		// Disable Timer3 interrupt for now
-
-    T2CONbits.TON = 1; 		// Don't start Timer
+//    last_time_set = 0;
+    T2CONbits.TON = 0; 		// Don't start Timer
     can_state.timer_flag = 0; 
 }
 
@@ -77,17 +77,17 @@ OUTPUT	void
     T2CONbits.TON = 0;
     IEC0bits.T3IE = 0; 		// Disable Timer3 interrupt for now
     //store current elapsed time
-    tmp = TMR3;
-    tmp<<=16;
-    last_time_set += TMR2;
-    last_time_set += tmp;
+//    tmp = TMR3;
+//    tmp<<=16;
+//    last_time_set += TMR2;
+//    last_time_set += tmp;
     TMR3 = 0;
     TMR2= 0;
     //TMR3=0;
     PR2 = value&0xFFFF;
     PR3 = value>>16;
     IFS0bits.T3IF = 0; 		// Clear Timer3 Interrupt Flag
-    IEC0bits.T3IE = 1; 		// Enabe Timer3 interrupt
+    IEC0bits.T3IE = 1; 		// Disable Timer3 interrupt
     T2CONbits.TON = 1;
 }
 
@@ -96,32 +96,37 @@ inline TIMEVAL getElapsedTime(void)
 Return the elapsed time to tell the Stack how much time is spent since last call.
 INPUT	void
 OUTPUT	value TIMEVAL (unsigned long) the elapsed time
+ * NOTE: this is the time SINCE timeDispatch was called (don't reset it when setTimer is called!).
+ * So it's just used as the time difference between the interrupt and the actual timeDispatch call.
+ * TODO: is it worth implementing this, or is the time delay small enough?
 ******************************************************************************/
 {
     uint32_t tmp;
     TIMEVAL res;
     //store current elapsed time
-    tmp = TMR3;
-    tmp<<=16;
-    last_time_set += TMR2;
-    last_time_set += tmp;
-    res = last_time_set;
-    last_time_set = 0;
-    return res;
+//    tmp = TMR3;
+//    tmp<<=16;
+//    last_time_set += TMR2;
+//    last_time_set += tmp;
+//    res = last_time_set;
+//    last_time_set = 0;
+    return 0;
+//    return res;
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _T3Interrupt(void)
 {
     uint32_t tmp;
-
     IEC0bits.T3IE = 0; 	// Disable Timer3 interrupt
     IFS0bits.T3IF = 0; // Clear Timer 1 Interrupt Flag
-
+    T2CONbits.TON = 0;
+    
     //store current elapsed time
-    tmp = TMR3;
-    tmp<<=16;
-    last_time_set += TMR2;
-    last_time_set += TMR3;
+//    tmp = TMR3;
+//    tmp<<=16;
+//    last_time_set += TMR2;
+//    last_time_set += TMR3;
+    last_time_set = 0;
 
 
 
