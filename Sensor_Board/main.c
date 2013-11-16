@@ -151,7 +151,7 @@ int main(int argc, char** argv) {
                     if(can_state.is_master){
                         if(timer_state.systime==2000){
                             //test reset slaves
-                            can_reset_node(0);
+                            //can_reset_node(0);
                         }
                     }
                     

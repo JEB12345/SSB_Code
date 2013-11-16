@@ -59,7 +59,7 @@ return_value_t pin_init();
 #define RB2_IO         PIN_INPUT
 #define RB15_IO        PIN_INPUT
 #define RA12_IO        PIN_INPUT
-#define RG7_IO         PIN_INPUT
+#define RG7_IO         PIN_OUTPUT
 #define RB1_IO         PIN_INPUT
 #define RB3_IO         PIN_INPUT
 
@@ -120,7 +120,7 @@ return_value_t pin_init();
 #if RG7_IO==PIN_INPUT
 #define P6_RG7    PORTGbits.RG7
 #else
-#define P6_RG7    LATGbits.LATG712
+#define P6_RG7    LATGbits.LATG7
 #endif
 
 #if RB1_IO==PIN_INPUT

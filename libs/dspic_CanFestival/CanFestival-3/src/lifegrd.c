@@ -37,7 +37,8 @@
 #include "../include/dspic33e/canfestival.h"
 #include "../include/dcf.h"
 #include "../include/sysdep.h"
-
+#include <p33Exxxx.h>
+#include "../../../../Sensor_Board/sensor_pindefs.h"
 
 void ConsumerHeartbeatAlarm(CO_Data* d, UNS32 id);
 void ProducerHeartbeatAlarm(CO_Data* d, UNS32 id);
@@ -156,7 +157,9 @@ void proceedNODE_GUARD(CO_Data* d, Message* m )
                 TIMEVAL time = ( (d->ConsumerHeartbeatEntries[index]) & (UNS32)0x0000FFFF ) ;
                 /* Renew alarm for next heartbeat. */
                 DelAlarm(d->ConsumerHeartBeatTimers[index]);
-                d->ConsumerHeartBeatTimers[index] = SetAlarm(d, index, &ConsumerHeartbeatAlarm, MS_TO_TIMEVAL(time), 0);
+                if(time > 0){
+                    d->ConsumerHeartBeatTimers[index] = SetAlarm(d, index, &ConsumerHeartbeatAlarm, MS_TO_TIMEVAL(time), 0);
+                }
               }
           }
       }
@@ -174,6 +177,7 @@ void ProducerHeartbeatAlarm(CO_Data* d, UNS32 id)
 {
   if(*d->ProducerHeartBeatTime)
     {
+      P6_RG7 = !P6_RG7;
       Message msg;
       /* Time expired, the heartbeat must be sent immediately
       ** generate the correct node-id: this is done by the offset 1792
@@ -305,8 +309,13 @@ void heartbeatInit(CO_Data* d)
   if ( *d->ProducerHeartBeatTime )
     {
       TIMEVAL time = *d->ProducerHeartBeatTime;
-      //d->ProducerHeartBeatTimer = SetAlarm(d, 0, &ProducerHeartbeatAlarm, MS_TO_TIMEVAL(time), MS_TO_TIMEVAL(time));
-      d->ProducerHeartBeatTimer = SetAlarm(d, 0, &ProducerHeartbeatAlarm, MS_TO_TIMEVAL(100), MS_TO_TIMEVAL(100));
+      d->ProducerHeartBeatTimer = SetAlarm(d, 0, &ProducerHeartbeatAlarm, MS_TO_TIMEVAL(time), MS_TO_TIMEVAL(time));
+//      if(*d->bDeviceNodeId == 0x01){
+//          d->ProducerHeartBeatTimer = SetAlarm(d, 0, &ProducerHeartbeatAlarm, MS_TO_TIMEVAL(53), MS_TO_TIMEVAL(53));
+//      }
+//      else{
+//        //d->ProducerHeartBeatTimer = SetAlarm(d, 0, &ProducerHeartbeatAlarm, MS_TO_TIMEVAL(100), MS_TO_TIMEVAL(100));
+//      }
     }
 }
 

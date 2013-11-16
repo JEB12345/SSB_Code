@@ -80,7 +80,7 @@ OUTPUT	void
     tmp = TMR3;
     tmp<<=16;
     last_time_set += TMR2;
-    last_time_set += TMR3;
+    last_time_set += tmp;
     TMR3 = 0;
     TMR2= 0;
     //TMR3=0;
@@ -104,7 +104,7 @@ OUTPUT	value TIMEVAL (unsigned long) the elapsed time
     tmp = TMR3;
     tmp<<=16;
     last_time_set += TMR2;
-    last_time_set += TMR3;
+    last_time_set += tmp;
     res = last_time_set;
     last_time_set = 0;
     return res;

@@ -19,4 +19,8 @@ CanFestival-3/src/../include/pdo.h  \
  CanFestival-3/src/../include/nmtMaster.h  \
  CanFestival-3/src/../include/emcy.h  \
  CanFestival-3/src/../include/sysdep.h  \
- CanFestival-3/src/../include/config.h 
+ CanFestival-3/src/../include/config.h  \
+ CanFestival-3/src/../../../../Sensor_Board/sensor_pindefs.h  \
+ CanFestival-3/src/../../../../Sensor_Board/sensor_state.h  \
+ CanFestival-3/src/../../../../Sensor_Board/superball_circularbuffer.h  \
+ CanFestival-3/src/../../../../Sensor_Board/sensor_led.h 

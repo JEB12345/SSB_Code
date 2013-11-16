@@ -41,7 +41,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //unsigned char canReceive(Message *m);
 //unsigned char canChangeBaudRate_driver( CAN_HANDLE fd, char* baud);
 
-Message* canReceive();
+unsigned canReceive(Message* m);
 
 
 #endif

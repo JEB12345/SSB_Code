@@ -18,4 +18,6 @@ build/default/production/CanFestival-3/drivers/dspic33e/timer_dspic.o:  \
  CanFestival-3/drivers/dspic33e/../../include/sync.h  \
  CanFestival-3/drivers/dspic33e/../../include/nmtSlave.h  \
  CanFestival-3/drivers/dspic33e/../../include/nmtMaster.h  \
- CanFestival-3/drivers/dspic33e/../../include/emcy.h 
+ CanFestival-3/drivers/dspic33e/../../include/emcy.h  \
+ CanFestival-3/drivers/dspic33e/../../../../../Sensor_Board/sensor_state.h  \
+ CanFestival-3/drivers/dspic33e/../../../../../Sensor_Board/superball_circularbuffer.h 

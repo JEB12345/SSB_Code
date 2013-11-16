@@ -17,4 +17,5 @@ CanFestival-3/src/../include/pdo.h  \
  CanFestival-3/src/../include/sync.h  \
  CanFestival-3/src/../include/nmtSlave.h  \
  CanFestival-3/src/../include/nmtMaster.h  \
- CanFestival-3/src/../include/emcy.h 
+ CanFestival-3/src/../include/emcy.h  \
+ CanFestival-3/src/../include/lifegrd.h 

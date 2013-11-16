@@ -30,4 +30,7 @@ CanFestival-3/src/../include/pdo.h  \
  CanFestival-3/src/../include/dspic33e/../../include/timer.h  \
  CanFestival-3/src/../include/dcf.h  \
 CanFestival-3/src/../include/sysdep.h  \
- CanFestival-3/src/../include/config.h 
+ CanFestival-3/src/../include/config.h  \
+ CanFestival-3/src/../../../../Sensor_Board/sensor_pindefs.h  \
+ CanFestival-3/src/../../../../Sensor_Board/sensor_state.h  \
+ CanFestival-3/src/../../../../Sensor_Board/superball_circularbuffer.h 

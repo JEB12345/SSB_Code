@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "../../include/dspic33e/can_dspic33e.h"
 #include "../../include/dspic33e/canfestival.h"
+#include "../../../../../Sensor_Board/superball_circularbuffer.h"
 #include <p33Exxxx.h>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -39,10 +40,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 static unsigned int ecan1RXMsgBuf[32][8] __attribute__((aligned(32 * 16)));
 static unsigned int ecan1TXMsgBuf[32][8] __attribute__((aligned(32 * 16)));
-#define CAN_RX_BUF_SIZE 5
-static volatile Message rxbuffer[CAN_RX_BUF_SIZE]; //this is an internal buffer for received messages
-static volatile uint8_t rxbuffer_start;
-static volatile uint8_t rxbuffer_stop;
+//#define CAN_RX_BUF_SIZE 1
+//static volatile Message rxbuffer[CAN_RX_BUF_SIZE]; //this is an internal buffer for received messages
+//static volatile uint8_t rxbuffer_start;
+//static volatile uint8_t rxbuffer_stop;
+#define CAN_RX_BUFF_SIZE 5*sizeof(Message)
+static uint8_t can_rx_buffer_array[CAN_RX_BUFF_SIZE];
+static CircularBuffer can_rx_circ_buff;
+
 
 
 
@@ -61,7 +66,7 @@ OUTPUT	1 if successful
     unsigned int count;
     // 0 normal, 1 disable, 2 loopback, 3 listen-only, 4 configuration, 7 listen all messages
     uint8_t desired_mode = 0;//(parameters[0] & 0x001C) >> 2;
-    rxbuffer_start = rxbuffer_stop = 0;
+//    rxbuffer_start = rxbuffer_stop = 0;
     if(bitrate!=1000){
         //fail
         return 0;
@@ -180,6 +185,11 @@ OUTPUT	1 if successful
     C1INTEbits.TBIE = 1; // Enable TX buffer interrupt
     C1INTEbits.RBIE = 1; // Enable RX buffer interrupt
 //    C1INTEbits.ERRIE = 1;
+
+    if(CB_Init(&can_rx_circ_buff,can_rx_buffer_array,  CAN_RX_BUFF_SIZE)!=SUCCESS){
+        return 0;
+    }
+
     return 1;
 }
 
@@ -243,22 +253,27 @@ OUTPUT	1 if  hardware -> CAN frame
 
 }
 
-Message* canReceive()
+unsigned canReceive(Message* m)
 /******************************************************************************
 The driver pass a received CAN message to the stack
 INPUT	Message *m pointer to received CAN message
 OUTPUT	1 if a message received
 ******************************************************************************/
 {
-    Message* res = NULL;
+    
     //get the first message in the queue (if any)
-    if(rxbuffer_start!=rxbuffer_stop){
-        res = &rxbuffer[rxbuffer_start++];
-        if(rxbuffer_start>=CAN_RX_BUF_SIZE){
-            rxbuffer_start = 0;
-        }
+    if(CB_ReadMany(&can_rx_circ_buff,m,sizeof(Message))==SUCCESS){
+        return 1;
+    } else {
+        return 0;
     }
-    return res;
+//    if(rxbuffer_start!=rxbuffer_stop){
+//        res = &rxbuffer[rxbuffer_start++];
+//        if(rxbuffer_start>CAN_RX_BUF_SIZE){
+//            rxbuffer_start = 0;
+//        }
+//    }
+//    return res;
     
 }
 
@@ -268,23 +283,11 @@ unsigned char canChangeBaudRate_driver( CAN_HANDLE fd, char* baud)
 	return 0; //not supported
 }
 
-///////////////////////////////////////////////////////////////////////////////
-////////////////////// USER FUNCTIONS Replace when this is a library //////////
-
-///////////////////////////////////////////////////////////////////////////////
-////////////////////// USER FUNCTIONS Replace when this is a library //////////
-//void __attribute__((__interrupt__, __auto_psv__)) _DMA0Interrupt(void)
-//{
-//    LED_3 = !LED_2;
-////    while(1);
-//    IFS0bits.DMA0IF = 0;
-//}
-
 void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
 {
     // while(1);
     // Give us a CAN message struct to populate and use
-    Message* m;
+    Message m;
     uint8_t ide = 0;
     uint8_t srr = 0;
     uint32_t id = 0;
@@ -303,10 +306,13 @@ void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
         //LATDbits.LATD8 = !LATDbits.LATD8;
         //find current message in buffer, we overwrite old messages in case the buffer overflows
         //(thus we can handle emergencies etc.)
-        m = &rxbuffer[rxbuffer_stop++];
-        if(rxbuffer_stop>=CAN_RX_BUF_SIZE){
-            rxbuffer_stop = 0;
-        }
+//        m = &rxbuffer[rxbuffer_stop++];
+//        if(rxbuffer_stop>CAN_RX_BUF_SIZE){
+//            rxbuffer_stop = 0;
+//        }
+        m.cob_id=0xFFFF;
+        m.rtr=1;
+        m.len=255;
 
         // Obtain the buffer the message was stored into, checking that the value is valid to refer to a buffer
         if (C1VECbits.ICODE < 32) {
@@ -330,7 +336,7 @@ void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
          * uses an extended identifier or not.
          */
         if (ide == 0) {
-            m->cob_id = (uint32_t) ((ecan_msg_buf_ptr[0] & 0x1FFC) >> 2);
+            m.cob_id = (uint32_t) ((ecan_msg_buf_ptr[0] & 0x1FFC) >> 2);
         } else {
             //ehm, error. only std messages supported for now
         }
@@ -340,25 +346,27 @@ void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
          * payload with the relevant data.
          */
         if (srr == 1) {
-            m->rtr = 1; //TODO: do we need to copy the payload??? I don't think so?
+            m.rtr = 1; //TODO: do we need to copy the payload??? I don't think so?
         } else {
-            m->rtr = 0;
+            m.rtr = 0;
 
-            m->len = (uint8_t) (ecan_msg_buf_ptr[2] & 0x000F);
-            m->data[0] = (uint8_t) (ecan_msg_buf_ptr[3]&0xFF);
-            m->data[1] = (uint8_t) ((ecan_msg_buf_ptr[3] & 0xFF00) >> 8);
+            m.len = (uint8_t) (ecan_msg_buf_ptr[2] & 0x000F);
+            m.data[0] = (uint8_t) (ecan_msg_buf_ptr[3]&0xFF);
+            m.data[1] = (uint8_t) ((ecan_msg_buf_ptr[3] & 0xFF00) >> 8);
             //LED3 != LED3;//message.payload[1];
             //LED2 =  message.payload[0];
-            m->data[2] = (uint8_t) (ecan_msg_buf_ptr[4]&0xFF);
-            m->data[3] = (uint8_t) ((ecan_msg_buf_ptr[4] & 0xFF00) >> 8);
-            m->data[4] = (uint8_t) (ecan_msg_buf_ptr[5]&0xFF);
-            m->data[5] = (uint8_t) ((ecan_msg_buf_ptr[5] & 0xFF00) >> 8);
-            m->data[6] = (uint8_t) (ecan_msg_buf_ptr[6]&0xFF);
-            m->data[7] = (uint8_t) ((ecan_msg_buf_ptr[6] & 0xFF00) >> 8);
+            m.data[2] = (uint8_t) (ecan_msg_buf_ptr[4]&0xFF);
+            m.data[3] = (uint8_t) ((ecan_msg_buf_ptr[4] & 0xFF00) >> 8);
+            m.data[4] = (uint8_t) (ecan_msg_buf_ptr[5]&0xFF);
+            m.data[5] = (uint8_t) ((ecan_msg_buf_ptr[5] & 0xFF00) >> 8);
+            m.data[6] = (uint8_t) (ecan_msg_buf_ptr[6]&0xFF);
+            m.data[7] = (uint8_t) ((ecan_msg_buf_ptr[6] & 0xFF00) >> 8);
 
             
         }
 
+        //copy message to circular buffer
+        CB_WriteMany(&can_rx_circ_buff,&m,sizeof(Message),1);
 
         // Be sure to clear the interrupt flag.
         C1RXFUL1 = 0;

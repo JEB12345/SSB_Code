@@ -22,6 +22,7 @@ UNS8 data_type = 0;
 
 static void can_reset(CO_Data* d);
 static void can_enable_heartbeat(uint16_t time);
+static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time);
 
 return_value_t can_init()
 {
@@ -40,6 +41,7 @@ return_value_t can_init()
     if(P6_RA12){
         setNodeId(&ObjDict_Data, 0x00);
         can_state.is_master = 1;
+        can_enable_heartbeat(100);
     }
     else{
         setNodeId(&ObjDict_Data, 0x01);
@@ -47,26 +49,26 @@ return_value_t can_init()
     }
     setState(&ObjDict_Data, Initialisation);	// Init the state
     //start heartbeat
-    can_enable_heartbeat(100);
+    //can_enable_heartbeat(100);
 
     return can_state.init_return;
 }
 
 uint8_t can_process()
 {
-    Message m_copy;
+    //Message m_copy;
     uint8_t res = 0;
     if(can_state.init_return!=RET_OK){
         return 0;
     }
-    Message* m = canReceive();
-    if(m){
+    Message m; ;
+    while(canReceive(&m)){
         //LED_1 ^= LED_1;
         //LED_3 = !LED_3;
         P6_RA11 = !P6_RA11;
-        memcpy(&m_copy,m,sizeof(Message));
+        //memcpy(&m_copy,m,sizeof(Message));
         
-        canDispatch(&ObjDict_Data, &m_copy); //send packet to CanFestival
+        canDispatch(&ObjDict_Data, &m); //send packet to CanFestival
         res = 1;
     }
 
@@ -106,8 +108,10 @@ void can_start_node(uint8_t nodeId)
 
 static void ConfigureSlaveNode(CO_Data* d, UNS8 nodeId)
 {
+    int i;
     setState(d, Operational);
-    masterSendNMTstateChange(d, nodeId, NMT_Start_Node);
+    can_enable_slave_heartbeat(nodeId, 50);
+    can_start_node(nodeId);
 }
 
 static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
@@ -184,13 +188,39 @@ static void can_enable_heartbeat(uint16_t time)
                          //ObjDict_scanIndexOD (0x1017, &t, &c);
                          //c[0] = OnHeartbeatProducerUpdate;
                          //RegisterSetODentryCallBack(&ObjDict_Data, 0x1017, 0x00, NULL);
-     UNS16 Timer_Data[1] = {100};
+     UNS16 Timer_Data[1] = {time};
+     UNS32 s = sizeof(UNS16);
     writeLocalDict(&ObjDict_Data,   // CO_Data* for this uC
             0x1017,                 // Index
             0x00,                   // Sub-Index
             Timer_Data,                   // void * SourceData Location
-            sizeof(UNS16),                      // UNS8 * Size of Data
+            &s,                      // UNS8 * Size of Data
             0);                    // UNS8 checkAccess
+}
+
+static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time)
+{
+    /* Sample Code
+    UNS32 data = 0x50;
+    UNS8 size;
+    UNS32 abortCode;
+    writeNetworkDict(0, 0x05, 0x1016, 1, size, &data) // write the data index 1016 subindex 1 of node 5
+    while (getWriteResultNetworkDict (0, 0x05, &abortCode) == SDO_DOWNLOAD_IN_PROGRESS);
+    */
+
+    UNS16 Timer_Data[1] = {time};
+    UNS32 s = sizeof(UNS16);
+    UNS32 abortCode;
+    writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
+            nodeId,                 // Node Id
+            0x1017,                 // Index
+            0x00,                   // Sub-Index
+            &s,                      // UNS8 * Size of Data
+            0,                      // Data type
+            Timer_Data,                   // void * SourceData Location
+            0);                    // UNS8 checkAccess
+    while(getWriteResultNetworkDict(&ObjDict_Data, nodeId, &abortCode) == SDO_DOWNLOAD_IN_PROGRESS);
+
 }
 
 void can_time_dispatch()

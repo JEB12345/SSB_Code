@@ -242,17 +242,18 @@ UNS32 _setODentry( CO_Data* d,
       *pExpectedSize = szData;
 
       /* Callbacks */
-      if(Callback && Callback[bSubindex] && wIndex!=0x1017){
+      if(Callback && Callback[bSubindex] ){//&& wIndex!=0x1017){
         errorCode = (Callback[bSubindex])(d, ptrTable, bSubindex);
         if(errorCode != OD_SUCCESSFUL)
         {
             return errorCode;
         }
-       } else if(wIndex==0x1017){
-           //Callback[0](d,0,0);
-           heartbeatStop(d);
-            heartbeatInit(d);
        }
+//      else if(wIndex==0x1017){
+//           //Callback[0](d,0,0);
+//           heartbeatStop(d);
+//            heartbeatInit(d);
+//       }
 
       /* TODO : Store dans NVRAM */
       if (ptrTable->pSubindex[bSubindex].bAccessType & TO_BE_SAVE){
