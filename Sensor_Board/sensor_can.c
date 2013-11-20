@@ -11,6 +11,7 @@
 
 can_data can_state;
 extern CO_Data ObjDict_Data;
+extern motor_cmd_data motor_cmd_state[2];
 //static Message* m;
 
 // Test Parameters for CANOpen
@@ -38,15 +39,18 @@ return_value_t can_init()
     //reset callback
     ObjDict_Data.NMT_Slave_Node_Reset_Callback = can_reset;
 
-    if(P6_RA12){
-        setNodeId(&ObjDict_Data, 0x00);
-        can_state.is_master = 1;
-        can_enable_heartbeat(100);
-    }
-    else{
-        setNodeId(&ObjDict_Data, 0x01);
-        can_state.is_master = 0;
-    }
+    setNodeId(&ObjDict_Data, 0x01);
+    can_state.is_master = 1;
+    can_enable_heartbeat(100);
+//    if(P6_RA12){
+//        setNodeId(&ObjDict_Data, 0x01);
+//        can_state.is_master = 1;
+//        can_enable_heartbeat(100);
+//    }
+//    else{
+//        setNodeId(&ObjDict_Data, 0x02);
+//        can_state.is_master = 0;
+//    }
     setState(&ObjDict_Data, Initialisation);	// Init the state
     //start heartbeat
     //can_enable_heartbeat(100);
@@ -114,9 +118,9 @@ static void _can_post_SlaveStateChange(CO_Data* d, UNS8 nodeId, e_nodeState newN
 static void ConfigureSlaveNode(CO_Data* d, UNS8 nodeId)
 {
     setState(d, Operational);
-    d->post_SlaveStateChange = _can_post_SlaveStateChange;
-    can_start_node(nodeId);
-    can_enable_slave_heartbeat(nodeId, 33);
+//    d->post_SlaveStateChange = _can_post_SlaveStateChange;
+//    can_start_node(nodeId);
+//    can_enable_slave_heartbeat(nodeId, 33);
     
 }
 
@@ -129,6 +133,76 @@ static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
         closeSDOtransfer(&ObjDict_Data, nodeId, SDO_CLIENT);
 
         ConfigureSlaveNode(d, nodeId);
+}
+
+static UNS32 motor_test_cb(CO_Data* d, const indextable * tbl, UNS8 bSubindex)
+{
+    //copy data to local motor state
+    UNS32 s;
+    void* res;
+    uint8_t r8;
+    uint16_t r16;
+    uint32_t r32;
+    UNS8 dtype;
+
+    switch(bSubindex){
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            s = sizeof(UNS8);
+            res = &r8;
+            break;
+        case 6:
+            s = sizeof(UNS32);
+            res = &r32;
+            break;
+        case 4:
+        case 5:
+        case 7:
+        case 8:
+        case 9:
+            s = sizeof(UNS16);
+            res = &r16;
+            break;
+        default:
+            return 0;
+    };
+    readLocalDict(d,0x2000,bSubindex,res,&s,&dtype,0);
+    switch(bSubindex){
+        case 0:
+            break;
+        case 1:
+            motor_cmd_state[0].mode = r8;
+            break;
+        case 2:
+            motor_cmd_state[0].brake = r8;
+            break;
+        case 3:
+            motor_cmd_state[0].coast = r8;
+            break;
+        case 6:
+            motor_cmd_state[0].position = r32;
+            break;
+        case 4:
+            motor_cmd_state[0].vel = r16;
+            break;
+        case 5:
+            motor_cmd_state[0].torque = r16;
+            break;
+        case 7:
+            motor_cmd_state[0].p = r16;
+            break;
+        case 8:
+            motor_cmd_state[0].i = r16;
+            break;
+        case 9:
+            motor_cmd_state[0].d = r16;
+            break;
+        default:
+            return 0;
+    };
+
 }
 
 void masterInitTest()
@@ -154,6 +228,19 @@ void masterInitTest()
 //            0);     // Don't Block
 
     ConfigureSlaveNode(&ObjDict_Data, 0x01);
+
+    UNS32 pos[1] =  {123456789};
+    UNS32 s = sizeof(UNS32);
+    unsigned i;
+    for(i=1;i<10;++i){
+        RegisterSetODentryCallBack(&ObjDict_Data, 0x2000, i, motor_test_cb);
+    }
+//    writeLocalDict(&ObjDict_Data,   // CO_Data* for this uC
+//            0x2000,                 // Index
+//            0x06,                   // Sub-Index
+//            pos,                   // void * SourceData Location
+//            &s,                      // UNS8 * Size of Data
+//            0);                    // UNS8 checkAccess
 }
 
 void slaveInitTest()

@@ -39,16 +39,22 @@ bool join_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_pac
 
 bool ip_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
 {
-    if(status==0){
-        //if you need to know the IP address
-    }
+//    uint8_t pkt[40];
+//    uint16_t i;
+//    if(status==0){
+//        //if you need to know the IP address
+//        for(i=0;i<length;++i){
+//            pkt[i]=raw_packet[i];
+//        }
+//    }
+    //TODO: store the address, so it becomes accessible over CAN
     rf_state.xbee_at_req = 0;
     return 1;
 }
 
 bool port_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
 {
-    xbee_at_cmd("VR",0,0,0,&rf_state.at_packet,0,ip_cb,100);
+    xbee_at_cmd("MY",0,0,0,&rf_state.at_packet,0,ip_cb,100);
     xbee_send_at_cmd();
     return 1;
 }
@@ -99,7 +105,7 @@ int main(int argc, char** argv) {
 
     timers_init();
     state_init();
-    //uart_init();
+    uart_init();
     loadcell_init();
     loadcell_start();
     led_rgb_off();
@@ -148,12 +154,12 @@ int main(int argc, char** argv) {
                 if(can_state.init_return==RET_OK){
                     can_process();
 
-                    if(can_state.is_master){
-                        if(timer_state.systime==2000){
-                            //test reset slaves
-                            can_reset_node(2);
-                        }
-                    }
+//                    if(can_state.is_master){
+//                        if(timer_state.systime==2000){
+//                            //test reset slaves
+//                            can_reset_node(2);
+//                        }
+//                    }
                     
                 }
 
@@ -193,69 +199,6 @@ int main(int argc, char** argv) {
                     }
                 }
 
-//                if(timer_state.systime==500 && rf_state.init_return==RET_OK){
-//                    //send a test AT command
-//                    at_parm_test[0] = 0x1;
-//                    rf_state.at_packet.raw_packet.response_time_out = 0; //no callback
-//
-//                    //xbee_at_cmd_no_cb("AP",at_parm_test,1,0,&rf_state.at_packet);
-//
-//                    xbee_at_cmd("AP",at_parm_test,1,0,&rf_state.at_packet,at_cmd_test_transmitted_cb,at_cmd_test_response_cb,10);
-//
-//                    xbee_send_at_cmd();
-//
-//
-//                }
-                
-
-//                if(timer_state.systime>800 && rf_state.init_return==RET_OK ){
-//                    char AT_cmd[2];
-//                    unsigned parmlen;
-//                    switch(timer_state.systime){
-//                        case 800:
-//                            at_parm_test[0] = 0x1;
-//                            parmlen=0;
-//                            break;
-//                        case 950:
-//                            break;
-//                        default:
-//                            AT_cmd[0] = 0;
-//                    };
-//                    if(AT_cmd[0]!=0){
-//                        xbee_at_cmd_no_cb(AT_cmd,at_parm_test,parmlen,0,&rf_state.at_packet);
-//                        xbee_send_at_cmd();
-//                    }
-//                }
-
-//                if(timer_state.systime==1000){
-//                    //fake an rx message
-//                    xbee_rx_ip_packet_t ip_rx;
-//                    char* req = "GET /test HTTP/1.0\r\n"
-//                        "Host: 0.0.0.0:5000\r\n"
-//                        "User-Agent: ApacheBench/2.3\r\n"
-//                        "Accept: */*\r\n";
-//                    ip_rx.raw_packet.length = strlen(req)+15;
-//                    ip_rx.raw_packet.raw_data = malloc(ip_rx.raw_packet.length);
-//                    memcpy(ip_rx.raw_packet.raw_data+14,req,strlen(req));
-//                    ip_rx.options.checksum_error = 0;
-//                    ip_rx.options.frame_id = XBEE_API_FRAME_RX_IPV4;
-//                    ip_rx.options.protocol = XBEE_NET_IPPROTO_TCP;
-//                    ip_rx.options.source_port = 9876;
-//                    ip_rx.options.dest_port = 80;
-//                    ip_rx.options.source_addr[0] = 192;
-//                    ip_rx.options.source_addr[1] = 168;
-//                    ip_rx.options.source_addr[2] = 1;
-//                    ip_rx.options.source_addr[3] = 12;
-//                    ip_rx.options.total_packet_length = ip_rx.raw_packet.length-15;
-//                    ip_rx.raw_packet.dynamic = 1;
-//                    if(CB_WriteMany(&rf_state.ip_rx_buffer,&ip_rx,sizeof(xbee_rx_ip_packet_t),1)==SUCCESS){
-//                        //success
-//                    } else {
-//                        //if we cannot add it to the circular buffer, free the memory
-//                        free(ip_rx.raw_packet.raw_data);
-//                    }
-//                }
-
                 if(timer_state.systime&0b100000){
                    LED_4=!LED_4;
                 }
@@ -267,49 +210,61 @@ int main(int argc, char** argv) {
                     }
                    
                    }
-//                if(timer_state.systime&0b10000 ){
-//                            uart_tx_packet = uart_tx_cur_packet();
-//                            //0:0XFF
-//                            //1:LEN
-//                            //2:(UPDATE BRAKE COAST DIR MODE)1
-//                            //3:PWMH1
-//                            //4:PWML1
-//                            //5:TORQUEH1
-//                            //6:TORQUEL1
-//                            //7:(UPDATE BRAKE COAST DIR MODE)2
-//                            //8:PWMH2
-//                            //9:PWML2
-//                            //10:TORQUEH2
-//                            //11:TORQUEL2
-//                            //12:(LED)
-//                            //13:(RESET)
-//                            //14:CS
-//                            uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
-//                            uart_tx_packet[1] = 0xFF;//CMD
-//                            uart_tx_packet[2] = 14;
-//                            uart_tx_packet[3] = 0b10110 | (motor_cmd_state[0].brake<<3);
-//                            uart_tx_packet[4] = motor_cmd_state[0].vel>>8;//0xFF;//PWM
-//                            uart_tx_packet[5] = motor_cmd_state[0].vel&0xFF;//0xFF;
-//                            uart_tx_packet[6] = motor_cmd_state[0].torque>>8;//0xFF;//TORQUE
-//                            uart_tx_packet[7] = motor_cmd_state[0].torque&0xFF;
-//                            uart_tx_packet[8] = 0b00000;
-//                            uart_tx_packet[9] = 0x0;//PWM
-//                            uart_tx_packet[10] = 0x0;
-//                            uart_tx_packet[11] = 0x0; //TORQUE
-//                            uart_tx_packet[12] = 0x0;
-//                            uart_tx_packet[13] = (timer_state.systime&0b100000)>0; //LED
-//                            uart_tx_packet[14] = 1; //RESET
-//                            uart_tx_compute_cks(uart_tx_packet);
-//                            uart_tx_update_index();
-//                            uart_tx_start_transmit();
-//                            //led_rgb_set(0,255,100);
-//                        }
+                if(timer_state.systime&0b10000 ){
+                            uart_tx_packet = uart_tx_cur_packet();
+                            //0:0XFF
+                            //1:LEN
+                            //2:(UPDATE BRAKE COAST DIR MODE)1
+                            //3:PWMH1
+                            //4:PWML1
+                            //5:TORQUEH1
+                            //6:TORQUEL1
+                            //7:(UPDATE BRAKE COAST DIR MODE)2
+                            //8:PWMH2
+                            //9:PWML2
+                            //10:TORQUEH2
+                            //11:TORQUEL2
+                            //12:(LED)
+                            //13:(RESET)
+                            //14:CS
+                            uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
+                            uart_tx_packet[1] = 0xFF;//CMD
+                            uart_tx_packet[2] = 14;
+                            uart_tx_packet[3] = 0b10110 | (motor_cmd_state[0].brake<<3);
+//                            uart_tx_packet[3] = 0b10110 | (0<<3);
+                            uart_tx_packet[4] = motor_cmd_state[0].vel>>8;//0xFF;//PWM
+                            uart_tx_packet[5] = motor_cmd_state[0].vel&0xFF;//0xFF;
+                            uart_tx_packet[6] = motor_cmd_state[0].torque>>8;//0xFF;//TORQUE
+                            uart_tx_packet[7] = motor_cmd_state[0].torque&0xFF;
+//                            uart_tx_packet[4] = 0x1;//PWM
+//                            uart_tx_packet[5] = 0xFF;//0xFF;
+//                            uart_tx_packet[6] = 0x1;//TORQUE
+//                            uart_tx_packet[7] = 0xFF;
+                            uart_tx_packet[8] = 0b00000;
+                            uart_tx_packet[9] = 0x0;//PWM
+                            uart_tx_packet[10] = 0x0;
+                            uart_tx_packet[11] = 0x0; //TORQUE
+                            uart_tx_packet[12] = 0x0;
+                            uart_tx_packet[13] = (timer_state.systime&0b100000)>0; //LED
+                            uart_tx_packet[14] = 1; //RESET
+                            uart_tx_compute_cks(uart_tx_packet);
+                            uart_tx_update_index();
+                            uart_tx_start_transmit();
+                            //led_rgb_set(0,255,100);
+                        }
 
             }            
         } else {
             //untimed processes in main loop:
             //executed as fast as possible
             //these processes should NOT block the main loop
+            if(!T1CONbits.TON){
+                RGB_RED = 0;
+                RGB_GREEN = RGB_BLUE = 0;
+                while(1);
+
+            }
+
 
             //memcheck();
             if(rf_state.init_return==RET_OK){
@@ -322,31 +277,30 @@ int main(int argc, char** argv) {
 
             //memcheck();
 
-//            uart_rx_packet = uart_rx_cur_packet();
-//        if (uart_rx_packet != 0) {
-//            //led_toggle();
-//            if(uart_rx_packet[0]==0xFF){
-//
-//                //0:0XFF
-//                //1:LEN
-//                //2:(UPDATE BRAKE COAST DIR MODE)1
-//                //3:PWMH1
-//                //4:PWML1
-//                //5:TORQUEH1
-//                //6:TORQUEL1
-//                //7:(UPDATE BRAKE COAST DIR MODE)2
-//                //8:PWMH2
-//                //9:PWML2
-//                //10:TORQUEH2
-//                //11:TORQUEL2
-//                //12:(LED)
-//                //13:(RESET)
-//                //14:CS
-//
-//            }
-//            uart_rx_packet_consumed();
-//
-//        }
+            uart_rx_packet = uart_rx_cur_packet();
+        if (uart_rx_packet != 0) {
+            //led_toggle();
+            if(uart_rx_packet[0]==0xFF){
+                //0:0XFF
+                //1:LEN
+                //2:(UPDATE BRAKE COAST DIR MODE)1
+                //3:PWMH1
+                //4:PWML1
+                //5:TORQUEH1
+                //6:TORQUEL1
+                //7:(UPDATE BRAKE COAST DIR MODE)2
+                //8:PWMH2
+                //9:PWML2
+                //10:TORQUEH2
+                //11:TORQUEL2
+                //12:(LED)
+                //13:(RESET)
+                //14:CS
+
+            }
+            uart_rx_packet_consumed();
+
+        }
 
         }
     }

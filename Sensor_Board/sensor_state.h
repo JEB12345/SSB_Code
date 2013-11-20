@@ -357,8 +357,13 @@ typedef enum {
 
     typedef struct {
         bool                    brake;
+        bool                    coast;
         uint16_t                vel;
         uint16_t                torque;
+        uint32_t                position;
+        uint16_t                p,i,d;
+        uint8_t                 mode;
+
     } motor_cmd_data;
 
 #ifdef	__cplusplus
