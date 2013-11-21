@@ -45,8 +45,8 @@ static unsigned int ecan1TXMsgBuf[32][8] __attribute__((aligned(32 * 16)));
 //static volatile uint8_t rxbuffer_start;
 //static volatile uint8_t rxbuffer_stop;
 #define CAN_RX_BUFF_SIZE 5*sizeof(Message)
-static uint8_t can_rx_buffer_array[CAN_RX_BUFF_SIZE];
-static CircularBuffer can_rx_circ_buff;
+uint8_t can_rx_buffer_array[CAN_RX_BUFF_SIZE];
+CircularBuffer can_rx_circ_buff;
 
 
 

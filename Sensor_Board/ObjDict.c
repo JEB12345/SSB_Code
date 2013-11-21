@@ -369,7 +369,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x2000 :   Motor 1 ctrl */
                     //TODO:MANUALLY ADDED
-                    UNS8 ObjDict_highestSubIndex_obj2000 = 9; /* number of subindex - 1*/
+                    UNS8 ObjDict_highestSubIndex_obj2000 = 11; /* number of subindex - 1*/
                     UNS8 ObjDict_obj2000_mode = 0;
                     UNS8 ObjDict_obj2000_brake = 0;
                     UNS8 ObjDict_obj2000_coast = 0;
@@ -379,6 +379,8 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS16 ObjDict_obj2000_p = 0;
                     UNS16 ObjDict_obj2000_i = 0;
                     UNS16 ObjDict_obj2000_d = 0;
+                    UNS8 ObjDict_obj2000_dir = 0;
+                    UNS8 ObjDict_obj2000_decay_mode = 0;
                     ODCallback_t ObjDict_Index2000_callbacks[] =
                      {
                        NULL,
@@ -391,6 +393,8 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        NULL,
                        NULL,
                        NULL,
+                       NULL,
+                       NULL
                      };
                     subindex ObjDict_Index2000[] =
                      {
@@ -403,9 +407,11 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, uint32, sizeof (UNS32), (void*)&ObjDict_obj2000_position }, //position
                        { RW, uint16, sizeof (UNS16), (void*)&ObjDict_obj2000_p }, //p
                        { RW, uint16, sizeof (UNS16), (void*)&ObjDict_obj2000_i }, //i
-                       { RW, uint16, sizeof (UNS16), (void*)&ObjDict_obj2000_d } //d
-
+                       { RW, uint16, sizeof (UNS16), (void*)&ObjDict_obj2000_d }, //d
+                       { RW, uint8, sizeof (UNS8), (void*)&ObjDict_obj2000_dir }, //dir
+                       { RW, uint8, sizeof (UNS8), (void*)&ObjDict_obj2000_decay_mode } //decay_mode
                      };
+
 
 /* index 0x6000 :   Mapped variable Read Inputs 8 Bit */
                     UNS8 ObjDict_highestSubIndex_obj6000 = 1; /* number of subindex - 1*/

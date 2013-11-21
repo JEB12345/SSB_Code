@@ -78,11 +78,21 @@ void _trapISR _OscillatorFail(void)
 
 void _trapISR _AddressError(void)
 {
-LED_4 = 0;
+    LED_4 = 0;
 
         INTCON1bits.ADDRERR = 0;
         while(1);
 }
+//extern unsigned long errAddress;
+// void where_was_i(void);
+// void __attribute__((interrupt(preprologue("rcall _where_was_i")),no_auto_psv)) _AddressError(void)
+// {
+//   Nop();   // Set breakpoint here. When hit, variable _errAddress shows the return address
+//   Nop();
+//   Nop();
+// }
+
+
 
 void _trapISR _StackError(void)
 {

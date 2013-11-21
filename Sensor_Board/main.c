@@ -160,7 +160,9 @@ int main(int argc, char** argv) {
 //                            can_reset_node(2);
 //                        }
 //                    }
-                    
+                    if(timer_state.systime&0b100000000){
+                        can_push_state();
+                    }
                 }
 
                 led_update();
@@ -230,10 +232,34 @@ int main(int argc, char** argv) {
                             uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
                             uart_tx_packet[1] = 0xFF;//CMD
                             uart_tx_packet[2] = 14;
-                            uart_tx_packet[3] = 0b10110 | (motor_cmd_state[0].brake<<3);
+
+                            if(motor_cmd_state[0].mode&0b01111111==1){
+                                //position control
+                                bool mdir;
+                                int32_t tpos = (int32_t)motor_cmd_state[0].position;
+                                //mdir = (motor_cmd_state[0].cur_pos<tpos);
+                                int32_t err = tpos-motor_cmd_state[0].cur_pos;
+                                err = (err*motor_cmd_state[0].p)>>10;
+                                uint16_t vmax = 0x540;
+                                uint16_t vmin = 0x29F;
+                                mdir = err<0;
+                                uint32_t lerr = labs(err);
+                                if(lerr>(vmax-vmin)){
+                                    lerr = vmax;
+                                }
+                                lerr -= vmin;
+                                lerr = lerr&0xFFFF;
+                                uart_tx_packet[3] = 0b10000 | (motor_cmd_state[0].mode&0b10000000) | (motor_cmd_state[0].brake<<3) | (motor_cmd_state[0].coast<<2) |(mdir<<1)|(motor_cmd_state[0].decay_mode);
+                                uart_tx_packet[4] = lerr>>8;//0xFF;//PWM
+                                uart_tx_packet[5] = lerr&0xFF;//0xFF;
+                            } 
+                            else  {
+                                uart_tx_packet[3] = 0b10000 | (motor_cmd_state[0].mode&0b10000000) | (motor_cmd_state[0].brake<<3) | (motor_cmd_state[0].coast<<2) |(motor_cmd_state[0].dir<<1)|(motor_cmd_state[0].decay_mode);
 //                            uart_tx_packet[3] = 0b10110 | (0<<3);
-                            uart_tx_packet[4] = motor_cmd_state[0].vel>>8;//0xFF;//PWM
-                            uart_tx_packet[5] = motor_cmd_state[0].vel&0xFF;//0xFF;
+                                uart_tx_packet[4] = motor_cmd_state[0].vel>>8;//0xFF;//PWM
+                                uart_tx_packet[5] = motor_cmd_state[0].vel&0xFF;//0xFF;
+                            }
+                            
                             uart_tx_packet[6] = motor_cmd_state[0].torque>>8;//0xFF;//TORQUE
                             uart_tx_packet[7] = motor_cmd_state[0].torque&0xFF;
 //                            uart_tx_packet[4] = 0x1;//PWM
@@ -260,7 +286,7 @@ int main(int argc, char** argv) {
             //these processes should NOT block the main loop
             if(!T1CONbits.TON){
                 RGB_RED = 0;
-                RGB_GREEN = RGB_BLUE = 0;
+                RGB_GREEN = RGB_BLUE = 1;
                 while(1);
 
             }
@@ -281,21 +307,29 @@ int main(int argc, char** argv) {
         if (uart_rx_packet != 0) {
             //led_toggle();
             if(uart_rx_packet[0]==0xFF){
-                //0:0XFF
-                //1:LEN
-                //2:(UPDATE BRAKE COAST DIR MODE)1
-                //3:PWMH1
-                //4:PWML1
-                //5:TORQUEH1
-                //6:TORQUEL1
-                //7:(UPDATE BRAKE COAST DIR MODE)2
-                //8:PWMH2
-                //9:PWML2
-                //10:TORQUEH2
-                //11:TORQUEL2
-                //12:(LED)
-                //13:(RESET)
-                //14:CS
+//                uart_tx_packet[1] = 0xFF; //CMD
+//                uart_tx_packet[2] = 10;
+//                //transmit current position and speed
+//                uart_tx_packet[3] = mdv1->pos_cnt>>8;
+//                uart_tx_packet[4] = mdv1->pos_cnt&0xFF;
+//                uart_tx_packet[5] = ((uint16_t)mdv1->current_speed)>>8;
+//                uart_tx_packet[6] = ((uint16_t)mdv1->current_speed)&0xFF;
+//                uart_tx_packet[7] = mdv2->pos_cnt>>8;
+//                uart_tx_packet[8] = mdv2->pos_cnt&0xFF;
+//                uart_tx_packet[9] = ((uint16_t)mdv2->current_speed)>>8;
+//                uart_tx_packet[10] = ((uint16_t)mdv2->current_speed)&0xFF;
+
+                uint8_t* cp = &motor_cmd_state[0].cur_pos;
+                cp[0]=uart_rx_packet[2];
+                cp[1]=uart_rx_packet[3];
+                cp[2]=uart_rx_packet[4];
+                cp[3]=uart_rx_packet[5];
+                cp = &motor_cmd_state[0].cur_vel;
+                cp[0]=uart_rx_packet[6];
+                cp[1]=uart_rx_packet[7];
+                if(motor_cmd_state[0].cur_vel!=0){
+                    LED_2=1;
+                }
 
             }
             uart_rx_packet_consumed();

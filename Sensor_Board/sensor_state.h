@@ -363,7 +363,10 @@ typedef enum {
         uint32_t                position;
         uint16_t                p,i,d;
         uint8_t                 mode;
-
+        bool                    dir;
+        bool                    decay_mode;
+        int32_t                 cur_pos;
+        int16_t                 cur_vel;
     } motor_cmd_data;
 
 #ifdef	__cplusplus

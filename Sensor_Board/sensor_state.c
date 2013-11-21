@@ -19,6 +19,8 @@ return_value_t state_init()
         motor_cmd_state[i].i = 1;
         motor_cmd_state[i].d = 1;
         motor_cmd_state[i].position = 0;
+        motor_cmd_state[i].dir = 0;
+        motor_cmd_state[i].decay_mode = 0;
     }
     return system_state.init_return;
 }
