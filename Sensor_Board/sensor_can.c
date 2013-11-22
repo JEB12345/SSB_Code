@@ -159,13 +159,6 @@ void masterInitTest()
 void slaveInitTest()
 {
     UNS8 Timer_Data = 0x05;
-//
-//    writeLocalDict(&ObjDict_Data,   // CO_Data* for this uC
-//            0x1017,                 // Index
-//            0x00,                   // Sub-Index
-//            &Timer_Data,                   // void * SourceData Location
-//            sizeof(UNS8),                      // UNS8 * Size of Data
-//            RW);                    // UNS8 checkAccess
 }
 
 void can_sync()
@@ -187,21 +180,14 @@ static UNS32 OnHeartbeatProducerUpdate(CO_Data* d, const indextable * unused_ind
 
 static void can_enable_heartbeat(uint16_t time)
 {
-    //heartbeatInit(&ObjDict_Data);
-    uint32_t t;
-    ODCallback_t* c;
-                       // ObjDict_Index1017_callbacks[0] = OnHeartbeatProducerUpdate;
-                         //ObjDict_scanIndexOD (0x1017, &t, &c);
-                         //c[0] = OnHeartbeatProducerUpdate;
-                         //RegisterSetODentryCallBack(&ObjDict_Data, 0x1017, 0x00, NULL);
-     UNS16 Timer_Data[1] = {time};
-     UNS32 s = sizeof(UNS16);
+    UNS16 Timer_Data[1] = {time};
+    UNS32 s = sizeof(UNS16);
     writeLocalDict(&ObjDict_Data,   // CO_Data* for this uC
             0x1017,                 // Index
             0x00,                   // Sub-Index
-            Timer_Data,                   // void * SourceData Location
-            &s,                      // UNS8 * Size of Data
-            0);                    // UNS8 checkAccess
+            Timer_Data,             // void * SourceData Location
+            &s,                     // UNS8 * Size of Data
+            0);                     // UNS8 checkAccess
 }
 
 static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time)
@@ -217,14 +203,14 @@ static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time)
     UNS16 Timer_Data[1] = {time};
     UNS32 s = sizeof(UNS16);
     UNS32 abortCode;
-    writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
+    writeNetworkDict(&ObjDict_Data, // CO_Data* for this uC
             nodeId,                 // Node Id
             0x1017,                 // Index
             0x00,                   // Sub-Index
             s,                      // UNS8 * Size of Data
             0,                      // Data type
-            Timer_Data,                   // void * SourceData Location
-            0);                    // UNS8 checkAccess
+            Timer_Data,             // void * SourceData Location
+            0);                     // UNS8 checkAccess
     //while(getWriteResultNetworkDict(&ObjDict_Data, nodeId, &abortCode) == SDO_DOWNLOAD_IN_PROGRESS);//cannot block the main loop!
 
 }
