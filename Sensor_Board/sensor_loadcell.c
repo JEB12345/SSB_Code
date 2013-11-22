@@ -140,7 +140,7 @@ return_value_t loadcell_init()
     spi_wait();
     //write the CONFIGURATION register
     config_byte_1 =  0b10000000;
-    config_byte_2 = 0b1111;//0b11110000;
+    config_byte_2 =0b1111;//0b11110000;// 
     config_byte_3 = 0b01011000;
     loadcell_state.spi_state = SPI_VARIOUS;
     SPI1BUF = config_byte_1;
@@ -206,6 +206,9 @@ void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
 
                 }
             }
+//            if(loadcell_state.sg_status ||loadcell_state.sg_data_1 || loadcell_state.sg_data_2 || loadcell_state.sg_data_3 ) {
+//                loadcell_state.error = 1;
+//            }
 
             SG_DESELECT;
             

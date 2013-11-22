@@ -54,6 +54,8 @@ extern "C" {
      */
     void can_time_dispatch();
 
+    void can_push_state();
+
 #ifdef	__cplusplus
 }
 #endif

@@ -130,21 +130,21 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS32 ObjDict_obj1006 = 0x0;   /* 0 */
 
 /* index 0x1008 :   Manufacturer Device Name. */
-                    UNS8 ObjDict_obj1008[10] = "";
+                    UNS8 ObjDict_obj1008[10] = "SUPERBALL";
                     subindex ObjDict_Index1008[] = 
                      {
                        { RO, visible_string, 0, (void*)&ObjDict_obj1008 }
                      };
 
 /* index 0x1009 :   Manufacturer Hardware Version. */
-                    UNS8 ObjDict_obj1009[10] = "";
+                    UNS8 ObjDict_obj1009[10] = "11/2013";
                     subindex ObjDict_Index1009[] = 
                      {
                        { RO, visible_string, 0, (void*)&ObjDict_obj1009 }
                      };
 
 /* index 0x100A :   Manufacturer Software Version. */
-                    UNS8 ObjDict_obj100A[10] = "";
+                    UNS8 ObjDict_obj100A[10] = "11/2013";
                     subindex ObjDict_Index100A[] = 
                      {
                        { RO, visible_string, 0, (void*)&ObjDict_obj100A }
@@ -212,8 +212,8 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x1018 :   Identity. */
                     UNS8 ObjDict_highestSubIndex_obj1018 = 4; /* number of subindex - 1*/
-                    UNS32 ObjDict_obj1018_Vendor_ID = 0x0;	/* 0 */
-                    UNS32 ObjDict_obj1018_Product_Code = 0x0;	/* 0 */
+                    UNS32 ObjDict_obj1018_Vendor_ID = 0x666;	/* 0 */
+                    UNS32 ObjDict_obj1018_Product_Code = 0x1;	/* 0 */
                     UNS32 ObjDict_obj1018_Revision_Number = 0x0;	/* 0 */
                     UNS32 ObjDict_obj1018_Serial_Number = 0x0;	/* 0 */
                     subindex ObjDict_Index1018[] = 
@@ -227,8 +227,8 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x1200 :   Server SDO Parameter. */
                     UNS8 ObjDict_highestSubIndex_obj1200 = 2; /* number of subindex - 1*/
-                    UNS32 ObjDict_obj1200_COB_ID_Client_to_Server_Receive_SDO = 0x600;	/* 1536 */ //This number is automatically increased with the nodeId (0x600+nodeId and 0x580+nodeId) in setNodeId()
-                    UNS32 ObjDict_obj1200_COB_ID_Server_to_Client_Transmit_SDO = 0x580;	/* 1408 */
+                    UNS32 ObjDict_obj1200_COB_ID_Client_to_Server_Receive_SDO = 0x601;	/* 1536 */
+                    UNS32 ObjDict_obj1200_COB_ID_Server_to_Client_Transmit_SDO = 0x581;	/* 1408 */
                     subindex ObjDict_Index1200[] = 
                      {
                        { RO, uint8, sizeof (UNS8), (void*)&ObjDict_highestSubIndex_obj1200 },
@@ -236,8 +236,30 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RO, uint32, sizeof (UNS32), (void*)&ObjDict_obj1200_COB_ID_Server_to_Client_Transmit_SDO }
                      };
 
+/* index 0x1201 :   Server SDO Parameter. */
+                    UNS8 ObjDict_highestSubIndex_obj1201 = 2; /* number of subindex - 1*/
+                    UNS32 ObjDict_obj1201_COB_ID_Client_to_Server_Receive_SDO = 0x602;	/* 1536 */
+                    UNS32 ObjDict_obj1201_COB_ID_Server_to_Client_Transmit_SDO = 0x582;	/* 1408 */
+                    subindex ObjDict_Index1201[] =
+                     {
+                       { RO, uint8, sizeof (UNS8), (void*)&ObjDict_highestSubIndex_obj1201 },
+                       { RO, uint32, sizeof (UNS32), (void*)&ObjDict_obj1201_COB_ID_Client_to_Server_Receive_SDO },
+                       { RO, uint32, sizeof (UNS32), (void*)&ObjDict_obj1201_COB_ID_Server_to_Client_Transmit_SDO }
+                     };
+
+/* index 0x1202 :   Server SDO Parameter. */
+                    UNS8 ObjDict_highestSubIndex_obj1202 = 2; /* number of subindex - 1*/
+                    UNS32 ObjDict_obj1202_COB_ID_Client_to_Server_Receive_SDO = 0x603;	/* 1536 */
+                    UNS32 ObjDict_obj1202_COB_ID_Server_to_Client_Transmit_SDO = 0x583;	/* 1408 */
+                    subindex ObjDict_Index1202[] =
+                     {
+                       { RO, uint8, sizeof (UNS8), (void*)&ObjDict_highestSubIndex_obj1202 },
+                       { RO, uint32, sizeof (UNS32), (void*)&ObjDict_obj1202_COB_ID_Client_to_Server_Receive_SDO },
+                       { RO, uint32, sizeof (UNS32), (void*)&ObjDict_obj1202_COB_ID_Server_to_Client_Transmit_SDO }
+                     };
+
 /* index 0x1280 :   Client SDO 1 Parameter. */
-                    //TODO:ADDED MANUALLY!!!
+                    //TODO:ADDED MANUALLY to talk to node 1
                     UNS8 ObjDict_highestSubIndex_obj1280 = 3; /* number of subindex - 1*/
                     UNS32 ObjDict_obj1280_COB_ID_Client_to_Server_Transmit_SDO = 0x601;	/* 1536 */
                     UNS32 ObjDict_obj1280_COB_ID_Server_to_Client_Receive_SDO = 0x581;	/* 1408 */
@@ -248,6 +270,34 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, uint32, sizeof (UNS32), (void*)&ObjDict_obj1280_COB_ID_Client_to_Server_Transmit_SDO },
                        { RW, uint32, sizeof (UNS32), (void*)&ObjDict_obj1280_COB_ID_Server_to_Client_Receive_SDO },
                        { RW, uint8, sizeof (UNS8), (void*)&ObjDict_obj1280_Node_ID_of_the_SDO_Server }
+                    };
+
+/* index 0x1281 :   Client SDO 2 Parameter. */
+                    //TODO:ADDED MANUALLY to talk to node 2
+                    UNS8 ObjDict_highestSubIndex_obj1281 = 3; /* number of subindex - 1*/
+                    UNS32 ObjDict_obj1281_COB_ID_Client_to_Server_Transmit_SDO = 0x602;	/* 1536 */
+                    UNS32 ObjDict_obj1281_COB_ID_Server_to_Client_Receive_SDO = 0x582;	/* 1408 */
+                    UNS8 ObjDict_obj1281_Node_ID_of_the_SDO_Server = 0x2;	/* 1 */
+                    subindex ObjDict_Index1281[] =
+                     {
+                       { RO, uint8, sizeof (UNS8), (void*)&ObjDict_highestSubIndex_obj1281 },
+                       { RW, uint32, sizeof (UNS32), (void*)&ObjDict_obj1281_COB_ID_Client_to_Server_Transmit_SDO },
+                       { RW, uint32, sizeof (UNS32), (void*)&ObjDict_obj1281_COB_ID_Server_to_Client_Receive_SDO },
+                       { RW, uint8, sizeof (UNS8), (void*)&ObjDict_obj1281_Node_ID_of_the_SDO_Server }
+                    };
+
+/* index 0x1282 :   Client SDO 3 Parameter. */
+                    //TODO:ADDED MANUALLY to talk to node 3
+                    UNS8 ObjDict_highestSubIndex_obj1282 = 3; /* number of subindex - 1*/
+                    UNS32 ObjDict_obj1282_COB_ID_Client_to_Server_Transmit_SDO = 0x603;	/* 1536 */
+                    UNS32 ObjDict_obj1282_COB_ID_Server_to_Client_Receive_SDO = 0x583;	/* 1408 */
+                    UNS8 ObjDict_obj1282_Node_ID_of_the_SDO_Server = 0x3;	/* 1 */
+                    subindex ObjDict_Index1282[] =
+                     {
+                       { RO, uint8, sizeof (UNS8), (void*)&ObjDict_highestSubIndex_obj1282 },
+                       { RW, uint32, sizeof (UNS32), (void*)&ObjDict_obj1282_COB_ID_Client_to_Server_Transmit_SDO },
+                       { RW, uint32, sizeof (UNS32), (void*)&ObjDict_obj1282_COB_ID_Server_to_Client_Receive_SDO },
+                       { RW, uint8, sizeof (UNS8), (void*)&ObjDict_obj1282_Node_ID_of_the_SDO_Server }
                     };
 
 /* index 0x1400 :   Receive PDO 1 Parameter. */
@@ -316,6 +366,52 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, uint8, sizeof (UNS8), (void*)&ObjDict_highestSubIndex_obj1A00 },
                        { RW, uint32, sizeof (UNS32), (void*)&ObjDict_obj1A00[0] }
                      };
+
+/* index 0x2000 :   Motor 1 ctrl */
+                    //TODO:MANUALLY ADDED
+                    UNS8 ObjDict_highestSubIndex_obj2000 = 11; /* number of subindex - 1*/
+                    UNS8 ObjDict_obj2000_mode = 0;
+                    UNS8 ObjDict_obj2000_brake = 0;
+                    UNS8 ObjDict_obj2000_coast = 0;
+                    UNS16 ObjDict_obj2000_velocity = 0;
+                    UNS16 ObjDict_obj2000_torque = 0;
+                    UNS32 ObjDict_obj2000_position = 0;
+                    UNS16 ObjDict_obj2000_p = 0;
+                    UNS16 ObjDict_obj2000_i = 0;
+                    UNS16 ObjDict_obj2000_d = 0;
+                    UNS8 ObjDict_obj2000_dir = 0;
+                    UNS8 ObjDict_obj2000_decay_mode = 0;
+                    ODCallback_t ObjDict_Index2000_callbacks[] =
+                     {
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL
+                     };
+                    subindex ObjDict_Index2000[] =
+                     {
+                       { RO, uint8, sizeof (UNS8), (void*)&ObjDict_highestSubIndex_obj2000 }, //no. subindices-1
+                       { RW, uint8, sizeof (UNS8), (void*)&ObjDict_obj2000_mode }, //mode
+                       { RW, uint8, sizeof (UNS8), (void*)&ObjDict_obj2000_brake }, //brake
+                       { RW, uint8, sizeof (UNS8), (void*)&ObjDict_obj2000_coast }, //coast
+                       { RW, uint16, sizeof (UNS16), (void*)&ObjDict_obj2000_velocity }, //velocity
+                       { RW, uint16, sizeof (UNS16), (void*)&ObjDict_obj2000_torque }, //torque
+                       { RW, uint32, sizeof (UNS32), (void*)&ObjDict_obj2000_position }, //position
+                       { RW, uint16, sizeof (UNS16), (void*)&ObjDict_obj2000_p }, //p
+                       { RW, uint16, sizeof (UNS16), (void*)&ObjDict_obj2000_i }, //i
+                       { RW, uint16, sizeof (UNS16), (void*)&ObjDict_obj2000_d }, //d
+                       { RW, uint8, sizeof (UNS8), (void*)&ObjDict_obj2000_dir }, //dir
+                       { RW, uint8, sizeof (UNS8), (void*)&ObjDict_obj2000_decay_mode } //decay_mode
+                     };
+
 
 /* index 0x6000 :   Mapped variable Read Inputs 8 Bit */
                     UNS8 ObjDict_highestSubIndex_obj6000 = 1; /* number of subindex - 1*/
@@ -419,11 +515,16 @@ const indextable ObjDict_objdict[] =
   { (subindex*)ObjDict_Index1017,sizeof(ObjDict_Index1017)/sizeof(ObjDict_Index1017[0]), 0x1017},
   { (subindex*)ObjDict_Index1018,sizeof(ObjDict_Index1018)/sizeof(ObjDict_Index1018[0]), 0x1018},
   { (subindex*)ObjDict_Index1200,sizeof(ObjDict_Index1200)/sizeof(ObjDict_Index1200[0]), 0x1200},
+  { (subindex*)ObjDict_Index1201,sizeof(ObjDict_Index1201)/sizeof(ObjDict_Index1201[0]), 0x1201},
+  { (subindex*)ObjDict_Index1202,sizeof(ObjDict_Index1202)/sizeof(ObjDict_Index1202[0]), 0x1202},
   { (subindex*)ObjDict_Index1280,sizeof(ObjDict_Index1280)/sizeof(ObjDict_Index1280[0]), 0x1280},
+  { (subindex*)ObjDict_Index1281,sizeof(ObjDict_Index1281)/sizeof(ObjDict_Index1281[0]), 0x1281},
+  { (subindex*)ObjDict_Index1282,sizeof(ObjDict_Index1282)/sizeof(ObjDict_Index1282[0]), 0x1282},
   { (subindex*)ObjDict_Index1400,sizeof(ObjDict_Index1400)/sizeof(ObjDict_Index1400[0]), 0x1400},
   { (subindex*)ObjDict_Index1600,sizeof(ObjDict_Index1600)/sizeof(ObjDict_Index1600[0]), 0x1600},
   { (subindex*)ObjDict_Index1800,sizeof(ObjDict_Index1800)/sizeof(ObjDict_Index1800[0]), 0x1800},
   { (subindex*)ObjDict_Index1A00,sizeof(ObjDict_Index1A00)/sizeof(ObjDict_Index1A00[0]), 0x1A00},
+  { (subindex*)ObjDict_Index2000,sizeof(ObjDict_Index2000)/sizeof(ObjDict_Index2000[0]), 0x2000},
   { (subindex*)ObjDict_Index6000,sizeof(ObjDict_Index6000)/sizeof(ObjDict_Index6000[0]), 0x6000},
   { (subindex*)ObjDict_Index6002,sizeof(ObjDict_Index6002)/sizeof(ObjDict_Index6002[0]), 0x6002},
   { (subindex*)ObjDict_Index6003,sizeof(ObjDict_Index6003)/sizeof(ObjDict_Index6003[0]), 0x6003},
@@ -456,22 +557,27 @@ const indextable * ObjDict_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallb
 		case 0x1017: i = 11;*callbacks = ObjDict_Index1017_callbacks; break;
 		case 0x1018: i = 12;break;
 		case 0x1200: i = 13;break;
-                case 0x1280: i = 14;break;
-		case 0x1400: i = 15;break;
-		case 0x1600: i = 16;break;
-		case 0x1800: i = 17;*callbacks = ObjDict_Index1800_callbacks; break;
-		case 0x1A00: i = 18;break;
-		case 0x6000: i = 19;break;
-		case 0x6002: i = 20;break;
-		case 0x6003: i = 21;break;
-		case 0x6005: i = 22;break;
-		case 0x6006: i = 23;break;
-		case 0x6007: i = 24;break;
-		case 0x6008: i = 25;break;
-		case 0x6200: i = 26;break;
-		case 0x6202: i = 27;break;
-		case 0x6206: i = 28;break;
-		case 0x6207: i = 29;break;
+                case 0x1201: i = 14;break;
+                case 0x1202: i = 15;break;
+                case 0x1280: i = 16;break;
+                case 0x1281: i = 17;break;
+                case 0x1282: i = 18;break;
+		case 0x1400: i = 19;break;
+		case 0x1600: i = 20;break;
+		case 0x1800: i = 21;*callbacks = ObjDict_Index1800_callbacks; break;
+		case 0x1A00: i = 22;break;
+                case 0x2000: i = 23;*callbacks = ObjDict_Index2000_callbacks; break; 
+		case 0x6000: i = 24;break;
+		case 0x6002: i = 25;break;
+		case 0x6003: i = 26;break;
+		case 0x6005: i = 27;break;
+		case 0x6006: i = 28;break;
+		case 0x6007: i = 29;break;
+		case 0x6008: i = 30;break;
+		case 0x6200: i = 31;break;
+		case 0x6202: i = 32;break;
+		case 0x6206: i = 33;break;
+		case 0x6207: i = 34;break;
 		default:
 			*errorCode = OD_NO_SUCH_OBJECT;
 			return NULL;
@@ -489,20 +595,20 @@ s_PDO_status ObjDict_PDO_status[1] = {s_PDO_status_Initializer};
 
 quick_index ObjDict_firstIndex = {
   13, /* SDO_SVR */
-  14, /* SDO_CLT */ //TODO: manually updated
-  15, /* PDO_RCV */
-  16, /* PDO_RCV_MAP */
-  17, /* PDO_TRS */
-  18 /* PDO_TRS_MAP */
+  16, /* SDO_CLT */ //TODO: manually updated
+  19, /* PDO_RCV */
+  20, /* PDO_RCV_MAP */
+  21, /* PDO_TRS */
+  22 /* PDO_TRS_MAP */
 };
 
 quick_index ObjDict_lastIndex = {
-  13, /* SDO_SVR */
-  14, /* SDO_CLT */
-  15, /* PDO_RCV */
-  16, /* PDO_RCV_MAP */
-  17, /* PDO_TRS */
-  18 /* PDO_TRS_MAP */
+  15, /* SDO_SVR */
+  18, /* SDO_CLT */
+  19, /* PDO_RCV */
+  20, /* PDO_RCV_MAP */
+  21, /* PDO_TRS */
+  22 /* PDO_TRS_MAP */
 };
 UNS16 ObjDict_obj100C = 0x0;
  UNS8 ObjDict_obj100D = 0x0;	/* 0 */

@@ -6,14 +6,22 @@
 
 return_value_t state_init()
 {
+    int i;
     system_state.init_return = RET_OK;
     system_state.state = STATE_INITIALIZED;
-    motor_cmd_state[0].brake = 1;
-    motor_cmd_state[1].brake = 1;
-    motor_cmd_state[0].vel = 0;
-    motor_cmd_state[1].vel = 0;
-    motor_cmd_state[0].torque = 0;
-    motor_cmd_state[1].torque = 0;
+    for(i=0;i<2;++i){
+        motor_cmd_state[i].brake = 1;
+        motor_cmd_state[i].vel = 0;
+        motor_cmd_state[i].torque = 0;
+        motor_cmd_state[i].coast = 0;
+        motor_cmd_state[i].mode = 0;
+        motor_cmd_state[i].p = 1;
+        motor_cmd_state[i].i = 1;
+        motor_cmd_state[i].d = 1;
+        motor_cmd_state[i].position = 0;
+        motor_cmd_state[i].dir = 0;
+        motor_cmd_state[i].decay_mode = 0;
+    }
     return system_state.init_return;
 }
 

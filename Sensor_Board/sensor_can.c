@@ -9,8 +9,12 @@
 #include "sensor_pindefs.h"
 #include "ObjDict.h"
 
+
 can_data can_state;
 extern CO_Data ObjDict_Data;
+extern motor_cmd_data motor_cmd_state[2];
+extern loadcell_data loadcell_state;
+static Message rec_m;
 //static Message* m;
 
 // Test Parameters for CANOpen
@@ -38,15 +42,18 @@ return_value_t can_init()
     //reset callback
     ObjDict_Data.NMT_Slave_Node_Reset_Callback = can_reset;
 
-    if(P6_RA12){
-        setNodeId(&ObjDict_Data, 0x00);
-        can_state.is_master = 1;
-        can_enable_heartbeat(100);
-    }
-    else{
-        setNodeId(&ObjDict_Data, 0x01);
-        can_state.is_master = 0;
-    }
+    setNodeId(&ObjDict_Data, 0x01);
+    can_state.is_master = 1;
+    can_enable_heartbeat(100);
+//    if(P6_RA12){
+//        setNodeId(&ObjDict_Data, 0x01);
+//        can_state.is_master = 1;
+//        can_enable_heartbeat(100);
+//    }
+//    else{
+//        setNodeId(&ObjDict_Data, 0x02);
+//        can_state.is_master = 0;
+//    }
     setState(&ObjDict_Data, Initialisation);	// Init the state
     //start heartbeat
     //can_enable_heartbeat(100);
@@ -60,15 +67,14 @@ uint8_t can_process()
     uint8_t res = 0;
     if(can_state.init_return!=RET_OK){
         return 0;
-    }
-    Message m; ;
-    while(canReceive(&m)){
+    } 
+    while(canReceive(&rec_m)){
         //LED_1 ^= LED_1;
         //LED_3 = !LED_3;
         P6_RA11 = !P6_RA11;
         //memcpy(&m_copy,m,sizeof(Message));
         
-        canDispatch(&ObjDict_Data, &m); //send packet to CanFestival
+        canDispatch(&ObjDict_Data, &rec_m); //send packet to CanFestival
         res = 1;
     }
 
@@ -114,9 +120,9 @@ static void _can_post_SlaveStateChange(CO_Data* d, UNS8 nodeId, e_nodeState newN
 static void ConfigureSlaveNode(CO_Data* d, UNS8 nodeId)
 {
     setState(d, Operational);
-    d->post_SlaveStateChange = _can_post_SlaveStateChange;
-    can_start_node(nodeId);
-    can_enable_slave_heartbeat(nodeId, 33);
+//    d->post_SlaveStateChange = _can_post_SlaveStateChange;
+//    can_start_node(nodeId);
+//    can_enable_slave_heartbeat(nodeId, 33);
     
 }
 
@@ -129,6 +135,87 @@ static void CheckSDOAndContinue(CO_Data* d, UNS8 nodeId)
         closeSDOtransfer(&ObjDict_Data, nodeId, SDO_CLIENT);
 
         ConfigureSlaveNode(d, nodeId);
+}
+
+static UNS32 motor_test_cb(CO_Data* d, const indextable * tbl, UNS8 bSubindex)
+{
+    //copy data to local motor state
+    UNS32 s;
+    void* res;
+    uint8_t r8;
+    uint16_t r16;
+    uint32_t r32;
+    UNS8 dtype;
+
+    switch(bSubindex){
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 10:
+        case 11:
+            s = sizeof(UNS8);
+            res = &r8;
+            break;
+        case 6:
+            s = sizeof(UNS32);
+            res = &r32;
+            break;
+        case 4:
+        case 5:
+        case 7:
+        case 8:
+        case 9:
+            s = sizeof(UNS16);
+            res = &r16;
+            break;
+        default:
+            return 0;
+    };
+    readLocalDict(d,0x2000,bSubindex,res,&s,&dtype,0);
+    switch(bSubindex){
+        case 0:
+            break;
+        case 1:
+            motor_cmd_state[0].mode = r8;
+            break;
+        case 2:
+            motor_cmd_state[0].brake = r8;
+            break;
+        case 3:
+            motor_cmd_state[0].coast = r8;
+            break;
+        case 6:
+            motor_cmd_state[0].position = r32;
+            break;
+        case 4:
+            motor_cmd_state[0].vel = r16;
+            break;
+        case 5:
+            motor_cmd_state[0].torque = r16;
+            if(r16==0){
+                while(1);
+            }
+            break;
+        case 7:
+            motor_cmd_state[0].p = r16;
+            break;
+        case 8:
+            motor_cmd_state[0].i = r16;
+            break;
+        case 9:
+            motor_cmd_state[0].d = r16;
+            break;
+        case 10:
+                motor_cmd_state[0].dir = r8&0b1;
+            break;
+        case 11:
+            motor_cmd_state[0].decay_mode = r8&0b1;
+            break;
+        default:
+            return 0;
+    };
+
 }
 
 void masterInitTest()
@@ -154,6 +241,19 @@ void masterInitTest()
 //            0);     // Don't Block
 
     ConfigureSlaveNode(&ObjDict_Data, 0x01);
+
+    UNS32 pos[1] =  {123456789};
+    UNS32 s = sizeof(UNS32);
+    unsigned i;
+    for(i=1;i<12;++i){
+        RegisterSetODentryCallBack(&ObjDict_Data, 0x2000, i, motor_test_cb);
+    }
+//    writeLocalDict(&ObjDict_Data,   // CO_Data* for this uC
+//            0x2000,                 // Index
+//            0x06,                   // Sub-Index
+//            pos,                   // void * SourceData Location
+//            &s,                      // UNS8 * Size of Data
+//            0);                    // UNS8 checkAccess
 }
 
 void slaveInitTest()
@@ -221,4 +321,74 @@ void can_time_dispatch()
         can_state.timer_flag = 0;
         TimeDispatch();
     }
+}
+
+void can_push_state()
+{
+    UNS32 data_pos[1] = {(uint32_t)motor_cmd_state[0].cur_pos};
+    UNS16 data_vel[1] = {(uint16_t)motor_cmd_state[0].cur_vel};
+    UNS32 s = 0;
+    UNS32 abortCode;
+    UNS32 acode = 0;
+    UNS8 wr =  getWriteResultNetworkDict (&ObjDict_Data, 3, &acode);
+    static uint8_t state = 0;
+//    if(wr!=SDO_FINISHED && wr != SDO_ABORTED_INTERNAL && wr!=0xA1 && wr!=0x80 ){
+//        return;
+//    }
+    switch(state++){
+        case 0:
+            s = sizeof(UNS32);
+            writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
+            3,                 // Node Id
+            0x2001  ,                 // Index
+            0x01,                   // Sub-Index
+            s,                      // UNS8 * Size of Data
+            0,                      // Data type
+            data_pos,                   // void * SourceData Location
+            0);                    // UNS8 checkAccess
+            break;
+        case 1:
+            s = sizeof(UNS16);
+            writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
+            3,                 // Node Id
+            0x2001  ,                 // Index
+            0x02,                   // Sub-Index
+            s,                      // UNS8 * Size of Data
+            0,                      // Data type
+            data_vel,                   // void * SourceData Location
+            0);                    // UNS8 checkAccess
+            break;
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            s = sizeof(UNS32);
+            writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
+            3,                 // Node Id
+            0x2002  ,                 // Index
+            state-2,                   // Sub-Index
+            s,                      // UNS8 * Size of Data
+            0,                      // Data type
+            &loadcell_state.values[state-2],                   // void * SourceData Location
+            0);                    // UNS8 checkAccess
+            break;
+        default:
+            state = 0;
+            break;
+    };
+
+    
+//    UNS32 acode = 0;
+//    UNS8 wr =  getWriteResultNetworkDict (&ObjDict_Data, 3, &acode);
+
+    s = sizeof(UNS16);
+//
+//    writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
+//            3,                 // Node Id
+//            0x2001  ,                 // Index
+//            0x02,                   // Sub-Index
+//            s,                      // UNS8 * Size of Data
+//            0,                      // Data type
+//            data_vel,                   // void * SourceData Location
+//            0);                    // UNS8 checkAccess
 }
