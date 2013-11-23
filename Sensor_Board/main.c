@@ -39,14 +39,14 @@ bool join_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_pac
 
 bool ip_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
 {
-//    uint8_t pkt[40];
-//    uint16_t i;
-//    if(status==0){
-//        //if you need to know the IP address
-//        for(i=0;i<length;++i){
-//            pkt[i]=raw_packet[i];
-//        }
-//    }
+    uint8_t pkt[40];
+    uint16_t i;
+    if(status==0){
+        //if you need to know the IP address
+        for(i=0;i<length;++i){
+            pkt[i]=raw_packet[i];
+        }
+    }
     //TODO: store the address, so it becomes accessible over CAN
     rf_state.xbee_at_req = 0;
     return 1;
@@ -169,7 +169,7 @@ int main(int argc, char** argv) {
 
                 if(timer_state.systime==100 && rf_state.cur_network_status != INIT_SUCCESS)
                 {
-                    char* at_id = "Ken";//
+                    char* at_id = "superball";//
                     xbee_at_cmd("ID",at_id,strlen(at_id),0,&rf_state.at_packet,0,0,0);
                     xbee_send_at_cmd();
                 }
@@ -180,7 +180,7 @@ int main(int argc, char** argv) {
                     xbee_send_at_cmd();
                 }else if(timer_state.systime==140 && rf_state.cur_network_status != INIT_SUCCESS)
                 {
-                    char* at_pk = "tensegrity";
+                    char* at_pk = "e79aa046f7190e8b"; //e79aa046f7190e8b
                     xbee_at_cmd("PK",at_pk,strlen(at_pk),0,&rf_state.at_packet,0,0,0);
                     xbee_send_at_cmd();
                 }
@@ -233,25 +233,56 @@ int main(int argc, char** argv) {
                             uart_tx_packet[1] = 0xFF;//CMD
                             uart_tx_packet[2] = 14;
 
-                            if(motor_cmd_state[0].mode&0b01111111==1){
+                            if((motor_cmd_state[0].mode&0b01111111)==1){
                                 //position control
-                                bool mdir;
-                                int32_t tpos = (int32_t)motor_cmd_state[0].position;
-                                //mdir = (motor_cmd_state[0].cur_pos<tpos);
-                                int32_t err = tpos-motor_cmd_state[0].cur_pos;
-                                err = (err*motor_cmd_state[0].p)>>10;
+
+                                static UNS32 integral = 0;
+                                static UNS32 preError = 0;
+                                static UNS32 derivative = 0;
                                 uint16_t vmax = 0x540;
                                 uint16_t vmin = 0x29F;
-                                mdir = err<0;
-                                uint32_t lerr = labs(err);
-                                if(lerr>(vmax-vmin)){
-                                    lerr = vmax;
+                                int32_t current_error = 0;
+                                int32_t pidTerm = 0;
+
+                                current_error = (int32_t)motor_cmd_state[0].position;
+                                current_error-= motor_cmd_state[0].cur_pos;
+                                integral += current_error;
+                                derivative = current_error - preError;
+
+                                pidTerm = (motor_cmd_state[0].p*current_error
+                                        + motor_cmd_state[0].i*integral*0
+                                        + motor_cmd_state[0].d*derivative)>>8;
+
+                                if(pidTerm > 0){
+                                    motor_cmd_state[0].dir = 0;
                                 }
-                                lerr -= vmin;
-                                lerr = lerr&0xFFFF;
-                                uart_tx_packet[3] = 0b10000 | (motor_cmd_state[0].mode&0b10000000) | (motor_cmd_state[0].brake<<3) | (motor_cmd_state[0].coast<<2) |(mdir<<1)|(motor_cmd_state[0].decay_mode);
-                                uart_tx_packet[4] = lerr>>8;//0xFF;//PWM
-                                uart_tx_packet[5] = lerr&0xFF;//0xFF;
+                                else{
+                                    motor_cmd_state[0].dir = 1;
+                                }
+
+
+                                UNS32 abs_pidTerm = labs(pidTerm);
+                                uart_tx_packet[3] = 0b10000 | (motor_cmd_state[0].mode&0b10000000) | (motor_cmd_state[0].brake<<3) | (motor_cmd_state[0].coast<<2) |(motor_cmd_state[0].dir<<1)|(motor_cmd_state[0].decay_mode);
+                                uart_tx_packet[4] = (abs_pidTerm>>8)&0xFF;//0xFF;//PWM
+                                uart_tx_packet[5] = abs_pidTerm&0xFF;//0xFF;
+
+//                                bool mdir;
+//                                int32_t tpos = (int32_t)motor_cmd_state[0].position;
+//                                //mdir = (motor_cmd_state[0].cur_pos<tpos);
+//                                int32_t err = tpos-motor_cmd_state[0].cur_pos;
+//                                err = (err*motor_cmd_state[0].p)>>10;
+//                                uint16_t vmax = 0x540;
+//                                uint16_t vmin = 0x29F;
+//                                mdir = err<0;
+//                                uint32_t lerr = labs(err);
+//                                if(lerr>(vmax-vmin)){
+//                                    lerr = vmax;
+//                                }
+//                                lerr -= vmin;
+//                                lerr = lerr&0xFFFF;
+//                                uart_tx_packet[3] = 0b10000 | (motor_cmd_state[0].mode&0b10000000) | (motor_cmd_state[0].brake<<3) | (motor_cmd_state[0].coast<<2) |(mdir<<1)|(motor_cmd_state[0].decay_mode);
+//                                uart_tx_packet[4] = lerr>>8;//0xFF;//PWM
+//                                uart_tx_packet[5] = lerr&0xFF;//0xFF;
                             } 
                             else  {
                                 uart_tx_packet[3] = 0b10000 | (motor_cmd_state[0].mode&0b10000000) | (motor_cmd_state[0].brake<<3) | (motor_cmd_state[0].coast<<2) |(motor_cmd_state[0].dir<<1)|(motor_cmd_state[0].decay_mode);
