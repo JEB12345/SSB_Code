@@ -165,7 +165,8 @@ return_value_t pin_init()
 //    CNPUBbits.CNPUB2 = 1;
 
     //UART 1
-    _RP43R = 0b1; //RB11 uart 1 tx GREY
+    //_RP43R = 0b1; //RB11 uart 1 tx GREY //RB11 doesn't work on Jonathan's board
+    _RP36R = 0b1; //RB4 UART 1 tx GREY
     RPINR18bits.U1RXR = 44; //RB12 uart 1 rx PURPLE
 
 

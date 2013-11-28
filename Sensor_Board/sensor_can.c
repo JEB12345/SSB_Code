@@ -338,7 +338,7 @@ void can_push_state()
     switch(state++){
         case 0:
             s = sizeof(UNS32);
-            writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
+            wr = writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
             3,                 // Node Id
             0x2001  ,                 // Index
             0x01,                   // Sub-Index
@@ -346,10 +346,13 @@ void can_push_state()
             0,                      // Data type
             data_pos,                   // void * SourceData Location
             0);                    // UNS8 checkAccess
+            if(wr){
+                state--;
+            }
             break;
         case 1:
             s = sizeof(UNS16);
-            writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
+            wr=writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
             3,                 // Node Id
             0x2001  ,                 // Index
             0x02,                   // Sub-Index
@@ -357,20 +360,26 @@ void can_push_state()
             0,                      // Data type
             data_vel,                   // void * SourceData Location
             0);                    // UNS8 checkAccess
+            if(wr){
+                state--;
+            }
             break;
         case 2:
         case 3:
         case 4:
         case 5:
             s = sizeof(UNS32);
-            writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
+            wr=writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
             3,                 // Node Id
             0x2002  ,                 // Index
             state-2,                   // Sub-Index
             s,                      // UNS8 * Size of Data
             0,                      // Data type
-            &loadcell_state.values[state-2],                   // void * SourceData Location
+            &loadcell_state.values[state-3],                   // void * SourceData Location
             0);                    // UNS8 checkAccess
+            if(wr){
+                state--;
+            }
             break;
         default:
             state = 0;

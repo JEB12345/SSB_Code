@@ -115,7 +115,7 @@ return_value_t loadcell_init()
 
     mode_byte_2 = 0b00000100;//sinc4 enabled | no parity | no clock divide | no single | 60hz rejection
 
-    mode_byte_3 = 1;//100Hz
+    mode_byte_3 = 1;////1;//100Hz
 
     loadcell_state.spi_state = SPI_VARIOUS;
     SPI1BUF = mode_byte_1;
@@ -140,8 +140,8 @@ return_value_t loadcell_init()
     spi_wait();
     //write the CONFIGURATION register
     config_byte_1 =  0b10000000;
-    config_byte_2 =0b1111;//0b11110000;// 
-    config_byte_3 = 0b01011000;
+    config_byte_2 =0b11110000;//
+    config_byte_3 = 0b01010011; //GAIN 8
     loadcell_state.spi_state = SPI_VARIOUS;
     SPI1BUF = config_byte_1;
     spi_wait();
@@ -166,6 +166,7 @@ return_value_t loadcell_init()
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
+    uint16_t i;
     SPI1STATbits.SPIROV = 0; // Clear SPI overflow bit
     switch (loadcell_state.spi_state) {
         case SPI_SG_READ_DATA_1:
@@ -195,7 +196,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
             if(!(loadcell_state.sg_status&0b10000000)){
                 loadcell_state.error = (loadcell_state.sg_status&0b1000000)>0; //error
                 //ready bit is not set, so data is available
-                if(!(loadcell_state.sg_status&0b00000100))
+                if((loadcell_state.sg_status&0b00000100))
                 {
                     //one of the correct channels was converted, store the result
                     loadcell_state.values[loadcell_state.sg_status&0b11] =
@@ -214,7 +215,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
             
             loadcell_state.data_ready = 0;
             IEC2bits.IC4IE = 1;
-            IFS2bits.IC4IF = 0; 
+            IFS2bits.IC4IF = 0;
             SG_SELECT;
             break;
         case SPI_VARIOUS:

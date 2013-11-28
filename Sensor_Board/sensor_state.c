@@ -15,9 +15,9 @@ return_value_t state_init()
         motor_cmd_state[i].torque = 0;
         motor_cmd_state[i].coast = 0;
         motor_cmd_state[i].mode = 0;
-        motor_cmd_state[i].p = 1;
-        motor_cmd_state[i].i = 1;
-        motor_cmd_state[i].d = 1;
+        motor_cmd_state[i].p = 0xFFFF;
+        motor_cmd_state[i].i = 0x00;
+        motor_cmd_state[i].d = 0x00;
         motor_cmd_state[i].position = 0;
         motor_cmd_state[i].dir = 0;
         motor_cmd_state[i].decay_mode = 0;

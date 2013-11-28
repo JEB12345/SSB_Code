@@ -66,7 +66,7 @@ return_value_t pin_init();
 //P7 connector
 #define RE12_IO        PIN_INPUT
 #define RA8_IO         PIN_INPUT
-#define RB11_IO        PIN_OUTPUT
+#define RB11_IO        PIN_INPUT
 #define RB13_IO        PIN_INPUT
 #define RE13_IO        PIN_INPUT
 #define RB4_IO         PIN_OUTPUT
