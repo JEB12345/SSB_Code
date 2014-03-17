@@ -65,6 +65,7 @@ return_value_t loadcell_init()
     uint8_t config_byte_1;
     uint8_t config_byte_2;
     uint8_t config_byte_3;
+    uint8_t gpocon_byte;
 
 
     loadcell_state.spi_state = SPI_VARIOUS;
@@ -108,6 +109,7 @@ return_value_t loadcell_init()
         Nop();Nop();
     }
     SG_SELECT;
+    
     //write the MODE register
     SPI1BUF = SG_REG_MODE;
     spi_wait();
@@ -115,7 +117,9 @@ return_value_t loadcell_init()
 
     mode_byte_2 = 0b00000100;//sinc4 enabled | no parity | no clock divide | no single | 60hz rejection
 
-    mode_byte_3 = 1;////1;//100Hz
+    mode_byte_3 = 1;//4800Hz
+    //mode_byte_3 = 21;//~100Hz
+    //mode_byte_3 = 1023;//4.7Hz
 
     loadcell_state.spi_state = SPI_VARIOUS;
     SPI1BUF = mode_byte_1;
@@ -136,12 +140,14 @@ return_value_t loadcell_init()
 
     SG_SELECT;
     loadcell_state.spi_state = SPI_VARIOUS;
+    
+    // Configuration Register
     SPI1BUF = SG_REG_CONFIG;
     spi_wait();
     //write the CONFIGURATION register
-    config_byte_1 =  0b10000000;
-    config_byte_2 =0b11110000;//
-    config_byte_3 = 0b01010011; //GAIN 8
+    config_byte_1 = 0b10000100; // Chope enabled / REFIN1 ref. / Pseudo enabled
+    config_byte_2 = 0b00001111;// Enabled AIN1-4 / Disabled AIN5-8
+    config_byte_3 = 0b01010011; // no burn / Ref. Detect enabled / Buffer enabled / bipolar / GAIN 8
     loadcell_state.spi_state = SPI_VARIOUS;
     SPI1BUF = config_byte_1;
     spi_wait();
@@ -156,6 +162,25 @@ return_value_t loadcell_init()
         Nop();
         Nop();
     }
+
+    SG_SELECT;
+    // GPOCON Register
+    SPI1BUF = SG_REG_GPOCON;
+    spi_wait();
+    //write the GPOCON Register
+    for(i=0;i<65;++i){
+        Nop();
+    }
+    loadcell_state.spi_state = SPI_VARIOUS;
+    gpocon_byte = 0b00100100;// no Dridge Power-Down / P3&P2 enabled / P1&P0 disabled / P3 low / P2 High / P1&P0 low
+    SPI1BUF = gpocon_byte;
+    spi_wait();
+    SG_DESELECT;
+    for(i=0;i<65000;++i){
+        Nop();
+        Nop();
+    }
+
     IC4CON1bits.ICM = 0b010; //interrupt on falling edge
     IC4CON2bits.TRIGSTAT = 0;
     for(i=0;i<65000;++i){
@@ -170,6 +195,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
     SPI1STATbits.SPIROV = 0; // Clear SPI overflow bit
     switch (loadcell_state.spi_state) {
         case SPI_SG_READ_DATA_1:
+            loadcell_state.sg_data_0 = SPI1BUF;
             SPI1BUF = 0x0;
             loadcell_state.spi_state = SPI_SG_READ_DATA_2;
             break;

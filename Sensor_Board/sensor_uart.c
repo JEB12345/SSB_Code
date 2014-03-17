@@ -17,7 +17,9 @@ return_value_t uart_init()
     U1STAbits.UTXISEL1 = 0;
     uart_state.tx_idle = 1;
     U1MODEbits.BRGH = 1;
-    U1BRG = 34; //500000 baud/s
+//    U1BRG = 151; //115200 baud/s
+    U1BRG = 37; //460800 baud/s
+//    U1BRG = 34; //500000 baud/s
     IEC0bits.U1TXIE = 1;
     IFS0bits.U1TXIF = 0;
     U1MODEbits.UARTEN = 1;
