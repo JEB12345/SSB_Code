@@ -3,7 +3,7 @@
 #include "sensor_state.h"
 //
 //#include <dspic_CanFestival/CanFestival-3/include/lifegrd.h>
-#include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
+#include "dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
 
 #include "sensor_can.h"
 #include "sensor_pindefs.h"

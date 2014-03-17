@@ -659,7 +659,7 @@ inline uint8_t compute_checksum(uint8_t* data, unsigned length){
      asm volatile ( "repeat %2\nsub.b %0,[%1++],%0"
            : "+r" (result), "+r" (data)
            : "r" (l)
-           : "RCOUNT");
+           : "_RCOUNT");
      result = (0xFF+result)&0xFF;
      /*
       The assembly code is equivalent to:
