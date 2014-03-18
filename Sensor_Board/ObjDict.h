@@ -4,7 +4,7 @@
 #ifndef OBJDICT_H
 #define OBJDICT_H
 
-#include <dspic_CanFestival/CanFestival-3/include/data.h>
+#include "../libs/dspic_CanFestival/CanFestival-3/include/data.h"
 
 /* Prototypes of function provided by object dictionnary */
 UNS32 ObjDict_valueRangeTest (UNS8 typeValue, void * value);

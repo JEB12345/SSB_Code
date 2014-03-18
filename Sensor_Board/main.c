@@ -21,7 +21,7 @@
 #include "sensor_uart.h"
 #include "sensor_timers.h"
 #include "sensor_memdebug.h"
-#include <dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h>
+#include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <p33Exxxx.h>
@@ -125,19 +125,21 @@ int main(int argc, char** argv) {
 
     led_rgb_set(100,0,255);
 
-    can_state.init_return = RET_UNKNOWN;
-    can_init();
+    // Commented out the CAN code since it has some while loops which hang if it is not connected.
+
+//    can_state.init_return = RET_UNKNOWN;
+//    can_init();
 
     timer_state.prev_systime = 0;
     timer_state.systime = 0;
     P7_RB4 = 0;
     // CANOpen test init for Master Node
-    if(can_state.is_master){
-        masterInitTest();
-    }
-    else{
-        slaveInitTest();
-    }
+//    if(can_state.is_master){
+//        masterInitTest();
+//    }
+//    else{
+//        slaveInitTest();
+//    }
     for(;;){
         if(timer_state.systime != timer_state.prev_systime){
             timer_state.prev_systime = timer_state.systime;
@@ -145,6 +147,10 @@ int main(int argc, char** argv) {
                 //everything in here will be executed once every ms
                 //make sure that everything in here takes less than 1ms
                 //useful for checking state consistency, synchronization, watchdog...
+                LED_1 = 1;
+                LED_2 = 1;
+                LED_3 = 1;
+                LED_4 = 1;
                 rf_tick(1);
                 if(timer_state.systime&0b100){
                     memcheck();
@@ -204,15 +210,16 @@ int main(int argc, char** argv) {
 
                 if(timer_state.systime&0b100000){
                    LED_4=!LED_4;
+                   LED_1=!LED_1;
                 }
-                if(timer_state.systime&0b100000000 ){
-                    if(rf_state.cur_network_status == INIT_SUCCESS){
-                        led_rgb_set(0,255,0);
-                    } else {
-                        led_rgb_set(0,0,255);
-                    }
-                   
-                   }
+//                if(timer_state.systime&0b100000000 ){
+//                    if(rf_state.cur_network_status == INIT_SUCCESS){
+//                        led_rgb_set(0,255,0);
+//                    } else {
+//                        led_rgb_set(0,0,255);
+//                    }
+//
+//                   }
                 if(timer_state.systime&0b10000 ){
                             uart_tx_packet = uart_tx_cur_packet();
                             //0:0XFF
@@ -230,7 +237,6 @@ int main(int argc, char** argv) {
                             //12:(LED)
                             //13:(RESET)
                             //14:CS
-<<<<<<< HEAD
                             
 //
 //                            if((motor_cmd_state[0].mode&0b01111111)==1){
@@ -323,87 +329,10 @@ int main(int argc, char** argv) {
 //                                    torque_pwm = torque_integral;
 //                                    motor_cmd_state[0].dir = 1;
 //
-=======
-                            uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
-                            uart_tx_packet[1] = 0xFF;//CMD
-                            uart_tx_packet[2] = 14;
-
-                            if((motor_cmd_state[0].mode&0b01111111)==1){
-                                //position control: PID
-                                static UNS32 integral = 0;
-                                static UNS32 preError = 0;
-                                static UNS32 derivative = 0;
-                                uint16_t vmax = 0x540;
-                                uint16_t vmin = 0x29F;
-                                int32_t current_error = 0;
-                                int32_t pidTerm = 0;
-
-                                current_error = (int32_t)motor_cmd_state[0].position;
-                                current_error /= 1024;
-                                current_error-= motor_cmd_state[0].cur_pos/1024;
-                                integral += current_error;
-                                derivative = current_error - preError;
-
-                                pidTerm = (current_error*motor_cmd_state[0].p)
-                                        + (motor_cmd_state[0].i*integral)
-                                        + (motor_cmd_state[0].d*derivative);
-
-                                motor_cmd_state[0].dir = (pidTerm < 0);
-
-                                UNS32 abs_pidTerm = labs(pidTerm);
-                                abs_pidTerm >>= 12;
-                                abs_pidTerm += vmin;
-                                if(abs_pidTerm>vmax){
-                                    abs_pidTerm = vmax;
-                                }
-                                uart_tx_packet[3] = 0b10000 | (motor_cmd_state[0].mode&0b10000000) | (motor_cmd_state[0].brake<<3) | (motor_cmd_state[0].coast<<2) |(motor_cmd_state[0].dir<<1)|(motor_cmd_state[0].decay_mode);
-                                uart_tx_packet[4] = (abs_pidTerm>>8)&0xFF;//PWM
-                                uart_tx_packet[5] = abs_pidTerm&0xFF;
-
-                                preError = current_error;                            
-                            } else if((motor_cmd_state[0].mode&0b01111111)==2) {
-                                //pwm control based on load cell input
-
-                                uint32_t current_torque = loadcell_state.values[3];
-                                current_torque-=35000;
-                                static uint32_t torque_pwm = 0; //current PWM output
-                                uint16_t vmax = 0x540;
-                                uint16_t vmin = 0x29F;
-
-                                torque_pwm = current_torque;
-
-                                UNS32 abs_pidTerm = torque_pwm;
-                                abs_pidTerm /= 24;
-                                abs_pidTerm += vmin;
-                                if(abs_pidTerm>vmax){
-                                    abs_pidTerm = vmax;
-                                }
-                                uart_tx_packet[3] = 0b10000 | (motor_cmd_state[0].mode&0b10000000) | (motor_cmd_state[0].brake<<3) | (motor_cmd_state[0].coast<<2) |(motor_cmd_state[0].dir<<1)|(motor_cmd_state[0].decay_mode);
-                                uart_tx_packet[4] = (abs_pidTerm>>8)&0xFF;//PWM
-                                uart_tx_packet[5] = abs_pidTerm&0xFF;
-
-                            }
-                            else if((motor_cmd_state[0].mode&0b01111111)==3) {
-                                //constant torque mode
-                                int32_t current_torque = loadcell_state.values[2];
-                                int32_t target_torque = motor_cmd_state[0].position;
-
-                                int32_t torque_error;
-                                torque_error = current_torque;
-                                torque_error-=target_torque;
-
-                                static int32_t torque_integral = 0;
-
-                                int32_t torque_pwm;
-
-//                                if(torque_error>0){
-//                                    torque_pwm++;
->>>>>>> parent of 6c03a6e... Random changes I made. I don't remember what...
 //                                } else {
 //                                    torque_pwm = torque_integral;
 //                                    motor_cmd_state[0].dir = 0;
 //                                }
-<<<<<<< HEAD
 //
 //
 //
@@ -454,68 +383,6 @@ int main(int argc, char** argv) {
                                 uart_tx_update_index();
                                 uart_tx_start_transmit();
                             }
-=======
-                                //torque_pwm += torque_error/1000;
-                                int16_t vmax = 0x330;//0x540;
-                                int16_t vmin = 0x29F;
-                                //torque_integral += torque_error/motor_cmd_state[0].p;
-                                torque_integral = torque_error/motor_cmd_state[0].p;
-
-                                if(torque_integral>vmax-vmin){
-                                    torque_integral = vmax-vmin;
-                                } else if(torque_integral <-(vmax-vmin)) {
-                                    torque_integral = -(vmax-vmin);
-                                    //torque_integral = -torque_integral;
-                                }
-
-                                if(torque_integral<0){
-                                    torque_pwm = torque_integral;
-                                    motor_cmd_state[0].dir = 1;
-
-                                } else {
-                                    torque_pwm = torque_integral;
-                                    motor_cmd_state[0].dir = 0;
-                                }
-
-                                
-
-                                motor_cmd_state[0].dir = 1;//(torque_pwm<0);
-
-                                UNS32 abs_pidTerm = labs(torque_pwm);
-                                
-                                abs_pidTerm += vmin;
-                                if(abs_pidTerm>vmax){
-                                    abs_pidTerm = vmax;
-                                }
-                                uart_tx_packet[3] = 0b10000 | (motor_cmd_state[0].mode&0b10000000) | (motor_cmd_state[0].brake<<3) | (motor_cmd_state[0].coast<<2) |(motor_cmd_state[0].dir<<1)|(motor_cmd_state[0].decay_mode);
-                                uart_tx_packet[4] = (abs_pidTerm>>8)&0xFF;//PWM
-                                uart_tx_packet[5] = abs_pidTerm&0xFF;
-
-                            }
-                            else  {
-                                uart_tx_packet[3] = 0b10000 | (motor_cmd_state[0].mode&0b10000000) | (motor_cmd_state[0].brake<<3) | (motor_cmd_state[0].coast<<2) |(motor_cmd_state[0].dir<<1)|(motor_cmd_state[0].decay_mode);
-//                            uart_tx_packet[3] = 0b10110 | (0<<3);
-                                uart_tx_packet[4] = motor_cmd_state[0].vel>>8;//0xFF;//PWM
-                                uart_tx_packet[5] = motor_cmd_state[0].vel&0xFF;//0xFF;
-                            }
-                            
-                            uart_tx_packet[6] = motor_cmd_state[0].torque>>8;//0xFF;//TORQUE
-                            uart_tx_packet[7] = motor_cmd_state[0].torque&0xFF;
-//                            uart_tx_packet[4] = 0x1;//PWM
-//                            uart_tx_packet[5] = 0xFF;//0xFF;
-//                            uart_tx_packet[6] = 0x1;//TORQUE
-//                            uart_tx_packet[7] = 0xFF;
-                            uart_tx_packet[8] = 0b00000;
-                            uart_tx_packet[9] = 0x0;//PWM
-                            uart_tx_packet[10] = 0x0;
-                            uart_tx_packet[11] = 0x0; //TORQUE
-                            uart_tx_packet[12] = 0x0;
-                            uart_tx_packet[13] = (timer_state.systime&0b100000)>0; //LED
-                            uart_tx_packet[14] = 1; //RESET
-                            uart_tx_compute_cks(uart_tx_packet);
-                            uart_tx_update_index();
-                            uart_tx_start_transmit();
->>>>>>> parent of 6c03a6e... Random changes I made. I don't remember what...
                             //led_rgb_set(0,255,100);
                         }
 
