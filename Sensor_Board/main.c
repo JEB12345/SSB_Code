@@ -5,7 +5,7 @@
  * Created on August 28, 2013, 11:31 PM
  */
 
-#include "sensor_clock.h"
+#include "clock.h"
 #include "sensor_can.h" //always include first, as this sets a number of config variables
 #include "sensor_adc.h"
 #include "sensor_iptest.h"
@@ -143,14 +143,13 @@ int main(int argc, char** argv) {
     for(;;){
         if(timer_state.systime != timer_state.prev_systime){
             timer_state.prev_systime = timer_state.systime;
-            {
                 //everything in here will be executed once every ms
                 //make sure that everything in here takes less than 1ms
                 //useful for checking state consistency, synchronization, watchdog...
-                LED_1 = 1;
-                LED_2 = 1;
-                LED_3 = 1;
-                LED_4 = 1;
+//                LED_1 = 1;
+//                LED_2 = 1;
+//                LED_3 = 1;
+//                LED_4 = 1;
                 rf_tick(1);
                 if(timer_state.systime&0b100){
                     memcheck();
@@ -174,41 +173,41 @@ int main(int argc, char** argv) {
 
                 led_update();
 
-                if(timer_state.systime==100 && rf_state.cur_network_status != INIT_SUCCESS)
-                {
-                    char* at_id = "superball";//
-                    xbee_at_cmd("ID",at_id,strlen(at_id),0,&rf_state.at_packet,0,0,0);
-                    xbee_send_at_cmd();
-                }
-                else if(timer_state.systime==120 && rf_state.cur_network_status != INIT_SUCCESS)
-                {
-                    at_parm_test[0] = 2;
-                    xbee_at_cmd("EE",at_parm_test,1,0,&rf_state.at_packet,0,0,0);
-                    xbee_send_at_cmd();
-                }else if(timer_state.systime==140 && rf_state.cur_network_status != INIT_SUCCESS)
-                {
-                    char* at_pk = "e79aa046f7190e8b"; //e79aa046f7190e8b
-                    xbee_at_cmd("PK",at_pk,strlen(at_pk),0,&rf_state.at_packet,0,0,0);
-                    xbee_send_at_cmd();
-                }
-                else if(timer_state.systime==200 && rf_state.cur_network_status != INIT_SUCCESS)
-                {
-                    xbee_at_cmd("AI",at_parm_test,0,0,&rf_state.at_packet,0,join_cb,10000);
-                    xbee_send_at_cmd();
-                }
-                else if (rf_state.cur_network_status == INIT_SUCCESS){
-                    if(http_state.init_return==RET_UNKNOWN){
-                        http_init();
-                    } else if(http_state.init_return==RET_OK){
-                        http_process();
-                    }
-                    if(!once){
-                        iptest_init();
-                        once = 1;
-                    }
-                }
+//                if(timer_state.systime==100 && rf_state.cur_network_status != INIT_SUCCESS)
+//                {
+//                    char* at_id = "superball";//
+//                    xbee_at_cmd("ID",at_id,strlen(at_id),0,&rf_state.at_packet,0,0,0);
+//                    xbee_send_at_cmd();
+//                }
+//                else if(timer_state.systime==120 && rf_state.cur_network_status != INIT_SUCCESS)
+//                {
+//                    at_parm_test[0] = 2;
+//                    xbee_at_cmd("EE",at_parm_test,1,0,&rf_state.at_packet,0,0,0);
+//                    xbee_send_at_cmd();
+//                }else if(timer_state.systime==140 && rf_state.cur_network_status != INIT_SUCCESS)
+//                {
+//                    char* at_pk = "e79aa046f7190e8b"; //e79aa046f7190e8b
+//                    xbee_at_cmd("PK",at_pk,strlen(at_pk),0,&rf_state.at_packet,0,0,0);
+//                    xbee_send_at_cmd();
+//                }
+//                else if(timer_state.systime==200 && rf_state.cur_network_status != INIT_SUCCESS)
+//                {
+//                    xbee_at_cmd("AI",at_parm_test,0,0,&rf_state.at_packet,0,join_cb,10000);
+//                    xbee_send_at_cmd();
+//                }
+//                else if (rf_state.cur_network_status == INIT_SUCCESS){
+//                    if(http_state.init_return==RET_UNKNOWN){
+//                        http_init();
+//                    } else if(http_state.init_return==RET_OK){
+//                        http_process();
+//                    }
+//                    if(!once){
+//                        iptest_init();
+//                        once = 1;
+//                    }
+//                }
 
-                if(timer_state.systime&0b100000){
+                if(timer_state.systime%25 == 0){
                    LED_4=!LED_4;
                    LED_1=!LED_1;
                 }
@@ -384,9 +383,7 @@ int main(int argc, char** argv) {
                                 uart_tx_start_transmit();
                             }
                             //led_rgb_set(0,255,100);
-                        }
-
-            }            
+                        }            
         } else {
             //untimed processes in main loop:
             //executed as fast as possible

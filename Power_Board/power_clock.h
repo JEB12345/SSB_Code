@@ -1,13 +1,13 @@
 /* 
- * File:   sensor_clock.h
- * Author: ken
+ * File:   power_clock.h
+ * Author: Jonathan
  *
- * Created on August 28, 2013, 11:54 PM
+ * Created on March 18, 2014
  */
 
-#ifndef SENSOR_CLOCK_H
-#define	SENSOR_CLOCK_H
-#include "sensor_state.h"
+#ifndef POWER_CLOCK_H
+#define	POWER_CLOCK_H
+#include "power_state.h"
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -23,5 +23,5 @@ extern "C" {
 }
 #endif
 
-#endif	/* SENSOR_CLOCK_H */
+#endif	/* POWER_CLOCK_H */
 

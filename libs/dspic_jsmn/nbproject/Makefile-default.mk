@@ -83,7 +83,7 @@ ${OBJECTDIR}/jsmn.o: jsmn.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/jsmn.o.d 
 	@${RM} ${OBJECTDIR}/jsmn.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  jsmn.c  -o ${OBJECTDIR}/jsmn.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/jsmn.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  jsmn.c  -o ${OBJECTDIR}/jsmn.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/jsmn.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -mno-eds-warn  -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/jsmn.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 else
@@ -91,7 +91,7 @@ ${OBJECTDIR}/jsmn.o: jsmn.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/jsmn.o.d 
 	@${RM} ${OBJECTDIR}/jsmn.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  jsmn.c  -o ${OBJECTDIR}/jsmn.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/jsmn.o.d"      -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  jsmn.c  -o ${OBJECTDIR}/jsmn.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/jsmn.o.d"      -mno-eds-warn  -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/jsmn.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif

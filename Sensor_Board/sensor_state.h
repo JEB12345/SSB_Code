@@ -141,7 +141,7 @@
         uint32_t volatile       values[4];
         uint8_t volatile           data_ready; //data available was signalled by ADC
         volatile uint16_t spi_state;
-        volatile uint16_t sg_data_1, sg_data_2, sg_data_3; //received data (SPI)
+        volatile uint16_t sg_data_0, sg_data_1, sg_data_2, sg_data_3; //received data (SPI)
         volatile uint16_t sg_status;
         uint32_t volatile       num_measurements[4]; //counts the number of measurements received per channel
         volatile bool error;
@@ -260,8 +260,8 @@ typedef union {
 
     typedef struct {
         return_value_t          init_return;
-        unsigned int volatile   systime; //updated by a timer
-        unsigned int            prev_systime;  //updated in main loop
+        unsigned int volatile   systime;        //updated by a timer
+        unsigned int            prev_systime;   //updated in main loop
     } timer_data;
 
     typedef enum {STATE_UNKNOWN = 0, STATE_INITIALIZED = 1, STATE_ERROR = 127} state_t;

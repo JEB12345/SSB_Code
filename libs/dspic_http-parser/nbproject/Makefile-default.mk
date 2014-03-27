@@ -83,7 +83,7 @@ ${OBJECTDIR}/http_parser.o: http_parser.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/http_parser.o.d 
 	@${RM} ${OBJECTDIR}/http_parser.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  http_parser.c  -o ${OBJECTDIR}/http_parser.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/http_parser.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  http_parser.c  -o ${OBJECTDIR}/http_parser.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/http_parser.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_PK3=1  -mno-eds-warn  -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/http_parser.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 else
@@ -91,7 +91,7 @@ ${OBJECTDIR}/http_parser.o: http_parser.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/http_parser.o.d 
 	@${RM} ${OBJECTDIR}/http_parser.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  http_parser.c  -o ${OBJECTDIR}/http_parser.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/http_parser.o.d"      -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	${MP_CC} $(MP_EXTRA_CC_PRE)  http_parser.c  -o ${OBJECTDIR}/http_parser.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/http_parser.o.d"      -mno-eds-warn  -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/http_parser.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif
