@@ -119,7 +119,7 @@ return_value_t imu_init()
         //check if we can now find the 6 DOF IMU and the magnetometer
 //        LED_3 = imu_state.i2c_dev[IMU_ADDR];
 //        LED_4 = imu_state.i2c_dev[MAGNETOMETER_ADDR];
-        if(imu_state.i2c_dev[IMU_ADDR] && imu_state.i2c_dev[MAGNETOMETER_ADDR]){
+        if(imu_state.i2c_dev[IMU_ADDR] || imu_state.i2c_dev[MAGNETOMETER_ADDR]){
             imu_state.init_return = RET_OK;
         } else {
             imu_state.init_return = RET_ERROR;

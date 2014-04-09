@@ -113,12 +113,12 @@ return_value_t loadcell_init()
     //write the MODE register
     SPI1BUF = SG_REG_MODE;
     spi_wait();
-    mode_byte_1 = 0b00011101;//continuous mode, transmit status reg, MCLK2 is clock, average 2 (FS/2)
+    mode_byte_1 = 0b00011111;//continuous mode, transmit status reg, MCLK2 is clock, average 16 (FS/2)
 
     mode_byte_2 = 0b00000100;//sinc4 enabled | no parity | no clock divide | no single | 60hz rejection
 
-    mode_byte_3 = 1;//4800Hz
-    //mode_byte_3 = 21;//~100Hz
+    //mode_byte_3 = 1;//4800Hz
+    mode_byte_3 = 21;//~100Hz
     //mode_byte_3 = 1023;//4.7Hz
 
     loadcell_state.spi_state = SPI_VARIOUS;
@@ -147,7 +147,7 @@ return_value_t loadcell_init()
     //write the CONFIGURATION register
     config_byte_1 = 0b10000100; // Chope enabled / REFIN1 ref. / Pseudo enabled
     config_byte_2 = 0b00001111;// Enabled AIN1-4 / Disabled AIN5-8
-    config_byte_3 = 0b01010011; // no burn / Ref. Detect enabled / Buffer enabled / bipolar / GAIN 8
+    config_byte_3 = 0b01010100; // no burn / Ref. Detect enabled / Buffer enabled / bipolar / GAIN 16
     loadcell_state.spi_state = SPI_VARIOUS;
     SPI1BUF = config_byte_1;
     spi_wait();
@@ -222,16 +222,16 @@ void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
             if(!(loadcell_state.sg_status&0b10000000)){
                 loadcell_state.error = (loadcell_state.sg_status&0b1000000)>0; //error
                 //ready bit is not set, so data is available
-                if((loadcell_state.sg_status&0b00000100))
-                {
+//                if((loadcell_state.sg_status&0b00001111))
+//                {
                     //one of the correct channels was converted, store the result
-                    loadcell_state.values[loadcell_state.sg_status&0b11] =
+                    loadcell_state.values[loadcell_state.sg_status&0b00000111] =
                             (((uint32_t)(loadcell_state.sg_data_1&0xFF))<<16)
                             | (((uint32_t)(loadcell_state.sg_data_2&0xFF))<<8)
                             | (((uint32_t)(loadcell_state.sg_data_3&0xFF)));
-                    loadcell_state.num_measurements[loadcell_state.sg_status&0b11]++;
-
-                }
+                    loadcell_state.num_measurements[loadcell_state.sg_status&0b00000111]++;
+//
+//                }
             }
 //            if(loadcell_state.sg_status ||loadcell_state.sg_data_1 || loadcell_state.sg_data_2 || loadcell_state.sg_data_3 ) {
 //                loadcell_state.error = 1;

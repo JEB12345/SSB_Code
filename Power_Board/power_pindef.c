@@ -34,7 +34,7 @@ return_value_t pin_init() {
     TRISAbits.TRISA1 = 0;   //LED_STATUS
 
     //Power & Motor Enable Pins
-    TRISBbits.TRISB15 = 1;  //BACKUP_CHARGE_EN
+    TRISBbits.TRISB15 = 0;  //BACKUP_CHARGE_EN
     TRISDbits.TRISD5 = 0;   //EN_BACKUP_5V5
     TRISDbits.TRISD6 = 0;   //EN_MAIN_5V5
     TRISAbits.TRISA10 = 0;  //EN_24V_5V5_IC
@@ -54,6 +54,10 @@ return_value_t pin_init() {
     ANSELCbits.ANSC1 = 1;
     ANSELCbits.ANSC2 = 1;
     ANSELCbits.ANSC11 = 1;
+
+    //UART 1
+    _RP37R = 0b000001;              //U1TX to pin RP37/RB5 = EX_1
+    RPINR18bits.U1RXR = 0b0100110;  //U1RX to pin RP38/RB6 = EX_2
 
     return RET_OK;
 }

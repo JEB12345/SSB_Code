@@ -35,6 +35,5 @@ return_value_t pin_init();
 #define EN_OUT_3            LATCbits.LATC13
 #define EN_OUT_4            LATBbits.LATB8
 
-
 #endif	/* POWER_PINDEF_H */
 

@@ -8,11 +8,12 @@
 #include <p33Exxxx.h>
 #include "power_adc.h"
 #include "power_pindef.h"
+#include "power_state.h"
 
-//__eds__ unsigned int BufferA[32] __attribute__((eds,space(dma)));
-//__eds__ unsigned int BufferB[32] __attribute__((eds,space(dma)));
-unsigned int BufferA[32];
-unsigned int BufferB[32];
+__eds__ int BufferA[4] __attribute__((eds,aligned(4)));
+__eds__ int BufferB[4] __attribute__((eds,aligned(4)));
+
+analog_data adc_values;
 
 return_value_t init_adc()
 {
@@ -24,7 +25,7 @@ return_value_t init_adc()
     AD1CON1bits.ADSIDL = 0;     //Continues module operation in Idle mode
     AD1CON1bits.ADDMABM = 0;    //Don't Care ignored by DMA
     AD1CON1bits.AD12B = 1;      //12-bit, 1-CH operation
-    AD1CON1bits.FORM = 0b10;    //Unsignd Fractional output
+    AD1CON1bits.FORM = 0b00;    //Unsignd Integer output
     AD1CON1bits.SSRC = 0b010;   //Timer3 compare ends sampling and starts conversion
     AD1CON1bits.SSRCG = 0;      //Default no external triggering?
     AD1CON1bits.SIMSAM = 0;     //Has to be off for 12-bit mode
@@ -34,7 +35,7 @@ return_value_t init_adc()
     AD1CON2bits.VCFG = 0b000;   //Vrefh = AVdd, Vrefl = AVss
     AD1CON2bits.CSCNA = 1;      //Scans inputs for CH0+ during Sample
     AD1CON2bits.CHPS = 0b00;    //Converts CH0
-    AD1CON2bits.SMPI = 0b0010;  //Increments the DMA address after completion of every 4th sample/conversion operation
+    AD1CON2bits.SMPI = 0b0010;  //Increments the DMA address after completion of every 4 sample/conversion operation
     AD1CON2bits.BUFM = 0;       //Always starts filling the buffer from the Start address
     AD1CON2bits.ALTS = 0;       //Always uses channel input selects for Sample MUXA
 
@@ -44,7 +45,7 @@ return_value_t init_adc()
 
     //AD1CON4 Settings
     AD1CON4bits.ADDMAEN = 1;    //Use DMA
-    //AD1CON4bits.DMABL = 0b010;  //Allocates 4 words of buffer to each analog input
+    AD1CON4bits.DMABL = 0b011;  //Allocates 8 words of buffer to each analog input
 
     //AD1CHS0 Settigns
     AD1CHS0bits.CH0NA = 0;      //Channel 0 negative input is V REFL
@@ -72,7 +73,7 @@ return_value_t init_adc()
     T3CONbits.TCS = 0;          //Use Internal Clock (Fp)
 
     //Settings the Loop Time
-    PR3 = 1000;                //Fp / (TCKPS*PR3) = LoopTime => 70000000/(64*8750)=125us
+    PR3 = 1;                //Fp / (TCKPS*PR3) = LoopTime => 70000000/(64*8750)=125us
     TMR3 = 0x00;                //Clear Timer 3 register
     IPC2bits.T3IP = 0x06;       //Set Timer 3 Interrupt Priority
     IFS0bits.T3IF = 0;          //Clear Timer 3 Interrupt Flag
@@ -81,7 +82,7 @@ return_value_t init_adc()
     /*******************************
      * Initializes the DMA0 Module
      *******************************/
-    DMA0CONbits.AMODE = 0b00;   //Register indirect mode w/ post-increment
+    DMA0CONbits.AMODE = 0b10;   //Peripheral indirect mode w/ post-increment
     DMA0CONbits.MODE = 0b10;    //Continuous Ping-Pong mode
     IFS0bits.DMA0IF = 0;        //Clear the DMA Interrupt Flag bit
     IEC0bits.DMA0IE = 0;        //Disable DMA CH0 Interrupt
@@ -92,10 +93,10 @@ return_value_t init_adc()
     DMA0REQ = 13;               //Select ADC1 as DMA source
     DMA0PAD = (volatile unsigned int)&ADC1BUF0; //Points DMA to ADC buffer
 
-    DMA0STBL = (long unsigned int)&(BufferA);
+    DMA0STBL = __builtin_dmaoffset(BufferA);
     DMA0STBH = 0x0000;
 
-    DMA0STAL = (long unsigned int)&(BufferB);
+    DMA0STAL = __builtin_dmaoffset(BufferB);
     DMA0STAH = 0x0000;
 
     IFS0bits.DMA0IF = 0;        //Clear the DMA Interrupt Flag bit
@@ -114,18 +115,59 @@ return_value_t init_adc()
 void __attribute__((interrupt, no_auto_psv)) _DMA0Interrupt(void)
 {
     static uint8_t DMAbuffer = 0;
+    static uint8_t ADC_State = 0;
     if(DMAbuffer){
         LED_3 = 1;
+        switch(ADC_State){
+            case 0:
+                adc_values.AN6 = BufferA[ADC_State];
+                ADC_State++;
+                break;
+            case 1:
+                adc_values.AN7 = BufferA[ADC_State];
+                ADC_State++;
+                break;
+            case 2:
+                adc_values.AN8 = BufferA[ADC_State];
+                ADC_State++;
+                break;
+            case 3:
+                adc_values.AN11 = BufferA[ADC_State];
+                ADC_State = 0;
+                break;
+            default:
+                ADC_State = 0;
+        }
     }
     else{
         LED_3 = 0;
+        switch(ADC_State){
+            case 0:
+                adc_values.AN6 = BufferB[ADC_State];
+                ADC_State++;
+                break;
+            case 1:
+                adc_values.AN7 = BufferB[ADC_State];
+                ADC_State++;
+                break;
+            case 2:
+                adc_values.AN8 = BufferB[ADC_State];
+                ADC_State++;
+                break;
+            case 3:
+                adc_values.AN11 = BufferB[ADC_State];
+                ADC_State = 0;
+                break;
+            default:
+                ADC_State = 0;
+        }
     }
     DMAbuffer ^= 1;
-    
+
     IFS0bits.DMA0IF = 0;        //Clear the DMA Interrupt Flag bit
 }
 
-void __attribute__((__interrupt__, no_auto_psv)) _T3Interrupt(void)
+void __attribute__((__interrupt__, auto_psv)) _T3Interrupt(void)
 {
     IFS0bits.T3IF = 0; // Clear Timer 3 Interrupt Flag
 }
