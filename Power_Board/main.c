@@ -94,6 +94,10 @@ int main(int argc, char** argv) {
 
             }
 
+            if(timer_state.systime%5000 == 0){
+                MOTOR_EN = ON;
+            }
+
         } else { //Everything else that needs to run faster than 1ms goes in the else statement
             if(!(adc_values.AN11>>7)){
                 //BACKUP_CHARGE_EN = ON; //Inverted Logic
