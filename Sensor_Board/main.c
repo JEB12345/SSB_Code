@@ -35,56 +35,56 @@ extern motor_cmd_data motor_cmd_state[2];
 extern loadcell_data loadcell_state;
 extern imu_data imu_state;
 extern can_data can_state;
-bool port_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic);
-bool join_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic);
-
-bool ip_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
-{
-    uint8_t pkt[40];
-    uint16_t i;
-    if(status==0){
-        //if you need to know the IP address
-        for(i=0;i<length;++i){
-            pkt[i]=raw_packet[i];
-        }
-    }
-    //TODO: store the address, so it becomes accessible over CAN
-    rf_state.xbee_at_req = 0;
-    return 1;
-}
-
-bool port_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
-{
-    xbee_at_cmd("MY",0,0,0,&rf_state.at_packet,0,ip_cb,100);
-    xbee_send_at_cmd();
-    return 1;
-}
-
-bool join_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
-{
-    uint8_t data[2];
-    if(status==1){
-        led_rgb_set(255,0,0);
-            xbee_at_cmd("AI",0,0,0,&rf_state.at_packet,0,join_cb,500);
-            xbee_send_at_cmd();
-    } else {
-        if(raw_packet[length-2]==0){
-            led_rgb_set(0,255,0);
-            rf_state.cur_network_status = INIT_SUCCESS;
-
-            //set port
-            data[0] = 0x1F;
-            data[1] = 0x90;
-            xbee_at_cmd("C0",data,2,0,&rf_state.at_packet,0,port_cb,100);
-            xbee_send_at_cmd();
-        }  else {
-            led_rgb_set(0,0,255);
-            xbee_at_cmd("AI",0,0,0,&rf_state.at_packet,0,join_cb,500);
-            xbee_send_at_cmd();
-        }
-    }
-    return 1;
-}
+//bool port_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic);
+//bool join_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic);
+//
+//bool ip_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
+//{
+//    uint8_t pkt[40];
+//    uint16_t i;
+//    if(status==0){
+//        //if you need to know the IP address
+//        for(i=0;i<length;++i){
+//            pkt[i]=raw_packet[i];
+//        }
+//    }
+//    //TODO: store the address, so it becomes accessible over CAN
+//    rf_state.xbee_at_req = 0;
+//    return 1;
+//}
+//
+//bool port_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
+//{
+//    xbee_at_cmd("MY",0,0,0,&rf_state.at_packet,0,ip_cb,100);
+//    xbee_send_at_cmd();
+//    return 1;
+//}
+//
+//bool join_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
+//{
+//    uint8_t data[2];
+//    if(status==1){
+//        led_rgb_set(255,0,0);
+//            xbee_at_cmd("AI",0,0,0,&rf_state.at_packet,0,join_cb,500);
+//            xbee_send_at_cmd();
+//    } else {
+//        if(raw_packet[length-2]==0){
+//            led_rgb_set(0,255,0);
+//            rf_state.cur_network_status = INIT_SUCCESS;
+//
+//            //set port
+//            data[0] = 0x1F;
+//            data[1] = 0x90;
+//            xbee_at_cmd("C0",data,2,0,&rf_state.at_packet,0,port_cb,100);
+//            xbee_send_at_cmd();
+//        }  else {
+//            led_rgb_set(0,0,255);
+//            xbee_at_cmd("AI",0,0,0,&rf_state.at_packet,0,join_cb,500);
+//            xbee_send_at_cmd();
+//        }
+//    }
+//    return 1;
+//}
 
 /*
  * 
