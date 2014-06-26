@@ -119,8 +119,8 @@ int main(int argc, char** argv) {
 
     //memtest();
 
-    rf_init();
-    network_init();
+    //rf_init();
+    //network_init();
 
     imu_state.init_return = RET_UNKNOWN;
     //imu_init();
@@ -135,6 +135,7 @@ int main(int argc, char** argv) {
     timer_state.prev_systime = 0;
     timer_state.systime = 0;
     P7_RB4 = 0;
+    P7_RB13 = 1;
     // CANOpen test init for Master Node
 //    if(can_state.is_master){
 //        masterInitTest();
