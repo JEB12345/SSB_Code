@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../../include/dspic33e/can_dspic33e.h"
 #include "../../include/dspic33e/canfestival.h"
 #include "../../../../../Sensor_Board/superball_circularbuffer.h"
+#include <ecan.h>
 #include <p33Exxxx.h>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -157,9 +158,11 @@ OUTPUT	1 if successful
 
     // Enable DMA
     IFS0bits.DMA0IF = 0;
+    IFS0bits.DMA1IF = 0;
     DMA0CONbits.CHEN = 1;
     DMA1CONbits.CHEN = 1;
     IEC0bits.DMA0IE = 0; // Disable DMA Channel 0 interrupt (everything is handled in the CAN interrupt)
+    IEC0bits.DMA1IE = 0;
 
     // Setup message filters and masks.
 
@@ -170,21 +173,20 @@ OUTPUT	1 if successful
 
     C1RXM0SIDbits.MIDE = 0x1; //only receive standard frames
     C1RXF0SIDbits.EXIDE= 0x0;
-    C1BUFPNT1bits.F0BP = 0x0;//0x1; //use message buffer 1 to receive data
+    C1BUFPNT1bits.F0BP = 0x0;//0x1; //use message buffer 0 to receive data
     C1FEN1bits.FLTEN0=0x1; //Filter 0 enabled for Identifier match with incoming message
 
     C1CTRL1bits.WIN = 0;
 
     // Place ECAN1 into normal mode
-    desired_mode = 0;
+    desired_mode = 0b000;
     C1CTRL1bits.REQOP = desired_mode;
     while (C1CTRL1bits.OPMODE != desired_mode);
 
     // Enable interrupts for ECAN1
-    IEC2bits.C1IE = 1; // Enable interrupts for ECAN1 peripheral
-    C1INTEbits.TBIE = 1; // Enable TX buffer interrupt
-    C1INTEbits.RBIE = 1; // Enable RX buffer interrupt
-//    C1INTEbits.ERRIE = 1;
+    ConfigIntCAN1(CAN_INVALID_MESSAGE_INT_DIS & CAN_WAKEUP_INT_DIS & CAN_ERR_INT_DIS &
+        CAN_FIFO_INT_DIS & CAN_RXBUF_OVERFLOW_INT_DIS &
+        CAN_RXBUF_INT_EN & CAN_TXBUF_INT_DIS, CAN_INT_ENABLE & CAN_INT_PRI_5);
 
     if(CB_Init(&can_rx_circ_buff,can_rx_buffer_array,  CAN_RX_BUFF_SIZE)!=SUCCESS){
         return 0;
@@ -239,7 +241,7 @@ OUTPUT	1 if  hardware -> CAN frame
     ecan1TXMsgBuf[1][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
     ecan1TXMsgBuf[1][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
     ecan1TXMsgBuf[1][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
-    ecan1TXMsgBuf[1][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
+     ecan1TXMsgBuf[1][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
 
     // Set the correct transfer intialization bit (TXREQ) based on message buffer.
     //offset = message->buffer >> 1;
@@ -374,7 +376,11 @@ void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
     }
 
     // Clear the general ECAN1 interrupt flag.
-    //IFS0bits.DMA0IF = 0;
+    IFS0bits.DMA0IF = 0;
+    IFS0bits.DMA1IF = 0;
+    CAN1ClearRXFUL1();
+    CAN1ClearRXFUL2();
+    CAN1ClearRXOVF1();
+    CAN1ClearRXOVF2();
     IFS2bits.C1IF = 0;
-
 }

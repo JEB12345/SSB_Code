@@ -27,6 +27,7 @@ UNS8 data_type = 0;
 static void can_reset(CO_Data* d);
 static void can_enable_heartbeat(uint16_t time);
 static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time);
+static void ConfigureSlaveNode(CO_Data* d, unsigned char nodeId);
 
 return_value_t can_init()
 {
@@ -45,6 +46,9 @@ return_value_t can_init()
     setNodeId(&ObjDict_Data, 0x01);
     can_state.is_master = 1;
     can_enable_heartbeat(100);
+    can_start_node(0x02);
+    ConfigureSlaveNode(&ObjDict_Data, 0x02);
+    can_enable_slave_heartbeat(0x02,100);
 //    if(P6_RA12){
 //        setNodeId(&ObjDict_Data, 0x01);
 //        can_state.is_master = 1;
@@ -71,7 +75,7 @@ uint8_t can_process()
     while(canReceive(&rec_m)){
         //LED_1 ^= LED_1;
         //LED_3 = !LED_3;
-        P6_RA11 = !P6_RA11;
+        //P6_RA11 = !P6_RA11;
         //memcpy(&m_copy,m,sizeof(Message));
         
         canDispatch(&ObjDict_Data, &rec_m); //send packet to CanFestival

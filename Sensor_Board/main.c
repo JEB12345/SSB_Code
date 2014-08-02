@@ -13,8 +13,6 @@
 #include "sensor_led.h"
 #include "sensor_loadcell.h"
 #include "sensor_pindefs.h"
-#include "sensor_rf.h"
-#include "xbee_API.h"
 #include "sensor_state.h"
 #include "sensor_http.h"
 #include "sensor_memdebug.h"
@@ -35,56 +33,7 @@ extern motor_cmd_data motor_cmd_state[2];
 extern loadcell_data loadcell_state;
 extern imu_data imu_state;
 extern can_data can_state;
-//bool port_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic);
-//bool join_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic);
-//
-//bool ip_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
-//{
-//    uint8_t pkt[40];
-//    uint16_t i;
-//    if(status==0){
-//        //if you need to know the IP address
-//        for(i=0;i<length;++i){
-//            pkt[i]=raw_packet[i];
-//        }
-//    }
-//    //TODO: store the address, so it becomes accessible over CAN
-//    rf_state.xbee_at_req = 0;
-//    return 1;
-//}
-//
-//bool port_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
-//{
-//    xbee_at_cmd("MY",0,0,0,&rf_state.at_packet,0,ip_cb,100);
-//    xbee_send_at_cmd();
-//    return 1;
-//}
-//
-//bool join_cb(uint8_t frame_id, uint16_t at_cmd, uint8_t status, uint8_t* raw_packet, uint16_t length,bool dynamic)
-//{
-//    uint8_t data[2];
-//    if(status==1){
-//        led_rgb_set(255,0,0);
-//            xbee_at_cmd("AI",0,0,0,&rf_state.at_packet,0,join_cb,500);
-//            xbee_send_at_cmd();
-//    } else {
-//        if(raw_packet[length-2]==0){
-//            led_rgb_set(0,255,0);
-//            rf_state.cur_network_status = INIT_SUCCESS;
-//
-//            //set port
-//            data[0] = 0x1F;
-//            data[1] = 0x90;
-//            xbee_at_cmd("C0",data,2,0,&rf_state.at_packet,0,port_cb,100);
-//            xbee_send_at_cmd();
-//        }  else {
-//            led_rgb_set(0,0,255);
-//            xbee_at_cmd("AI",0,0,0,&rf_state.at_packet,0,join_cb,500);
-//            xbee_send_at_cmd();
-//        }
-//    }
-//    return 1;
-//}
+
 
 /*
  * 
@@ -119,9 +68,6 @@ int main(int argc, char** argv) {
 
     //memtest();
 
-    //rf_init();
-    //network_init();
-
     imu_state.init_return = RET_UNKNOWN;
     //imu_init();
 
@@ -129,13 +75,18 @@ int main(int argc, char** argv) {
 
     // Commented out the CAN code since it has some while loops which hang if it is not connected.
 
-//    can_state.init_return = RET_UNKNOWN;
-//    can_init();
+    can_state.init_return = RET_UNKNOWN;
+//    can_init(); //The issue is here 26June14
+
+    if(can_state.is_master){
+
+    }
 
     timer_state.prev_systime = 0;
     timer_state.systime = 0;
     P7_RB4 = 0;
-    P7_RB13 = 1;
+    BBB_Power = 1;
+
     // CANOpen test init for Master Node
 //    if(can_state.is_master){
 //        masterInitTest();
@@ -143,17 +94,15 @@ int main(int argc, char** argv) {
 //    else{
 //        slaveInitTest();
 //    }
+
     for(;;){
         if(timer_state.systime != timer_state.prev_systime){
             timer_state.prev_systime = timer_state.systime;
                 //everything in here will be executed once every ms
                 //make sure that everything in here takes less than 1ms
                 //useful for checking state consistency, synchronization, watchdog...
-//                LED_1 = 1;
-//                LED_2 = 1;
-//                LED_3 = 1;
-//                LED_4 = 1;
-                rf_tick(1);
+
+            rf_tick(1);
                 if(timer_state.systime&0b100){
                     memcheck();
                 }
@@ -163,52 +112,18 @@ int main(int argc, char** argv) {
                 if(can_state.init_return==RET_OK){
                     can_process();
 
-//                    if(can_state.is_master){
-//                        if(timer_state.systime==2000){
-//                            //test reset slaves
-//                            can_reset_node(2);
-//                        }
-//                    }
+                    if(can_state.is_master){
+                        if(timer_state.systime==2000){
+                            //test reset slaves
+                            //can_reset_node(2);
+                        }
+                    }
                     if(timer_state.systime&0b100000000){
                         can_push_state();
                     }
                 }
 
                 led_update();
-
-//                if(timer_state.systime==100 && rf_state.cur_network_status != INIT_SUCCESS)
-//                {
-//                    char* at_id = "superball";//
-//                    xbee_at_cmd("ID",at_id,strlen(at_id),0,&rf_state.at_packet,0,0,0);
-//                    xbee_send_at_cmd();
-//                }
-//                else if(timer_state.systime==120 && rf_state.cur_network_status != INIT_SUCCESS)
-//                {
-//                    at_parm_test[0] = 2;
-//                    xbee_at_cmd("EE",at_parm_test,1,0,&rf_state.at_packet,0,0,0);
-//                    xbee_send_at_cmd();
-//                }else if(timer_state.systime==140 && rf_state.cur_network_status != INIT_SUCCESS)
-//                {
-//                    char* at_pk = "e79aa046f7190e8b"; //e79aa046f7190e8b
-//                    xbee_at_cmd("PK",at_pk,strlen(at_pk),0,&rf_state.at_packet,0,0,0);
-//                    xbee_send_at_cmd();
-//                }
-//                else if(timer_state.systime==200 && rf_state.cur_network_status != INIT_SUCCESS)
-//                {
-//                    xbee_at_cmd("AI",at_parm_test,0,0,&rf_state.at_packet,0,join_cb,10000);
-//                    xbee_send_at_cmd();
-//                }
-//                else if (rf_state.cur_network_status == INIT_SUCCESS){
-//                    if(http_state.init_return==RET_UNKNOWN){
-//                        http_init();
-//                    } else if(http_state.init_return==RET_OK){
-//                        http_process();
-//                    }
-//                    if(!once){
-//                        iptest_init();
-//                        once = 1;
-//                    }
-//                }
 
                 if(timer_state.systime%25 == 0){
                    LED_4=!LED_4;
@@ -411,9 +326,6 @@ int main(int argc, char** argv) {
 
 
             //memcheck();
-            if(rf_state.init_return==RET_OK){
-                rf_process();
-            }
             if(can_state.init_return==RET_OK){
                 can_time_dispatch();
             }
@@ -422,37 +334,9 @@ int main(int argc, char** argv) {
             //memcheck();
 
             uart_rx_packet = uart_rx_cur_packet();
-        if (uart_rx_packet != 0) {
-            //led_toggle();
-//            if(uart_rx_packet[0]==0xFF){
-////                uart_tx_packet[1] = 0xFF; //CMD
-////                uart_tx_packet[2] = 10;
-////                //transmit current position and speed
-////                uart_tx_packet[3] = mdv1->pos_cnt>>8;
-////                uart_tx_packet[4] = mdv1->pos_cnt&0xFF;
-////                uart_tx_packet[5] = ((uint16_t)mdv1->current_speed)>>8;
-////                uart_tx_packet[6] = ((uint16_t)mdv1->current_speed)&0xFF;
-////                uart_tx_packet[7] = mdv2->pos_cnt>>8;
-////                uart_tx_packet[8] = mdv2->pos_cnt&0xFF;
-////                uart_tx_packet[9] = ((uint16_t)mdv2->current_speed)>>8;
-////                uart_tx_packet[10] = ((uint16_t)mdv2->current_speed)&0xFF;
-//
-//                uint8_t* cp = &motor_cmd_state[0].cur_pos;
-//                cp[0]=uart_rx_packet[2];
-//                cp[1]=uart_rx_packet[3];
-//                cp[2]=uart_rx_packet[4];
-//                cp[3]=uart_rx_packet[5];
-//                cp = &motor_cmd_state[0].cur_vel;
-//                cp[0]=uart_rx_packet[6];
-//                cp[1]=uart_rx_packet[7];
-//                if(motor_cmd_state[0].cur_vel!=0){
-//                    LED_2=1;
-//                }
-//
-//            }
-            uart_rx_packet_consumed();
-
-        }
+            if (uart_rx_packet != 0) {
+                uart_rx_packet_consumed();
+            }
 
         }
     }

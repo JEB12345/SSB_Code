@@ -27,23 +27,26 @@ return_value_t pin_init();
 #define INT_IMU     PORTFbits.RF0 //actually tied to INT1
 
 //RF
-#define XBEE_nATTN  PORTEbits.RE14//actually tied to INT2
-#define XBEE_nSSEL  LATBbits.LATB9
-#define XBEE_SLEEP_RQ    LATFbits.LATF1
-#define XBEE_nRESET      LATEbits.LATE13
-#define XBEE_DOUT   LATCbits.LATC10
+#define XBEE_nATTN      PORTEbits.RE14//actually tied to INT2
+#define XBEE_nSSEL      LATBbits.LATB9
+#define XBEE_SLEEP_RQ   LATFbits.LATF1
+#define XBEE_nRESET     LATEbits.LATE13
+#define XBEE_DOUT       LATCbits.LATC10
 #define XBEE_DOUT_INPUT (TRISCbits.TRISC10 = 1)
 #define XBEE_DOUT_OUTPUT (TRISCbits.TRISC10 = 0)
 
 //POWER MOSFETS
-#define NFET_1      LATCbits.LATC12
-#define NFET_2      LATCbits.LATC15
-#define NFET_3      LATAbits.LATA10
+#define NFET_1      LATCbits.LATC12 //PWR_SW1
+#define NFET_2      LATCbits.LATC15 //PWR_SW2
+#define NFET_3      LATAbits.LATA10 //PWR_SW3
 
 //LOAD CELL
 #define SHD         LATCbits.LATC6
 #define SS          LATBbits.LATB0
 #define SG_MISO     PORTAbits.RA9
+
+//BBB Power Toggle
+#define BBB_Power   LATBbits.LATB13
 
 //Pin Out Connectors
 //ANALOG pins -> analog input specified in ADC module if needed
@@ -66,14 +69,9 @@ return_value_t pin_init();
 //P7 connector
 #define RE12_IO        PIN_INPUT
 #define RA8_IO         PIN_INPUT
-#define RB11_IO        PIN_INPUT
-#define RB13_IO        PIN_OUTPUT
 #define RE13_IO        PIN_INPUT
 #define RB4_IO         PIN_OUTPUT
 #define RC10_IO        PIN_INPUT
-#define RA7_IO         PIN_INPUT
-#define RB10_IO        PIN_OUTPUT
-#define RB12_IO        PIN_INPUT
 
 #if RB14_IO==PIN_INPUT
 #define P6_RB14    PORTBbits.RB14
@@ -147,18 +145,6 @@ return_value_t pin_init();
 #define P7_RA8    LATAbits.LATA8
 #endif
 
-#if RB11_IO==PIN_INPUT
-#define P7_RB11    PORTBbits.RB11
-#else
-#define P7_RB11    LATBbits.LATB11
-#endif
-
-#if RB13_IO==PIN_INPUT
-#define P7_RB13    PORTBbits.RB13
-#else
-#define P7_RB13    LATBbits.LATB13
-#endif
-
 #if RE13_IO==PIN_INPUT
 #define P7_RE13    PORTEbits.RE13
 #else
@@ -175,24 +161,6 @@ return_value_t pin_init();
 #define P7_RC10    PORTCbits.RC10
 #else
 #define P7_RC10    LATCbits.LATC10
-#endif
-
-#if RA7_IO==PIN_INPUT
-#define P7_RA7    PORTAbits.RA7
-#else
-#define P7_RA7    LATAbits.LATA7
-#endif
-
-#if RB10_IO==PIN_INPUT
-#define P7_RB10    PORTBbits.RB10
-#else
-#define P7_RB10    LATBbits.LATB10
-#endif
-
-#if RB12_IO==PIN_INPUT
-#define P7_RB12    PORTBbits.RB12
-#else
-#define P7_RB12    LATBbits.LATB12
 #endif
 
 /*

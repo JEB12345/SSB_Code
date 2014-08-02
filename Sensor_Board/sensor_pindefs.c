@@ -75,6 +75,13 @@ return_value_t pin_init()
     TRISCbits.TRISC15 = 0;
     TRISAbits.TRISA10 = 0;
 
+    //UART 1
+    _RP36R = 0b1; //RB4 UART 1 tx GREY
+    RPINR18bits.U1RXR = 44; //RB12 uart 1 rx PURPLE
+
+    //BBB Power Toggle
+    TRISBbits.TRISB13 = 0;
+
     //P6
 #if RB14_IO==PIN_OUTPUT
     TRISBbits.TRISB14 = 0;
@@ -125,9 +132,6 @@ return_value_t pin_init()
 #if RB11_IO==PIN_OUTPUT
     TRISBbits.TRISB11 = 0;
 #endif
-#if RB13_IO==PIN_OUTPUT
-    TRISBbits.TRISB13 = 0;
-#endif
 #if RE13_IO==PIN_OUTPUT
     TRISEbits.TRISE13 = 0;
 #endif
@@ -138,37 +142,11 @@ return_value_t pin_init()
 #if RC10_IO==PIN_OUTPUT
     TRISCbits.TRISC10 = 0;
 #endif
-#if RA7_IO==PIN_OUTPUT
-    TRISAbits.TRISA7 = 0;
-#endif
-    _RP42R = 9;
-#if RB10_IO==PIN_OUTPUT
-    TRISBbits.TRISB10 = 0;
-#endif
-#if RB12_IO==PIN_OUTPUT
-    TRISBbits.TRISB12 = 0;
-#endif
 
-    //Hall sensors
-    //ENABLE PULL-UPS
-    
-//    CNPUBbits.CNPUB15 = 1;
-//    CNPUGbits.CNPUG7 = 1;
-//    CNPUGbits.CNPUG9 = 1;
     //peripheral pin select
     RPINR7bits.IC1R = 47;   //RB15
     RPINR7bits.IC2R = 119;  //RG7
     RPINR8bits.IC3R = 121;  //RB9
-
-    //FAULT and OCTW
-//    CNPUBbits.CNPUB1 = 1;
-//    CNPUBbits.CNPUB2 = 1;
-
-    //UART 1
-    //_RP43R = 0b1; //RB11 uart 1 tx GREY //RB11 doesn't work on Jonathan's board
-    _RP36R = 0b1; //RB4 UART 1 tx GREY
-    RPINR18bits.U1RXR = 44; //RB12 uart 1 rx PURPLE
-
 
     return RET_OK;
 }
