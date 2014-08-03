@@ -138,15 +138,15 @@ int main(int argc, char** argv) {
 //
 //                   }
 
-                if(timer_state.systime%10 == 0){
+                if(timer_state.systime%1 == 0){
                     uart_tx_packet = uart_tx_cur_packet();
                     uart_tx_packet[0] = i++;//counting
                     uart_tx_packet[1] = 0xFF;//CMD
                     uart_tx_packet[2] = 14;
                     //uart_tx_packet[3] = loadcell_state.sg_data_0;
-                    uart_tx_packet[3] = (loadcell_state.values[0]>>18)&0xFF;
-                    uart_tx_packet[4] = (loadcell_state.values[0]>>10)&0xFF;
-                    uart_tx_packet[5] = (loadcell_state.values[0]>>2)&0xFF;
+                    uart_tx_packet[3] = (loadcell_state.values[0]>>16)&0xFF;
+                    uart_tx_packet[4] = (loadcell_state.values[0]>>8)&0xFF;
+                    uart_tx_packet[5] = (loadcell_state.values[0])&0xFF;
                     uart_tx_packet[6] = 0x01;
                     uart_tx_packet[7] = 0x89;// same as " "
                     uart_tx_packet[8] = (loadcell_state.values[1]>>16)&0xFF;

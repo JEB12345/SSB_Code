@@ -76,8 +76,8 @@ return_value_t pin_init()
     TRISAbits.TRISA10 = 0;
 
     //UART 1
-    _RP36R = 0b1; //RB4 UART 1 tx GREY
-    RPINR18bits.U1RXR = 44; //RB12 uart 1 rx PURPLE
+    _RP36R = 0b1; //RB4 UART 1 tx 
+    RPINR18bits.U1RXR = 44; //RB12 uart 1 rx s
 
     //BBB Power Toggle
     TRISBbits.TRISB13 = 0;
