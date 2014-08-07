@@ -34,7 +34,6 @@ return_value_t pin_init() {
     TRISAbits.TRISA1 = 0;   //LED_STATUS
 
     //Power & Motor Enable Pins
-    //****THESE COMMENTED REFERENCES COULD BE WRONG!****
     TRISDbits.TRISD5 = 0;   //EN_BACKUP_5V5
     TRISDbits.TRISD6 = 0;   //EN_VBAT_5V5
     TRISAbits.TRISA10 = 0;  //VBAT_5V5_EN

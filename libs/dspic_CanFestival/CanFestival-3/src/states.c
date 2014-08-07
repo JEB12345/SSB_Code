@@ -198,7 +198,7 @@ UNS8 setState(CO_Data* d, e_nodeState newState)
 				s_state_communication newCommunicationState = {0, 1, 1, 1, 1, 0, 1};
 				d->nodeState = Pre_operational;
 				switchCommunicationState(d, &newCommunicationState);
-                (*d->preOperational)(d);
+                                (*d->preOperational)(d);
 			}
 			break;
 								

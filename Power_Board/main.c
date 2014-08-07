@@ -33,8 +33,7 @@ int main(int argc, char** argv) {
     timers_init();
     init_adc();
     uart_init();
-    //can_init();
-
+    
     // Parameter Initalziations
     timer_state.prev_systime = 0;
     timer_state.systime = 0;
@@ -50,8 +49,13 @@ int main(int argc, char** argv) {
     //Enable Motor Output
     KILLSWITCH_uC = ON;
 
-
     LED_B = ON;
+
+    // Enable CAN after calling the EN_OUT_# commands.
+    // This prevents the while loop in the can_init() from stalling.
+    if(can_init()){
+        while(1);
+    }
 
     for(;;){
         // All programs that run on a 1ms loop should go in this if statement
@@ -96,7 +100,7 @@ int main(int argc, char** argv) {
                     }
                 }
                 if(timer_state.systime&0b100000000){
-                     can_push_state();
+//                     can_push_state();
                 }
             }
 
@@ -128,6 +132,10 @@ int main(int argc, char** argv) {
              ******************************************************************/
             if(adc_values.AN8<0x0800){
                 VBAT_5V5_EN = OFF;
+            }
+
+            if(can_state.init_return==RET_OK){
+                can_time_dispatch();
             }
         }
     }

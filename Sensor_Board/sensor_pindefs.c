@@ -19,6 +19,71 @@ return_value_t pin_init()
     ANSELC = 0x0;
     ANSELE = 0x0;
 
+     //P6
+#if RB14_IO==PIN_OUTPUT
+    TRISBbits.TRISB14 = 0;
+#endif
+#if RG9_IO==PIN_OUTPUT
+    TRISGbits.TRISG9 = 0;
+#endif
+#if RA11_IO==PIN_OUTPUT
+    TRISAbits.TRISA11 = 0;
+#endif
+#if RA1_IO==PIN_OUTPUT
+    TRISAbits.TRISA1 = 0;
+#endif
+#if RB2_IO==PIN_OUTPUT
+    TRISBbits.TRISB2 = 0;
+#endif
+#if RB15_IO==PIN_OUTPUT
+    TRISBbits.TRISB15 = 0;
+#endif
+#if RA12_IO==PIN_OUTPUT
+    TRISAbits.TRISA12 = 0;
+#endif
+#if RG7_IO==PIN_OUTPUT
+    TRISGbits.TRISG7 = 0;
+#endif
+#if RB1_IO==PIN_OUTPUT
+    TRISBbits.TRISB1 = 0;
+#endif
+    _RP35R = 0;
+#if RB3_IO==PIN_OUTPUT
+    TRISBbits.TRISB3 = 0;
+#endif
+
+    //ANALOG PINS
+    ANSELCbits.ANSC0 = 1;
+    ANSELCbits.ANSC1 = 1;
+    ANSELCbits.ANSC2 = 1;
+    ANSELCbits.ANSC11 = 1;
+
+    //P7
+#if RE12_IO==PIN_OUTPUT
+    TRISEbits.TRISE12 = 0;
+#endif
+#if RA8_IO==PIN_OUTPUT
+    TRISAbits.TRISA8 = 0;
+#endif
+    _RP43R = 0;
+#if RB11_IO==PIN_OUTPUT
+    TRISBbits.TRISB11 = 0;
+#endif
+#if RE13_IO==PIN_OUTPUT
+    TRISEbits.TRISE13 = 0;
+#endif
+#if RB4_IO==PIN_OUTPUT
+    TRISBbits.TRISB4 = 0;
+#endif
+#if RC10_IO==PIN_OUTPUT
+    TRISCbits.TRISC10 = 0;
+#endif
+
+    //peripheral pin select
+    RPINR7bits.IC1R = 47;   //RB15
+    RPINR7bits.IC2R = 119;  //RG7
+    RPINR8bits.IC3R = 121;  //RB9
+
     /*
      * Watchdog
      */
@@ -76,77 +141,11 @@ return_value_t pin_init()
     TRISAbits.TRISA10 = 0;
 
     //UART 1
-    _RP36R = 0b1; //RB4 UART 1 tx 
+    _RP36R = 0b000001; //RB4 UART 1 tx
     RPINR18bits.U1RXR = 44; //RB12 uart 1 rx s
 
     //BBB Power Toggle
     TRISBbits.TRISB13 = 0;
-
-    //P6
-#if RB14_IO==PIN_OUTPUT
-    TRISBbits.TRISB14 = 0;
-#endif
-#if RG9_IO==PIN_OUTPUT
-    TRISGbits.TRISG9 = 0;
-#endif
-#if RA11_IO==PIN_OUTPUT
-    TRISAbits.TRISA11 = 0;
-#endif
-#if RA1_IO==PIN_OUTPUT
-    TRISAbits.TRISA1 = 0;
-#endif
-#if RB2_IO==PIN_OUTPUT
-    TRISBbits.TRISB2 = 0;
-#endif
-#if RB15_IO==PIN_OUTPUT
-    TRISBbits.TRISB15 = 0;
-#endif
-#if RA12_IO==PIN_OUTPUT
-    TRISAbits.TRISA12 = 0;
-#endif
-#if RG7_IO==PIN_OUTPUT
-    TRISGbits.TRISG7 = 0;
-#endif
-#if RB1_IO==PIN_OUTPUT
-    TRISBbits.TRISB1 = 0;
-#endif
-    _RP35R = 0;
-#if RB3_IO==PIN_OUTPUT
-    TRISBbits.TRISB3 = 0;
-#endif
-
-    //ANALOG PINS
-    ANSELCbits.ANSC0 = 1;
-    ANSELCbits.ANSC1 = 1;
-    ANSELCbits.ANSC2 = 1;
-    ANSELCbits.ANSC11 = 1;
-
-    //P7
-#if RE12_IO==PIN_OUTPUT
-    TRISEbits.TRISE12 = 0;
-#endif
-#if RA8_IO==PIN_OUTPUT
-    TRISAbits.TRISA8 = 0;
-#endif
-    _RP43R = 0;
-#if RB11_IO==PIN_OUTPUT
-    TRISBbits.TRISB11 = 0;
-#endif
-#if RE13_IO==PIN_OUTPUT
-    TRISEbits.TRISE13 = 0;
-#endif
-    _RP36R = 0;
-#if RB4_IO==PIN_OUTPUT
-    TRISBbits.TRISB4 = 0;
-#endif
-#if RC10_IO==PIN_OUTPUT
-    TRISCbits.TRISC10 = 0;
-#endif
-
-    //peripheral pin select
-    RPINR7bits.IC1R = 47;   //RB15
-    RPINR7bits.IC2R = 119;  //RG7
-    RPINR8bits.IC3R = 121;  //RB9
 
     return RET_OK;
 }

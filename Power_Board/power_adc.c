@@ -38,7 +38,7 @@ return_value_t init_adc()
     AD1CON1bits.ADDMABM = 0;    //Don't Care ignored by DMA
     AD1CON1bits.AD12B = 1;      //12-bit, 1-CH operation
     AD1CON1bits.FORM = 0b00;    //Unsignd Integer output
-    AD1CON1bits.SSRC = 0b010;   //Timer3 compare ends sampling and starts conversion
+    AD1CON1bits.SSRC = 0b100;   //Timer5 compare ends sampling and starts conversion
     AD1CON1bits.SSRCG = 0;      //Default no external triggering?
     AD1CON1bits.SIMSAM = 0;     //Has to be off for 12-bit mode
     AD1CON1bits.ASAM = 1;       //Auto sampling, SAMP bit is auto-set
@@ -76,21 +76,21 @@ return_value_t init_adc()
     IEC0bits.AD1IE = 0;         //Disable ADC interrupt
 
     /****************************************
-     * Initializes Timer 3 for ADC Triggering
+     * Initializes Timer 5 for ADC Triggering
     *****************************************/
-    T2CONbits.TON = 0;          //Stop any 2/3 timer
-    T2CONbits.T32 = 0;          //Sets Timer 2 and Timer 3 as separate 15-bit timers
-    T3CONbits.TON = 0;          //Disables the Timer 3 module
-    T3CONbits.TSIDL = 0;        //Coninuous mode during idle
-    T3CONbits.TGATE = 0;        //Gated time accumulation disabled
-    T3CONbits.TCKPS = 0b10;     //1:64 Prescaler
-    T3CONbits.TCS = 0;          //Use Internal Clock (Fp)
+    T4CONbits.TON = 0;          //Stop any 4/5 timer
+    T4CONbits.T32 = 0;          //Sets Timer 4 and Timer 5 as separate 15-bit timers
+    T5CONbits.TON = 0;          //Disables the Timer 5 module
+    T5CONbits.TSIDL = 0;        //Coninuous mode during idle
+    T5CONbits.TGATE = 0;        //Gated time accumulation disabled
+    T5CONbits.TCKPS = 0b10;     //1:64 Prescaler
+    T5CONbits.TCS = 0;          //Use Internal Clock (Fp)
 
     //Settings the Loop Time
-    TMR3 = 0x00;                //Clear Timer 3 register
-    PR3 = 8750;                 //Fp / (TCKPS*PR3) = LoopTime => 70000000/(64*2188)=500us
-    IFS0bits.T3IF = 0;          //Clear Timer 3 Interrupt Flag
-    IEC0bits.T3IE = 1;          //Enable Timer 3 Interrupt
+    TMR5 = 0x00;                //Clear Timer 5 register
+    PR5 = 8750;                 //Fp / (TCKPS*PR5) = LoopTime => 70000000/(64*8750)=125us
+    IFS1bits.T5IF = 0;          //Clear Timer 5 Interrupt Flag
+    IEC1bits.T5IE = 1;          //Enable Timer 5 Interrupt
 
     /*******************************
      * Initializes the DMA0 Module
@@ -135,7 +135,7 @@ return_value_t init_adc()
     /*********************
      * Turning on Modules
      *********************/
-    T3CONbits.TON = 1;          //Start Timer 3
+    T5CONbits.TON = 1;          //Start Timer 3
     DMA0CONbits.CHEN = 1;       //Enable DMA
     AD1CON1bits.ADON = 1;       //Turn on the ADC
     Delay_us(20);
@@ -196,9 +196,9 @@ void __attribute__((interrupt, no_auto_psv)) _DMA0Interrupt(void)
     IFS0bits.DMA0IF = 0;        //Clear the DMA Interrupt Flag bit
 }
 
-void __attribute__((__interrupt__, auto_psv)) _T4Interrupt(void)
+void __attribute__((__interrupt__, auto_psv)) _T5Interrupt(void)
 {
-    IFS0bits.T3IF = 0; // Clear Timer 3 Interrupt Flag
+    IFS1bits.T5IF = 0; // Clear Timer 3 Interrupt Flag
 }
 
 void Delay_us(unsigned int delay)
