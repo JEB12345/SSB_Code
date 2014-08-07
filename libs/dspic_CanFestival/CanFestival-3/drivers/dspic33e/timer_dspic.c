@@ -87,7 +87,7 @@ OUTPUT	void
     PR2 = value&0xFFFF;
     PR3 = value>>16;
     IFS0bits.T3IF = 0; 		// Clear Timer3 Interrupt Flag
-    IEC0bits.T3IE = 1; 		// Disable Timer3 interrupt
+    IEC0bits.T3IE = 1; 		// Enabled Timer3 interrupt
     T2CONbits.TON = 1;
 }
 

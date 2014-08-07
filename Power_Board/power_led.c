@@ -3,9 +3,9 @@
 #include "power_state.h"
 
 return_value_t led_init() {
-    LED_1 = 0;
-    LED_2 = 0;
-    LED_3 = 0;
+    LED_R = 0;
+    LED_G = 0;
+    LED_B = 0;
     LED_STATUS = 0;
 
     return RET_OK;

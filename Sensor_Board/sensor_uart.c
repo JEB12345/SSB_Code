@@ -17,8 +17,8 @@ return_value_t uart_init()
     U1STAbits.UTXISEL1 = 0;
     uart_state.tx_idle = 1;
     U1MODEbits.BRGH = 1;
-    U1BRG = 151; //115200 baud/s
-//    U1BRG = 37; //460800 baud/s
+//    U1BRG = 151; //115200 baud/s
+    U1BRG = 37; //460800 baud/s
 //    U1BRG = 34; //500000 baud/s
     IEC0bits.U1TXIE = 1;
     IFS0bits.U1TXIF = 0;
@@ -41,11 +41,12 @@ return_value_t uart_init()
     uart_state.rx_buffer = uart_state.rx_packets[0];
     uart_state.rx_buffer_len = 0;
     uart_state.packets_received = 0;
-     
 
+
+    Delay_us(105);
+    U1TXREG = 'a';
      return uart_state.init_return;
 }
-
 
 inline volatile uint8_t* uart_tx_cur_packet()
 {
@@ -101,10 +102,10 @@ void __attribute__((__interrupt__ , no_auto_psv)) _U1ErrInterrupt(void) {
 void __attribute__ ((interrupt, no_auto_psv)) _U1TXInterrupt(void) {
     if(uart_state.tx_packets_start!=uart_state.tx_packets_end){
         //a packet needs to be sent or is in transmission
-       
+
         U1TXREG = uart_state.tx_packets[uart_state.tx_packets_start][uart_state.tx_buffer_idx++];
         uart_state.bytes_sent++;
-        if(uart_state.tx_buffer_idx==uart_state.tx_packets[uart_state.tx_packets_start][2]+2){
+        if(uart_state.tx_buffer_idx>=uart_state.tx_packets[uart_state.tx_packets_start][2]+2){
             uart_state.tx_buffer_idx = 0;
             ++uart_state.tx_packets_start;
             ++uart_state.packets_sent;
@@ -188,4 +189,11 @@ void __attribute__ ((interrupt, no_auto_psv)) _U1RXInterrupt(void) {
     IFS0bits.U1RXIF = 0;
 }
 
-
+void Delay_us(unsigned int delay)
+{
+    uint16_t i;
+    for (i = 0; i < delay; i++){
+        __asm__ volatile ("repeat #39");
+        __asm__ volatile ("nop");
+    }
+}

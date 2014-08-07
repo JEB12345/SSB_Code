@@ -35,11 +35,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "../can.h"
 
 /************************* To be called by user app ***************************/
-//
-//unsigned char canInit(unsigned int bitrate);
-//unsigned char canSend(CAN_PORT notused, Message *m);
+
+unsigned char canInit(unsigned int bitrate);
+unsigned char canSend(CAN_PORT notused, Message *m);
 //unsigned char canReceive(Message *m);
-//unsigned char canChangeBaudRate_driver( CAN_HANDLE fd, char* baud);
+unsigned char canChangeBaudRate_driver( CAN_HANDLE fd, char* baud);
 
 unsigned canReceive(Message* m);
 

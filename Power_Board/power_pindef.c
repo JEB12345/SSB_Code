@@ -28,20 +28,17 @@ return_value_t pin_init() {
     PTGCONbits.PTGWDT = 0b000; //watchdog disabled
 
     //LEDs
-    TRISAbits.TRISA12 = 0;  //LED_1
-    TRISAbits.TRISA11 = 0;  //LED_2
-    TRISAbits.TRISA0 = 0;   //LED_3
+    TRISAbits.TRISA12 = 0;  //LED_R
+    TRISAbits.TRISA11 = 0;  //LED_G
+    TRISAbits.TRISA0 = 0;   //LED_B
     TRISAbits.TRISA1 = 0;   //LED_STATUS
 
     //Power & Motor Enable Pins
-    TRISBbits.TRISB15 = 0;  //BACKUP_CHARGE_EN
     TRISDbits.TRISD5 = 0;   //EN_BACKUP_5V5
-    TRISDbits.TRISD6 = 0;   //EN_MAIN_5V5
-    TRISAbits.TRISA10 = 0;  //EN_24V_5V5_IC
-    TRISDbits.TRISD8 = 0;   //MOTOR_EN
-    TRISBbits.TRISB4 = 0;   //EN_MOTOR_CURRENT
-    TRISAbits.TRISA4 = 0;   //G_BAT_PIC
-    TRISAbits.TRISA8 = 0;   //G_BAT_KILL
+    TRISDbits.TRISD6 = 0;   //EN_VBAT_5V5
+    TRISAbits.TRISA10 = 0;  //VBAT_5V5_EN
+    TRISAbits.TRISA8 = 0;   //KILLSWITCH_uC
+    TRISEbits.TRISE15 = 0;  //EN_MOTOR_CURRENT
 
     //5V5 Output Control Pins
     TRISBbits.TRISB9 = 0;   //EN_OUT_1
@@ -56,8 +53,15 @@ return_value_t pin_init() {
     ANSELCbits.ANSC11 = 1;
 
     //UART 1
-    _RP37R = 0b000001;              //U1TX to pin RP37/RB5 = EX_1
-    RPINR18bits.U1RXR = 0b0100110;  //U1RX to pin RP38/RB6 = EX_2
+    _RP37R = 0b000001;              //U1TX to pin RP37/RB5 = EX_6
+    RPINR18bits.U1RXR = 0b0100110;  //U1RX to pin RP38/RB6 = EX_10
+
+     /*
+     * CAN
+     */
+    TRISCbits.TRISC6 = 0; //TX = output
+    _RP56R = 0b001110;//TX
+    RPINR26bits.C1RXR = 55; //RX RP55
 
     return RET_OK;
 }

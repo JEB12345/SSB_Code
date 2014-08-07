@@ -27,6 +27,9 @@ UNS8 data_type = 0;
 static void can_reset(CO_Data* d);
 static void can_enable_heartbeat(uint16_t time);
 static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time);
+static void ConfigureSlaveNode(CO_Data* d, unsigned char nodeId);
+
+char heartbeat = 1;
 
 return_value_t can_init()
 {
@@ -44,19 +47,12 @@ return_value_t can_init()
 
     setNodeId(&ObjDict_Data, 0x01);
     can_state.is_master = 1;
-    can_enable_heartbeat(100);
-//    if(P6_RA12){
-//        setNodeId(&ObjDict_Data, 0x01);
-//        can_state.is_master = 1;
-//        can_enable_heartbeat(100);
-//    }
-//    else{
-//        setNodeId(&ObjDict_Data, 0x02);
-//        can_state.is_master = 0;
-//    }
     setState(&ObjDict_Data, Initialisation);	// Init the state
-    //start heartbeat
-    //can_enable_heartbeat(100);
+    masterInitTest();
+
+    can_enable_slave_heartbeat(0x03,100);
+    can_enable_heartbeat(100);
+    can_start_node(0x03);
 
     return can_state.init_return;
 }
@@ -71,7 +67,7 @@ uint8_t can_process()
     while(canReceive(&rec_m)){
         //LED_1 ^= LED_1;
         //LED_3 = !LED_3;
-        P6_RA11 = !P6_RA11;
+        //P6_RA11 = !P6_RA11;
         //memcpy(&m_copy,m,sizeof(Message));
         
         canDispatch(&ObjDict_Data, &rec_m); //send packet to CanFestival
@@ -325,8 +321,8 @@ void can_time_dispatch()
 
 void can_push_state()
 {
-    UNS32 data_pos[1] = {(uint32_t)motor_cmd_state[0].cur_pos};
-    UNS16 data_vel[1] = {(uint16_t)motor_cmd_state[0].cur_vel};
+    UNS32 data_1[1] = {loadcell_state.values[0]};
+    UNS32 data_2[1] = {loadcell_state.values[1]};
     UNS32 s = 0;
     UNS32 abortCode;
     UNS32 acode = 0;
@@ -337,50 +333,54 @@ void can_push_state()
 //    }
     switch(state++){
         case 0:
+            if(wr){
+                state--;
+                break;
+            }
             s = sizeof(UNS32);
             wr = writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
             3,                 // Node Id
-            0x2001  ,                 // Index
+            0x2000  ,                 // Index
             0x01,                   // Sub-Index
             s,                      // UNS8 * Size of Data
             0,                      // Data type
-            data_pos,                   // void * SourceData Location
+            data_1,                   // void * SourceData Location
             0);                    // UNS8 checkAccess
-            if(wr){
-                state--;
-            }
+            
             break;
         case 1:
-            s = sizeof(UNS16);
-            wr=writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
-            3,                 // Node Id
-            0x2001  ,                 // Index
-            0x02,                   // Sub-Index
-            s,                      // UNS8 * Size of Data
-            0,                      // Data type
-            data_vel,                   // void * SourceData Location
-            0);                    // UNS8 checkAccess
             if(wr){
                 state--;
+                break;
             }
-            break;
-        case 2:
-        case 3:
-        case 4:
-        case 5:
             s = sizeof(UNS32);
             wr=writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
             3,                 // Node Id
-            0x2002  ,                 // Index
-            state-2,                   // Sub-Index
+            0x2000  ,                 // Index
+            0x02,                   // Sub-Index
             s,                      // UNS8 * Size of Data
             0,                      // Data type
-            &loadcell_state.values[state-3],                   // void * SourceData Location
+            data_2,                   // void * SourceData Location
             0);                    // UNS8 checkAccess
-            if(wr){
-                state--;
-            }
+
             break;
+//        case 2:
+//        case 3:
+//        case 4:
+//        case 5:
+//            s = sizeof(UNS32);
+//            wr=writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
+//            3,                 // Node Id
+//            0x2002  ,                 // Index
+//            state-2,                   // Sub-Index
+//            s,                      // UNS8 * Size of Data
+//            0,                      // Data type
+//            &loadcell_state.values[state-3],                   // void * SourceData Location
+//            0);                    // UNS8 checkAccess
+//            if(wr){
+//                state--;
+//            }
+//            break;
         default:
             state = 0;
             break;
@@ -390,7 +390,7 @@ void can_push_state()
 //    UNS32 acode = 0;
 //    UNS8 wr =  getWriteResultNetworkDict (&ObjDict_Data, 3, &acode);
 
-    s = sizeof(UNS16);
+//    s = sizeof(UNS16);
 //
 //    writeNetworkDict(&ObjDict_Data,   // CO_Data* for this uC
 //            3,                 // Node Id

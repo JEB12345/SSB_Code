@@ -3,7 +3,10 @@
 #include "sensor_pindefs.h"
 #include "sensor_state.h"
 #include <dma.h>
-//#include "../libs/canaerospace/canaerospace/include/canaerospace/canaerospace.h"
+
+//Defined in the AD7193 ADC datasheet
+//Can be a number between 0-2023
+//#define FS_MODE 5
 
 loadcell_data loadcell_state;
 
@@ -55,10 +58,9 @@ return_value_t loadcell_init()
 
     SG_DESELECT;
     loadcell_state.data_ready = 0;
-
-
     loadcell_state.spi_state = SPI_IDLE;
 
+    // Configuration bits for ADC initialization
     uint8_t mode_byte_1 = 0;
     uint8_t mode_byte_2 = 0;
     uint8_t mode_byte_3 = 0;
@@ -113,13 +115,13 @@ return_value_t loadcell_init()
     //write the MODE register
     SPI1BUF = SG_REG_MODE;
     spi_wait();
-    mode_byte_1 = 0b00011111;//continuous mode, transmit status reg, MCLK2 is clock, average 16 (FS/2)
+    mode_byte_1 = 0b00011100;//continuous mode, transmit status reg, MCLK2 is clock, average 8 (FS/2)
 
     mode_byte_2 = 0b00000100;//sinc4 enabled | no parity | no clock divide | no single | 60hz rejection
 
-    //mode_byte_3 = 1;//4800Hz
-    mode_byte_3 = 21;//~100Hz
-    //mode_byte_3 = 1023;//4.7Hz
+    // These bits control the filtering and output freqeuency
+    // It works in conjuction with the sinc, chopping, 50/60 rejection, and averaging modes
+    mode_byte_3 = 1;
 
     loadcell_state.spi_state = SPI_VARIOUS;
     SPI1BUF = mode_byte_1;
@@ -145,7 +147,7 @@ return_value_t loadcell_init()
     SPI1BUF = SG_REG_CONFIG;
     spi_wait();
     //write the CONFIGURATION register
-    config_byte_1 = 0b10000100; // Chope enabled / REFIN1 ref. / Pseudo enabled
+    config_byte_1 = 0b00000100; // Chop disabled / REFIN1 ref. / Pseudo enabled
     config_byte_2 = 0b00001111;// Enabled AIN1-4 / Disabled AIN5-8
     config_byte_3 = 0b01010100; // no burn / Ref. Detect enabled / Buffer enabled / bipolar / GAIN 16
     loadcell_state.spi_state = SPI_VARIOUS;

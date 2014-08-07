@@ -8,6 +8,7 @@
 #ifndef SENSOR_CAN_H
 #define	SENSOR_CAN_H
 #include "sensor_state.h"
+#include "ObjDict.h"
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -55,6 +56,8 @@ extern "C" {
     void can_time_dispatch();
 
     void can_push_state();
+
+    static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time);
 
 #ifdef	__cplusplus
 }
