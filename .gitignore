@@ -6,6 +6,7 @@
 *.exe
 *.o
 *.a
+*.o.d
  
 # Packages #
 ############
@@ -33,3 +34,9 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Random things from make #
+###########################
+*.mk
+*.properties
+*.xml
