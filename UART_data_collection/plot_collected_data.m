@@ -7,8 +7,9 @@ figure;
 
 % The path of the log file to open
 %fileID = fopen('logs/cutecom_offset_MultiBend.log');
-fileID = fopen('logs/cutecom_weird1.log');
-%fileID = fopen('logs/cutecom_8-8-14.log');
+%fileID = fopen('logs/cutecom_weird1.log');
+fileID = fopen('logs/cutecom_8-8-14.log');
+
 % Import everything
 data_mat = fread(fileID);
 
