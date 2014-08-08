@@ -1,6 +1,0 @@
-<map id="closeSDOtransfer" name="closeSDOtransfer">
-<area shape="rect" id="node3" href="$sdo_8c.html#a83b35f348d36c23421eb1753df96fc33" title="GetSDOClientFromNodeId" alt="" coords="177,5,351,33"/>
-<area shape="rect" id="node5" href="$sdo_8c.html#a306682ff5ce933d4db07547e467e9057" title="Search for the line, in the transfers array, which contains the beginning of the reception of a fragm..." alt="" coords="197,55,331,83"/>
-<area shape="rect" id="node7" href="$sdo_8c.html#a42d33be015d4c4c83c73f1f0e588f481" title="Reset an unused line." alt="" coords="215,106,313,134"/>
-<area shape="rect" id="node9" href="$sdo_8c.html#aa570e2c8e69527298b428563a38ced9f" title="Initialize some fields of the structure." alt="" coords="401,106,487,134"/>
-</map>

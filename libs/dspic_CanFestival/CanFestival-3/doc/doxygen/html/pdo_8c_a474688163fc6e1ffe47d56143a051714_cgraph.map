@@ -1,9 +1,0 @@
-<map id="PDOInit" name="PDOInit">
-<area shape="rect" id="node3" href="$group__pdo.html#ga95c3686cda4e9e6f7c847d2d0bb88fe8" title="Function iterates on all TPDO and look TPDO transmit type and content change before sending it..." alt="" coords="143,5,257,33"/>
-<area shape="rect" id="node9" href="$objacces_8h.html#a11e9f24840d05a6a622955b51f91af53" title="Scan the index of object dictionary. Used only by setODentry and getODentry." alt="" coords="151,55,249,83"/>
-<area shape="rect" id="node11" href="$pdo_8c.html#a3e9718d5f111be6a018a94c681f7ba07" title="TPDO_Communication\l_Parameter_Callback" alt="" coords="123,106,277,150"/>
-<area shape="rect" id="node5" href="$pdo_8c.html#a889902163641f6fc8039550cb11ec320" title="Copy all the data to transmit in process_var Prepare the PDO defined at index to be sent *pwCobId : r..." alt="" coords="361,5,439,33"/>
-<area shape="rect" id="node7" href="$pdo_8c.html#ae468510c9f77f502207d961d26389918" title="CopyBits" alt="" coords="524,5,596,33"/>
-<area shape="rect" id="node13" href="$group__timer.html#ga991b3cfaac2f201b14d5530f75985c21" title="Delete an alarm before expiring." alt="" coords="363,89,437,117"/>
-<area shape="rect" id="node15" href="$group__pdo.html#gae983f9075bd04d0afff7391891a0d7c3" title="Set timer for PDO event." alt="" coords="325,139,475,167"/>
-</map>
