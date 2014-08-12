@@ -53,9 +53,10 @@ int main(int argc, char** argv) {
 
     // Enable CAN after calling the EN_OUT_# commands.
     // This prevents the while loop in the can_init() from stalling.
-    if(can_init()){
-        while(1);
-    }
+    can_state.init_return = RET_UNKNOWN;
+//    if(can_init()){
+//        while(1);
+//    }
 
     for(;;){
         // All programs that run on a 1ms loop should go in this if statement

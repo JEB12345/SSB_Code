@@ -7,7 +7,7 @@
 
 #include "sensor_can.h"
 #include "sensor_pindefs.h"
-#include "ObjDict.h"
+#include "sensor_objdict.h"
 
 
 can_data can_state;
@@ -45,13 +45,14 @@ return_value_t can_init()
     //reset callback
     ObjDict_Data.NMT_Slave_Node_Reset_Callback = can_reset;
 
-    setNodeId(&ObjDict_Data, 0x01);
+//    setNodeId(&ObjDict_Data, 0x01);
     can_state.is_master = 1;
     setState(&ObjDict_Data, Initialisation);	// Init the state
-    masterInitTest();
+    setState(&ObjDict_Data, Operational);
+//    masterInitTest();
 
-    can_enable_slave_heartbeat(0x03,100);
-    can_enable_heartbeat(100);
+//    can_enable_slave_heartbeat(0x03,100);
+//    can_enable_heartbeat(100);
     can_start_node(0x03);
 
     return can_state.init_return;

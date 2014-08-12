@@ -63,9 +63,9 @@ int main(int argc, char** argv) {
 
     // Commented out the CAN code since it has some while loops which hang if it is not connected.
     can_state.init_return = RET_UNKNOWN;
-//    if(can_init()){
-//        while(1);
-//    }
+    if(can_init()){
+        while(1);
+    }
 
     timer_state.prev_systime = 0;
     timer_state.systime = 0;
@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
 //                    }
 //                }
                 if(timer_state.systime&timeStep){
-                    can_push_state();
+//                    can_push_state();
                 }
             }
 
