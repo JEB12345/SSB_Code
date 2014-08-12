@@ -42,3 +42,7 @@ Thumbs.db
 *.xml
 *.mk
 *.properties
+
+# VIM generated files #
+#######################
+*.swp
