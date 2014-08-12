@@ -6,6 +6,9 @@
 *.exe
 *.o
 *.a
+*.o.d
+*.elf
+*.map
  
 # Packages #
 ############
@@ -33,3 +36,9 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Project files from MPLabX #
+#############################
+*.xml
+*.mk
+*.properties
