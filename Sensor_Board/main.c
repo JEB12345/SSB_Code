@@ -9,7 +9,7 @@
 #include "clock.h"
 #include "sensor_can.h" //always include first, as this sets a number of config variables
 #include "sensor_adc.h"
-#include "sensor_imu.h"
+//#include "sensor_imu.h"
 #include "sensor_led.h"
 #include "sensor_loadcell.h"
 #include "sensor_pindefs.h"
@@ -19,6 +19,14 @@
 #include "sensor_timers.h"
 #include "sensor_memdebug.h"
 #include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
+/**
+ * This is test code for the MPU60
+ * ********************************
+#include "I2CdsPIC.h"
+#include "MPU60xx.h"
+#include <uart.h>
+ * ********************************
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <p33Exxxx.h>
@@ -29,6 +37,31 @@ extern timer_data timer_state;
 extern loadcell_data loadcell_state;
 extern imu_data imu_state;
 extern can_data can_state;
+
+/**
+ * This is test code for the MPU60
+ * ********************************
+MPU6050_Data imuData;
+char strBuff[128] = "";
+
+void IMU2String(char *strBuff, MPU6050_Data input)
+{
+	char textBuff[16] = "";
+	strcat(strBuff, itoa(textBuff, input.accelX, 10));
+	strcat(strBuff, ",");
+	strcat(strBuff, itoa(textBuff, input.accelY, 10));
+	strcat(strBuff, ",");
+	strcat(strBuff, itoa(textBuff, input.accelZ, 10));
+	strcat(strBuff, ",");
+	strcat(strBuff, itoa(textBuff, input.gyroX, 10));
+	strcat(strBuff, ",");
+	strcat(strBuff, itoa(textBuff, input.gyroY, 10));
+	strcat(strBuff, ",");
+	strcat(strBuff, itoa(textBuff, input.gyroZ, 10));
+	strcat(strBuff, "\r\n\0");
+}
+ * *******************************
+ */
 
 
 /*
@@ -52,14 +85,25 @@ int main(int argc, char** argv) {
     uart_init();
     loadcell_init();
     loadcell_start();
+
+    /**
+     * This is test code for the MPU60
+     * ********************************
+    I2C_Init();
+    MPU60xx_Init();
+     * ********************************
+     */
+
     led_rgb_off();
 
     //memtest();
-
     imu_state.init_return = RET_UNKNOWN;
     //imu_init();
 
     led_rgb_set(50,0,100);
+    
+        // Turn on the BBB by enabling the 5.5->5V LDO
+    BBB_Power = 1;
 
     // Commented out the CAN code since it has some while loops which hang if it is not connected.
     can_state.init_return = RET_UNKNOWN;
@@ -69,17 +113,6 @@ int main(int argc, char** argv) {
 
     timer_state.prev_systime = 0;
     timer_state.systime = 0;
-
-    // Turn on the BBB by enabling the 5.5->5V LDO
-//    BBB_Power = 1;
-
-    // CANOpen test init for Master Node
-//    if(can_state.is_master){
-//        masterInitTest();
-//    }
-//    else{
-//        slaveInitTest();
-//    }
 
     for(;;){
         if(timer_state.systime != timer_state.prev_systime){
@@ -113,6 +146,22 @@ int main(int argc, char** argv) {
             }
 
                 if(timer_state.systime%1 == 0){
+
+                    /**
+                     * This is test code for the MPU60
+                     * ********************************
+//                    MPU60xx_Get6AxisData(&imuData);
+//                    uint8_t i;
+//                    IMU2String(strBuff, imuData);
+//
+//                    for (i = 0; i < strlen(strBuff); i++) {
+//                            WriteUART1(strBuff[i]);
+//                            while (BusyUART1());
+//                    }
+
+                    memset(strBuff, NULL, 128);
+                    * ********************************
+                    */
                     uart_tx_packet = uart_tx_cur_packet();
                     uart_tx_packet[0] = 0xFF;//counting
                     uart_tx_packet[1] = 0xFF;//CMD

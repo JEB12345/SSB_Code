@@ -8,7 +8,6 @@
 imu_data imu_state;
 
 void i2c_scan(); //internal helper function
-
 return_value_t imu_init()
 {
     uint8_t temp;
