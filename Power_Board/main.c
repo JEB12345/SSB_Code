@@ -15,6 +15,7 @@
 #include "power_uart.h"
 #include "power_can.h"
 #include "superball_communication.h"
+#include "power_objdict.h"
 #include <p33Exxxx.h>
 
 extern timer_data timer_state;
@@ -37,9 +38,9 @@ int main(int argc, char** argv) {
     // Parameter Initalziations
     timer_state.prev_systime = 0;
     timer_state.systime = 0;
-    uint16_t timeStep = 2000;
+    uint16_t timeStep = 50;
     volatile uint8_t* uart_tx_packet = 0;
-//    volatile uint8_t* uart_rx_packet = 0;
+    volatile uint8_t* uart_rx_packet = 0;
 
     EN_OUT_1 = 1;
     EN_OUT_2 = 1;
@@ -63,28 +64,30 @@ int main(int argc, char** argv) {
         if(timer_state.systime != timer_state.prev_systime){
             timer_state.prev_systime = timer_state.systime;
 
-            if(timer_state.systime%timeStep == 0){
-               LED_B=!LED_B;
-            }
-
-            if(timer_state.systime%50 == 0){
-                LED_G = !LED_G;
-            }
+//            if(timer_state.systime%timeStep == 0){
+//               LED_B=!LED_B;
+//            }
+//
+//            if(timer_state.systime%50 == 0){
+//                LED_G = !LED_G;
+//            }
 
             if(timer_state.systime%1 == 0){
                 uart_tx_packet = uart_tx_cur_packet();
                 uart_tx_packet[0] = 0xFF;//ALWAYS 0xFF
                 uart_tx_packet[1] = 0xFF;//CMD
                 uart_tx_packet[2] = 14;
-                uart_tx_packet[3] = (adc_values.AN6>>8)&0xFF;
-                uart_tx_packet[4] = adc_values.AN6&0xFF;
-                uart_tx_packet[5] = (adc_values.AN7>>8)&0xFF;
-                uart_tx_packet[6] = adc_values.AN7&0xFF;
-                uart_tx_packet[7] = (adc_values.AN8>>8)&0xFF;
-                uart_tx_packet[8] = adc_values.AN8&0xFF;
-                uart_tx_packet[9] = (adc_values.AN11>>8)&0xFF;
-                uart_tx_packet[10] = adc_values.AN11&0xFF;
+                uart_tx_packet[3] = (Strain_Gauge1>>24)&0xFF;
+                uart_tx_packet[4] = (Strain_Gauge1>>16)&0xFF;
+                uart_tx_packet[5] = (Strain_Gauge1>>8)&0xFF;
+                uart_tx_packet[6] = (Strain_Gauge1)&0xFF;
 
+                uart_tx_packet[7] = 0x89;
+
+                uart_tx_packet[8] = (Strain_Gauge2>>24)&0xFF;
+                uart_tx_packet[9] = (Strain_Gauge2>>16)&0xFF;
+                uart_tx_packet[10] = (Strain_Gauge2>>8)&0xFF;
+                uart_tx_packet[11] = (Strain_Gauge2)&0xFF;
                 uart_tx_compute_cks(uart_tx_packet);
                 uart_tx_update_index();
                 uart_tx_start_transmit();
@@ -100,8 +103,8 @@ int main(int argc, char** argv) {
                         //can_reset_node(2);
                     }
                 }
-                if(timer_state.systime&0b100000000){
-//                     can_push_state();
+                if(timer_state.systime%timeStep == 0){
+                     can_push_state();
                 }
             }
 

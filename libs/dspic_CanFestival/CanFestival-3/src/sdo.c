@@ -1887,11 +1887,11 @@ INLINE UNS8 _writeNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index,
 	if(CliNbr >= 0xFE)
 		return CliNbr;
 	/* Verify that there is no SDO communication yet. */
-	err = getSDOlineOnUse(d, CliNbr, SDO_CLIENT, &line);
-	if (!err) {
-		MSG_ERR(0x1AC4, "SDO error : Communication yet established. with node : ", nodeId);
-		return 0xFF;
-	}
+//	err = getSDOlineOnUse(d, CliNbr, SDO_CLIENT, &line);
+//	if (err) {
+//		MSG_ERR(0x1AC4, "SDO error : Communication yet established. with node : ", nodeId);
+//		return 0xFF;
+//	}
 	/* Taking the line ... */
 	err = getSDOfreeLine( d, SDO_CLIENT, &line );
 	if (err) {
@@ -1980,7 +1980,9 @@ INLINE UNS8 _writeNetworkDict (CO_Data* d, UNS8 nodeId, UNS16 index,
 		return 0xFF;
 	}
 
-
+        if(line > 4){
+            resetSDOline(d, line);
+        }
 	return 0;
 }
 

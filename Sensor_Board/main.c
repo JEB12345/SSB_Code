@@ -3,7 +3,7 @@
  * Author: ken and Jonathan
  *
  * Created on August 28, 2013, 11:31 PM
- * Latest Modification: 3 August, 2014
+ * Latest Modification: 1 Sept, 2014
  */
 
 #include "clock.h"
@@ -75,7 +75,7 @@ int main(int argc, char** argv) {
     volatile uint8_t* uart_tx_packet = 0;
     volatile uint8_t* uart_rx_packet;
     uint32_t old_loadcell_data;
-    uint16_t timeStep = 100;
+    uint16_t timeStep = 50;
 
     clock_init();
     pin_init();
@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
 
     led_rgb_set(50,0,100);
     
-        // Turn on the BBB by enabling the 5.5->5V LDO
+    // Turn on the BBB by enabling the 5.5->5V LDO
     BBB_Power = 1;
 
     // Commented out the CAN code since it has some while loops which hang if it is not connected.
@@ -129,14 +129,8 @@ int main(int argc, char** argv) {
             if(can_state.init_return==RET_OK){
                 can_process();
 
-//                if(can_state.is_master){
-//                    if(timer_state.systime==2000){
-//                        //test reset slaves
-//                        //can_reset_node(2);
-//                    }
-//                }
-                if(timer_state.systime&timeStep){
-//                    can_push_state();
+                if(timer_state.systime%timeStep == 0){
+                    can_push_state();
                 }
             }
 

@@ -1,12 +1,12 @@
-#include "sensor_state.h"
-#include "sensor_clock.h"
+#include "power_state.h"
+#include "power_clock.h"
 #include "p33Exxxx.h"
 
 _FOSCSEL(FNOSC_FRCPLL & IESO_OFF & PWMLOCK_OFF); //PWMLOCK_OFF needed to configure PWM
 _FOSC(FCKSM_CSECMD & OSCIOFNC_ON & POSCMD_NONE);
 _FWDT(FWDTEN_OFF);
 /* Disable JTAG */
-_FICD(JTAGEN_OFF & ICS_PGD2);
+_FICD(JTAGEN_OFF & ICS_PGD1);
 
 clock_data clock_state;
 

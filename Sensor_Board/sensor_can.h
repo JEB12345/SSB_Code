@@ -8,7 +8,7 @@
 #ifndef SENSOR_CAN_H
 #define	SENSOR_CAN_H
 #include "sensor_state.h"
-#include "ObjDict.h"
+#include "sensor_objdict.h"
 #ifdef	__cplusplus
 extern "C" {
 #endif
