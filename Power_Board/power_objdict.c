@@ -10,7 +10,7 @@ UNS32 Strain_Gauge1 = 0x0;		/* Mapped at index 0x2001, subindex 0x00 */
 UNS32 Strain_Gauge2 = 0x0;		/* Mapped at index 0x2002, subindex 0x00 */
 UNS32 Strain_Gauge3 = 0x0;		/* Mapped at index 0x2003, subindex 0x00 */
 UNS32 Strain_Gauge4 = 0x0;		/* Mapped at index 0x2004, subindex 0x00 */
-UNS32 _24V_ADC = 0x0;		/* Mapped at index 0x3001, subindex 0x00 */
+UNS8 Voltage_24V = 0x0;		/* Mapped at index 0x4000, subindex 0x00 */
 
 /**************************************************************************/
 /* Declaration of value range types                                       */
@@ -98,9 +98,9 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Power_Board_highestSubIndex_obj1016 = 3; /* number of subindex - 1*/
                     UNS32 Power_Board_obj1016[] = 
                     {
-                      0x3E80100,	/* 65536256 */
-                      0x3E80200,	/* 65536512 */
-                      0x3E80400	/* 65537024 */
+                      0x101F4,	/* 66036 */
+                      0x201F4,	/* 131572 */
+                      0x401F4	/* 262644 */
                     };
                     subindex Power_Board_Index1016[] = 
                      {
@@ -123,7 +123,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x1018 :   Identity. */
                     UNS8 Power_Board_highestSubIndex_obj1018 = 4; /* number of subindex - 1*/
-                    UNS32 Power_Board_obj1018_Vendor_ID = 0x3;	/* 3 */
+                    UNS32 Power_Board_obj1018_Vendor_ID = 0x0;	/* 0 */
                     UNS32 Power_Board_obj1018_Product_Code = 0x0;	/* 0 */
                     UNS32 Power_Board_obj1018_Revision_Number = 0x0;	/* 0 */
                     UNS32 Power_Board_obj1018_Serial_Number = 0x0;	/* 0 */
@@ -246,34 +246,22 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     subindex Power_Board_Index1600[] = 
                      {
                        { RW, uint8, sizeof (UNS8), (void*)&Power_Board_highestSubIndex_obj1600 },
-                       { RW|TO_BE_SAVE, uint32, sizeof (UNS32), (void*)&Power_Board_obj1600[0] },
-                       { RW|TO_BE_SAVE, uint32, sizeof (UNS32), (void*)&Power_Board_obj1600[1] }
+                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1600[0] },
+                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1600[1] }
                      };
 
 /* index 0x1601 :   Receive PDO 2 Mapping. */
-                    UNS8 Power_Board_highestSubIndex_obj1601 = 8; /* number of subindex - 1*/
+                    UNS8 Power_Board_highestSubIndex_obj1601 = 2; /* number of subindex - 1*/
                     UNS32 Power_Board_obj1601[] = 
                     {
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0	/* 0 */
+                      0x20030020,	/* 537067552 */
+                      0x20040020	/* 537133088 */
                     };
                     subindex Power_Board_Index1601[] = 
                      {
                        { RW, uint8, sizeof (UNS8), (void*)&Power_Board_highestSubIndex_obj1601 },
                        { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1601[0] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1601[1] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1601[2] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1601[3] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1601[4] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1601[5] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1601[6] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1601[7] }
+                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1601[1] }
                      };
 
 /* index 0x1602 :   Receive PDO 3 Mapping. */
@@ -448,7 +436,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Power_Board_highestSubIndex_obj1A00 = 1; /* number of subindex - 1*/
                     UNS32 Power_Board_obj1A00[] = 
                     {
-                      0x30010020	/* 805371936 */
+                      0x40000008	/* 1073741832 */
                     };
                     subindex Power_Board_Index1A00[] = 
                      {
@@ -537,13 +525,13 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 /* index 0x2001 :   Mapped variable Strain_Gauge1 */
                     subindex Power_Board_Index2001[] = 
                      {
-                       { RW|TO_BE_SAVE, uint32, sizeof (UNS32), (void*)&Strain_Gauge1 }
+                       { RW, uint32, sizeof (UNS32), (void*)&Strain_Gauge1 }
                      };
 
 /* index 0x2002 :   Mapped variable Strain_Gauge2 */
                     subindex Power_Board_Index2002[] = 
                      {
-                       { RW|TO_BE_SAVE, uint32, sizeof (UNS32), (void*)&Strain_Gauge2 }
+                       { RW, uint32, sizeof (UNS32), (void*)&Strain_Gauge2 }
                      };
 
 /* index 0x2003 :   Mapped variable Strain_Gauge3 */
@@ -558,10 +546,10 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, uint32, sizeof (UNS32), (void*)&Strain_Gauge4 }
                      };
 
-/* index 0x3001 :   Mapped variable 24V_ADC */
-                    subindex Power_Board_Index3001[] = 
+/* index 0x4000 :   Mapped variable Voltage_24V */
+                    subindex Power_Board_Index4000[] = 
                      {
-                       { RW, uint32, sizeof (UNS32), (void*)&_24V_ADC }
+                       { RW, uint8, sizeof (UNS8), (void*)&Voltage_24V }
                      };
 
 /**************************************************************************/
@@ -597,7 +585,7 @@ const indextable Power_Board_objdict[] =
   { (subindex*)Power_Board_Index2002,sizeof(Power_Board_Index2002)/sizeof(Power_Board_Index2002[0]), 0x2002},
   { (subindex*)Power_Board_Index2003,sizeof(Power_Board_Index2003)/sizeof(Power_Board_Index2003[0]), 0x2003},
   { (subindex*)Power_Board_Index2004,sizeof(Power_Board_Index2004)/sizeof(Power_Board_Index2004[0]), 0x2004},
-  { (subindex*)Power_Board_Index3001,sizeof(Power_Board_Index3001)/sizeof(Power_Board_Index3001[0]), 0x3001},
+  { (subindex*)Power_Board_Index4000,sizeof(Power_Board_Index4000)/sizeof(Power_Board_Index4000[0]), 0x4000},
 };
 
 const indextable * Power_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks)
@@ -632,7 +620,7 @@ const indextable * Power_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODC
 		case 0x2002: i = 24;break;
 		case 0x2003: i = 25;break;
 		case 0x2004: i = 26;break;
-		case 0x3001: i = 27;break;
+		case 0x4000: i = 27;break;
 		default:
 			*errorCode = OD_NO_SUCH_OBJECT;
 			return NULL;

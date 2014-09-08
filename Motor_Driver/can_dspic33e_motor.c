@@ -24,11 +24,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //#define DEBUG_WAR_CONSOLE_ON
 //#define DEBUG_ERR_CONSOLE_ON
 
-#include "../../include/dspic33e/can_dspic33e.h"
-#include "../../include/dspic33e/canfestival.h"
-#include "../../../../../Sensor_Board/superball_circularbuffer.h"
+#include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
+#include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/canfestival.h"
+#include "../Sensor_Board/superball_circularbuffer.h"
+#include <dma.h>
 #include <ecan.h>
-#include <p33Exxxx.h>
+#include <xc.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 ////////////////////// USER FUNCTIONS Replace when this is a library //////////
@@ -52,12 +53,12 @@ CircularBuffer can_rx_circ_buff;
 
 
 
-unsigned char canInit(unsigned int bitrate)
+unsigned char canMotorInit(unsigned int bitrate)
 /******************************************************************************
 Initialize the hardware to receive CAN messages and start the timer for the
 CANopen stack.
 INPUT	bitrate		bitrate in kilobit
-OUTPUT	1 if successful	
+OUTPUT	1 if successful
 ******************************************************************************/
 {
     unsigned int config;
@@ -81,7 +82,7 @@ OUTPUT	1 if successful
     C1CTRL1bits.REQOP = 4;
     while (C1CTRL1bits.OPMODE != 4);
 
-   
+
 
     //1Mbaud
     // Setup our frequencies for time quanta calculations.
@@ -101,14 +102,14 @@ OUTPUT	1 if successful
     C1CFG2bits.SAM = 1; // Triple-sample for majority rules at bit sample point
 
     // No FIFO, 32 Buffers
-    C1FCTRL = 0xC01F; 
+    C1FCTRL = 0xC01F;
 
     // Clear all interrupt bits
     C1RXFUL1 = C1RXFUL2 = C1RXOVF1 = C1RXOVF2 = 0x0000;
      C1CTRL1bits.WIN = 1; // Allow configuration of masks and filters
     // Configure buffer settings.
     C1TR01CON = 0;
-    //buffer 0 is transmit
+    //even buffer is transmit, odd buffer is recieve
     C1TR01CONbits.TXEN0 = 1;
     C1TR01CONbits.TXEN1 = 0;
     C1TR23CONbits.TXEN2 = 1;
@@ -117,7 +118,6 @@ OUTPUT	1 if successful
     C1TR45CONbits.TXEN5 = 0;
     C1TR67CONbits.TXEN6 = 1;
     C1TR67CONbits.TXEN7 = 0;
-
 
     //CONFIG DMA
     //TX
@@ -234,83 +234,25 @@ OUTPUT	1 if  hardware -> CAN frame
     }
 
     //TODO: use multiple transmit buffers
-    switch(bufferSwitch){
-    case 0:
-	    if(!C1TR01CONbits.TXREQ0){
-		    ecan1TXMsgBuf[0][0] = word0;
-		    ecan1TXMsgBuf[0][1] = word1;
-		    ecan1TXMsgBuf[0][2] = ((word2 & 0xFFF0) + m->len);
-		    ecan1TXMsgBuf[0][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
-		    ecan1TXMsgBuf[0][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
-		    ecan1TXMsgBuf[0][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
-		    ecan1TXMsgBuf[0][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
+    while(C1TR01CONbits.TXREQ1 == 1);
 
-		    C1TR01CONbits.TXEN0 = 1;
-		    C1TR01CONbits.TXREQ0 = 1;
-		    bufferSwitch++;
-		    break;
-	    }
-    case 1:
-	    if(!C1TR01CONbits.TXREQ1){
-		    ecan1TXMsgBuf[1][0] = word0;
-		    ecan1TXMsgBuf[1][1] = word1;
-		    ecan1TXMsgBuf[1][2] = ((word2 & 0xFFF0) + m->len);
-		    ecan1TXMsgBuf[1][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
-		    ecan1TXMsgBuf[1][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
-		    ecan1TXMsgBuf[1][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
-		    ecan1TXMsgBuf[1][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
+    ecan1TXMsgBuf[1][0] = word0;
+    ecan1TXMsgBuf[1][1] = word1;
+    ecan1TXMsgBuf[1][2] = ((word2 & 0xFFF0) + m->len);
+    ecan1TXMsgBuf[1][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
+    ecan1TXMsgBuf[1][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
+    ecan1TXMsgBuf[1][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
+     ecan1TXMsgBuf[1][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
 
-		    C1TR01CONbits.TXEN1 = 1;
-		    C1TR01CONbits.TXREQ1 = 1;
-		    bufferSwitch=0;
-		    break;
-	    }
-//	    else{
-//		    bufferSwitch++;
-//	    }
-//    case 2:
-//	    if(!C1TR45CONbits.TXREQ4){
-//		    ecan1TXMsgBuf[2][0] = word0;
-//		    ecan1TXMsgBuf[2][1] = word1;
-//		    ecan1TXMsgBuf[2][2] = ((word2 & 0xFFF0) + m->len);
-//		    ecan1TXMsgBuf[2][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
-//		    ecan1TXMsgBuf[2][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
-//		    ecan1TXMsgBuf[2][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
-//		    ecan1TXMsgBuf[2][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
-//
-//		    C1TR45CONbits.TXEN4 = 1;
-//		    C1TR45CONbits.TXREQ4 = 1;
-//		    break;
-//	    }
-//	    else{
-//		    bufferSwitch++;
-//	    }
-//    case 3:
-//	    if(!C1TR67CONbits.TXREQ6){
-//		    ecan1TXMsgBuf[3][0] = word0;
-//		    ecan1TXMsgBuf[3][1] = word1;
-//		    ecan1TXMsgBuf[3][2] = ((word2 & 0xFFF0) + m->len);
-//		    ecan1TXMsgBuf[3][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
-//		    ecan1TXMsgBuf[3][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
-//		    ecan1TXMsgBuf[3][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
-//		    ecan1TXMsgBuf[3][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
-//
-//		    C1TR45CONbits.TXEN4 = 1;
-//		    C1TR45CONbits.TXREQ4 = 1;
-//		    break;
-//	    }
-////	    else if(C1TR01CONbits.TXREQ0 &&
-////		    C1TR23CONbits.TXREQ2 &&
-////		    C1TR45CONbits.TXREQ4 &&
-////		    C1TR67CONbits.TXREQ6){
-////		    ABORT!
-////	    }
-    default:
-	    bufferSwitch == 0;
-	    break;
-    }
-
-
+    // Set the correct transfer intialization bit (TXREQ) based on message buffer.
+    //offset = message->buffer >> 1;
+    //bufferCtrlRegAddr = (uint16_t *) (&C1TR01CON + offset);
+    //bit_to_set = 1 << (3 | ((message->buffer & 1) << 3));
+    //*bufferCtrlRegAddr |= bit_to_set;
+    C1TR01CONbits.TXEN1 = 1;
+    C1TR01CONbits.TX0PRI = 0;
+    C1TR01CONbits.TXREQ1 = 1;
+    
 }
 
 unsigned canReceive(Message* m)
@@ -320,7 +262,7 @@ INPUT	Message *m pointer to received CAN message
 OUTPUT	1 if a message received
 ******************************************************************************/
 {
-    
+
     //get the first message in the queue (if any)
     if(CB_ReadMany(&can_rx_circ_buff,m,sizeof(Message))==SUCCESS){
         return 1;
@@ -334,7 +276,7 @@ OUTPUT	1 if a message received
 //        }
 //    }
 //    return res;
-    
+
 }
 
 /***************************************************************************/
@@ -357,7 +299,7 @@ void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
     static uint8_t packet_idx;
     unsigned i;
 
-    if (C1INTFbits.TBIF) {        
+    if (C1INTFbits.TBIF) {
         C1INTFbits.TBIF = 0; //message was transmitted, nothing to do, I guess
     }
     // If the interrupt was fired because of a received message
@@ -422,7 +364,7 @@ void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
             m.data[6] = (uint8_t) (ecan_msg_buf_ptr[6]&0xFF);
             m.data[7] = (uint8_t) ((ecan_msg_buf_ptr[6] & 0xFF00) >> 8);
 
-            
+
         }
 
         //copy message to circular buffer

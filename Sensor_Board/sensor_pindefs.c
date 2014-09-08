@@ -1,6 +1,7 @@
 #include "p33Exxxx.h"
 #include "sensor_state.h"
 #include "sensor_pindefs.h"
+#include <pps.h>
 
 return_value_t pin_init()
 {
@@ -92,9 +93,14 @@ return_value_t pin_init()
     /*
      * CAN
      */
-    TRISCbits.TRISC6 = 0; //TX = output
+    TRISCbits.TRISC8 = 0; //TX = output
     _RP56R = 0b001110;//TX
     RPINR26bits.C1RXR = 55; //RX RP55
+//    IN_FN_PPS_C1RX = IN_PIN_PPS_RP36;
+//    OUT_PIN_PPS_RP35 = OUT_FN_PPS_C1TX;
+
+
+    //RP36/35
 
     //IMU
     //configured in sensor_imu.c

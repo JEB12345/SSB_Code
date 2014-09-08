@@ -16,6 +16,6 @@ extern UNS32 Strain_Gauge1;		/* Mapped at index 0x2001, subindex 0x00*/
 extern UNS32 Strain_Gauge2;		/* Mapped at index 0x2002, subindex 0x00*/
 extern UNS32 Strain_Gauge3;		/* Mapped at index 0x2003, subindex 0x00*/
 extern UNS32 Strain_Gauge4;		/* Mapped at index 0x2004, subindex 0x00*/
-extern UNS32 _24V_ADC;		/* Mapped at index 0x3001, subindex 0x00*/
+extern UNS8 Voltage_24V;		/* Mapped at index 0x4000, subindex 0x00*/
 
 #endif // POWER_OBJDICT_H
