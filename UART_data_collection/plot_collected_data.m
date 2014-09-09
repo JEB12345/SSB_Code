@@ -8,7 +8,7 @@ figure;
 % The path of the log file to open
 %fileID = fopen('logs/cutecom_offset_MultiBend.log');
 %fileID = fopen('logs/cutecom_weird1.log');
-fileID = fopen('logs/cutecom_8-8-14_rodtest.log');
+fileID = fopen('/home/jonathan/Projects/SBB/Code/UART_Capture/Initial_Testing_Setup/Full_Rage_Test_200gPer/cutecom_1000g_load.log');
 
 % Import everything
 data_mat = fread(fileID);

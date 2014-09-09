@@ -48,7 +48,7 @@ static unsigned int ecan1TXMsgBuf[4][8] __attribute__((aligned(4 * 16)));
 #define CAN_RX_BUFF_SIZE 5*sizeof(Message)
 uint8_t can_rx_buffer_array[CAN_RX_BUFF_SIZE];
 CircularBuffer can_rx_circ_buff;
-
+static uint8_t txreq_bitarray = 0;
 
 
 
@@ -211,6 +211,7 @@ OUTPUT	1 if  hardware -> CAN frame
 
     // Variables for setting correct TXREQ bit
     static uint8_t bufferSwitch = 0;
+    static char firstTime = 1;
 
     // Divide the identifier into bit-chunks for storage
     // into the registers.
@@ -234,81 +235,149 @@ OUTPUT	1 if  hardware -> CAN frame
     }
 
     //TODO: use multiple transmit buffers
-    switch(bufferSwitch){
-    case 0:
-	    if(!C1TR01CONbits.TXREQ0){
-		    ecan1TXMsgBuf[0][0] = word0;
-		    ecan1TXMsgBuf[0][1] = word1;
-		    ecan1TXMsgBuf[0][2] = ((word2 & 0xFFF0) + m->len);
-		    ecan1TXMsgBuf[0][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
-		    ecan1TXMsgBuf[0][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
-		    ecan1TXMsgBuf[0][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
-		    ecan1TXMsgBuf[0][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
+    while(C1TR01CONbits.TXREQ1 == 1);
 
-		    C1TR01CONbits.TXEN0 = 1;
-		    C1TR01CONbits.TXREQ0 = 1;
-		    bufferSwitch++;
-		    break;
-	    }
-    case 1:
-	    if(!C1TR01CONbits.TXREQ1){
-		    ecan1TXMsgBuf[1][0] = word0;
-		    ecan1TXMsgBuf[1][1] = word1;
-		    ecan1TXMsgBuf[1][2] = ((word2 & 0xFFF0) + m->len);
-		    ecan1TXMsgBuf[1][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
-		    ecan1TXMsgBuf[1][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
-		    ecan1TXMsgBuf[1][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
-		    ecan1TXMsgBuf[1][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
+    ecan1TXMsgBuf[1][0] = word0;
+    ecan1TXMsgBuf[1][1] = word1;
+    ecan1TXMsgBuf[1][2] = ((word2 & 0xFFF0) + m->len);
+    ecan1TXMsgBuf[1][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
+    ecan1TXMsgBuf[1][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
+    ecan1TXMsgBuf[1][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
+     ecan1TXMsgBuf[1][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
 
-		    C1TR01CONbits.TXEN1 = 1;
-		    C1TR01CONbits.TXREQ1 = 1;
-		    bufferSwitch=0;
-		    break;
-	    }
-//	    else{
-//		    bufferSwitch++;
-//	    }
-//    case 2:
-//	    if(!C1TR45CONbits.TXREQ4){
-//		    ecan1TXMsgBuf[2][0] = word0;
-//		    ecan1TXMsgBuf[2][1] = word1;
-//		    ecan1TXMsgBuf[2][2] = ((word2 & 0xFFF0) + m->len);
-//		    ecan1TXMsgBuf[2][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
-//		    ecan1TXMsgBuf[2][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
-//		    ecan1TXMsgBuf[2][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
-//		    ecan1TXMsgBuf[2][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
-//
-//		    C1TR45CONbits.TXEN4 = 1;
-//		    C1TR45CONbits.TXREQ4 = 1;
-//		    break;
-//	    }
-//	    else{
-//		    bufferSwitch++;
-//	    }
-//    case 3:
-//	    if(!C1TR67CONbits.TXREQ6){
-//		    ecan1TXMsgBuf[3][0] = word0;
-//		    ecan1TXMsgBuf[3][1] = word1;
-//		    ecan1TXMsgBuf[3][2] = ((word2 & 0xFFF0) + m->len);
-//		    ecan1TXMsgBuf[3][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
-//		    ecan1TXMsgBuf[3][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
-//		    ecan1TXMsgBuf[3][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
-//		    ecan1TXMsgBuf[3][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
-//
-//		    C1TR45CONbits.TXEN4 = 1;
-//		    C1TR45CONbits.TXREQ4 = 1;
-//		    break;
-//	    }
-////	    else if(C1TR01CONbits.TXREQ0 &&
-////		    C1TR23CONbits.TXREQ2 &&
-////		    C1TR45CONbits.TXREQ4 &&
-////		    C1TR67CONbits.TXREQ6){
-////		    ABORT!
+    // Set the correct transfer intialization bit (TXREQ) based on message buffer.
+    //offset = message->buffer >> 1;
+    //bufferCtrlRegAddr = (uint16_t *) (&C1TR01CON + offset);
+    //bit_to_set = 1 << (3 | ((message->buffer & 1) << 3));
+    //*bufferCtrlRegAddr |= bit_to_set;
+    C1TR01CONbits.TXEN1 = 1;
+    C1TR01CONbits.TX0PRI = 0;
+    C1TR01CONbits.TXREQ1 = 1;
+//    switch(bufferSwitch){
+//    case 0:
+////	    if(txreq_bitarray&00000001){
+////
 ////	    }
-    default:
-	    bufferSwitch == 0;
-	    break;
-    }
+//	    ecan1TXMsgBuf[0][0] = word0;
+//	    ecan1TXMsgBuf[0][1] = word1;
+//	    ecan1TXMsgBuf[0][2] = ((word2 & 0xFFF0) + m->len);
+//	    ecan1TXMsgBuf[0][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
+//	    ecan1TXMsgBuf[0][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
+//	    ecan1TXMsgBuf[0][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
+//	    ecan1TXMsgBuf[0][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
+//	    txreq_bitarray = txreq_bitarray|00000001;
+//
+////	    C1TR01CONbits.TXEN0 = 1;
+////	    C1TR01CONbits.TX0PRI = 0x11;
+////	    C1TR01CONbits.TXREQ0 = 1;
+//	    bufferSwitch=0;
+//	    break;
+//    case 1:
+//	    ecan1TXMsgBuf[1][0] = word0;
+//	    ecan1TXMsgBuf[1][1] = word1;
+//	    ecan1TXMsgBuf[1][2] = ((word2 & 0xFFF0) + m->len);
+//	    ecan1TXMsgBuf[1][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
+//	    ecan1TXMsgBuf[1][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
+//	    ecan1TXMsgBuf[1][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
+//	    ecan1TXMsgBuf[1][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
+//	    txreq_bitarray = txreq_bitarray|00000010;
+//
+////	    C1TR01CONbits.TXEN1 = 1;
+////	    C1TR01CONbits.TXREQ1 = 1;
+//	    bufferSwitch++;
+//	    break;
+//    case 2:
+//	    ecan1TXMsgBuf[2][0] = word0;
+//	    ecan1TXMsgBuf[2][1] = word1;
+//	    ecan1TXMsgBuf[2][2] = ((word2 & 0xFFF0) + m->len);
+//	    ecan1TXMsgBuf[2][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
+//	    ecan1TXMsgBuf[2][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
+//	    ecan1TXMsgBuf[2][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
+//	    ecan1TXMsgBuf[2][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
+//	    txreq_bitarray = txreq_bitarray|00000100;
+//
+////	    C1TR23CONbits.TXEN2 = 1;
+////	    C1TR23CONbits.TX2PRI = 0x11;
+////	    C1TR23CONbits.TXREQ2 = 1;
+//	    bufferSwitch++;
+//	    break;
+//
+//    case 3:
+//	    ecan1TXMsgBuf[3][0] = word0;
+//	    ecan1TXMsgBuf[3][1] = word1;
+//	    ecan1TXMsgBuf[3][2] = ((word2 & 0xFFF0) + m->len);
+//	    ecan1TXMsgBuf[3][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
+//	    ecan1TXMsgBuf[3][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
+//	    ecan1TXMsgBuf[3][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
+//	    ecan1TXMsgBuf[3][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
+//	    txreq_bitarray = txreq_bitarray|00001000;
+//
+////	    C1TR23CONbits.TXEN3 = 1;
+////	    C1TR23CONbits.TXREQ3 = 1;
+//	    bufferSwitch++;
+//	    break;
+//    case 4:
+//	    ecan1TXMsgBuf[4][0] = word0;
+//	    ecan1TXMsgBuf[4][1] = word1;
+//	    ecan1TXMsgBuf[4][2] = ((word2 & 0xFFF0) + m->len);
+//	    ecan1TXMsgBuf[4][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
+//	    ecan1TXMsgBuf[4][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
+//	    ecan1TXMsgBuf[4][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
+//	    ecan1TXMsgBuf[4][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
+//	    txreq_bitarray = txreq_bitarray|00010000;
+//
+////	    C1TR45CONbits.TXEN4 = 1;
+////	    C1TR45CONbits.TX4PRI = 0x11;
+////	    C1TR45CONbits.TXREQ4 = 1;
+//	    bufferSwitch++;
+//	    break;
+//    case 5:
+//	    ecan1TXMsgBuf[5][0] = word0;
+//	    ecan1TXMsgBuf[5][1] = word1;
+//	    ecan1TXMsgBuf[5][2] = ((word2 & 0xFFF0) + m->len);
+//	    ecan1TXMsgBuf[5][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
+//	    ecan1TXMsgBuf[5][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
+//	    ecan1TXMsgBuf[5][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
+//	    ecan1TXMsgBuf[5][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
+//	    txreq_bitarray = txreq_bitarray|00100000;
+//
+////	    C1TR45CONbits.TXEN5 = 1;
+////	    C1TR45CONbits.TXREQ5 = 1;
+//	    bufferSwitch++;
+//	    break;
+//    case 6:
+//	    ecan1TXMsgBuf[6][0] = word0;
+//	    ecan1TXMsgBuf[6][1] = word1;
+//	    ecan1TXMsgBuf[6][2] = ((word2 & 0xFFF0) + m->len);
+//	    ecan1TXMsgBuf[6][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
+//	    ecan1TXMsgBuf[6][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
+//	    ecan1TXMsgBuf[6][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
+//	    ecan1TXMsgBuf[6][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
+//	    txreq_bitarray = txreq_bitarray|01000000;
+//
+////	    C1TR67CONbits.TXEN6 = 1;
+////	    C1TR67CONbits.TX6PRI = 0x11;
+////	    C1TR67CONbits.TXREQ6 = 1;
+//	    bufferSwitch++;
+//	    break;
+//    case 7:
+//	    ecan1TXMsgBuf[7][0] = word0;
+//	    ecan1TXMsgBuf[7][1] = word1;
+//	    ecan1TXMsgBuf[7][2] = ((word2 & 0xFFF0) + m->len);
+//	    ecan1TXMsgBuf[7][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
+//	    ecan1TXMsgBuf[7][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
+//	    ecan1TXMsgBuf[7][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
+//	    ecan1TXMsgBuf[7][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
+//	    txreq_bitarray = txreq_bitarray|10000000;
+//
+////	    C1TR67CONbits.TXEN7 = 1;
+////	    C1TR67CONbits.TXREQ7 = 1;
+//	    bufferSwitch=0;
+//	    break;
+//    default:
+//	    bufferSwitch = 0;
+//	    break;
+//    }
 
 
 }
@@ -357,7 +426,7 @@ void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
     static uint8_t packet_idx;
     unsigned i;
 
-    if (C1INTFbits.TBIF) {        
+    if (C1INTFbits.TBIF) {
         C1INTFbits.TBIF = 0; //message was transmitted, nothing to do, I guess
     }
     // If the interrupt was fired because of a received message

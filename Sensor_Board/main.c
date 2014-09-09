@@ -37,6 +37,7 @@ extern timer_data timer_state;
 extern loadcell_data loadcell_state;
 extern imu_data imu_state;
 extern can_data can_state;
+//extern static uint8_t txreq_bitarray;
 
 /**
  * This is test code for the MPU60
@@ -107,9 +108,9 @@ int main(int argc, char** argv) {
 
     // Commented out the CAN code since it has some while loops which hang if it is not connected.
     can_state.init_return = RET_UNKNOWN;
-    if(can_init()){
-        while(1);
-    }
+//    if(can_init()){
+//        while(1);
+//    }
 
     timer_state.prev_systime = 0;
     timer_state.systime = 0;
@@ -205,6 +206,13 @@ int main(int argc, char** argv) {
             if (uart_rx_packet != 0) {
                 uart_rx_packet_consumed();
             }
+
+//	    if(txreq_bitarray&00000001 && !C1TR01CONbits.TXREQ0){
+//		    C1TR01CONbits.TXEN0 = 1;
+//		    C1TR01CONbits.TX0PRI = 0x11;
+//		    C1TR01CONbits.TXREQ0 = 1;
+//		    txreq_bitarray = txreq_bitarray&11111110;
+//	    }
 
         }
     }

@@ -7,6 +7,7 @@
 #include "sensor_can.h"
 #include "sensor_pindefs.h"
 #include "sensor_objdict.h"
+#include "sensor_uart.h"
 
 
 can_data can_state;
@@ -38,6 +39,7 @@ return_value_t can_init()
         can_state.init_return = RET_ERROR;
         return can_state.init_return;
     }
+    LED_1;
     initTimer();
     
     //initialize CanFestival
