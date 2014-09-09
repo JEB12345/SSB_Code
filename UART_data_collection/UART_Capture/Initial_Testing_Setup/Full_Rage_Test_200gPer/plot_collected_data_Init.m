@@ -1,15 +1,23 @@
 % This script opens data collected from the SUPERball sensorboard over
 % UART, as a binary file, and parses and plots that data.
 % @author Roya Firoozi, Drew Sabelhaus
+clc;clear all;
+fileNames = dir('*.log');
+avgDataPoints = zeros(1,length(fileNames));
+namesOfFiles = avgDataPoints;
+for i=1:28
+    namesOfFiles(i) = 0+(200*(i-1));
+end
+for count=1:length(fileNames)
 
-clc; clear all;
-figure;
+%clc; clear all;
+% figure;
+
 
 % The path of the log file to open
 %fileID = fopen('logs/cutecom_offset_MultiBend.log');
 %fileID = fopen('logs/cutecom_weird1.log');
-fileID = fopen('/home/jonathan/Projects/SBB/Code/UART_Capture/Initial_Testing_Setup/Full_Rage_Test_200gPer/cutecom_600g_load.log');
-
+fileID = fopen(fileNames(count).name);
 % Import everything
 data_mat = fread(fileID);
 
@@ -138,11 +146,14 @@ for m = 1:num_data_points
         bitshift(data_cell{m}(5),8)+data_cell{m}(6);
 end
 
-% Plot the first sensor's values.
-plot(state_one_data)
-xlabel('Index of Data Packet')
-ylabel('Strain Gauge Data (State 1)')
-axis([0,floor(length(data_mat)/16),0,2^24-1])
+% % Plot the first sensor's values.
+% plot(state_one_data)
+% xlabel('Index of Data Packet')
+% ylabel('Strain Gauge Data (State 1)')
+% axis([0,floor(length(data_mat)/16),0,2^24-1])
+
+% Find the average of first sensor's data points
+avgDataPoints(1,count) = mean(state_one_data);
 
 % Generate the vector of data values from the second sensor.
 state_two_data = zeros(1,num_data_points);
@@ -162,3 +173,8 @@ axis([0,floor(length(data_mat)/16),0,2^24-1])
 
 % Always remember to close() anything you open()!
 fclose(fileID);
+end
+figure;
+plot(namesOfFiles,avgDataPoints);
+xlabel('Ideal Data Point Values');
+ylabel('Averaged Data Points');
