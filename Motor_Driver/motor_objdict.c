@@ -146,6 +146,19 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RO, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1200_COB_ID_Server_to_Client_Transmit_SDO }
                      };
 
+/* index 0x1280 :   Client SDO 1 Parameter. */
+                    UNS8 Motor_Board_highestSubIndex_obj1280 = 3; /* number of subindex - 1*/
+                    UNS32 Motor_Board_obj1280_COB_ID_Client_to_Server_Transmit_SDO = 0x601;	/* 1537 */
+                    UNS32 Motor_Board_obj1280_COB_ID_Server_to_Client_Receive_SDO = 0x581;	/* 1409 */
+                    UNS8 Motor_Board_obj1280_Node_ID_of_the_SDO_Server = 0x1;	/* 1 */
+                    subindex Motor_Board_Index1280[] = 
+                     {
+                       { RO, uint8, sizeof (UNS8), (void*)&Motor_Board_highestSubIndex_obj1280 },
+                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1280_COB_ID_Client_to_Server_Transmit_SDO },
+                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1280_COB_ID_Server_to_Client_Receive_SDO },
+                       { RW, uint8, sizeof (UNS8), (void*)&Motor_Board_obj1280_Node_ID_of_the_SDO_Server }
+                     };
+
 /* index 0x1400 :   Receive PDO 1 Parameter. */
                     UNS8 Motor_Board_highestSubIndex_obj1400 = 6; /* number of subindex - 1*/
                     UNS32 Motor_Board_obj1400_COB_ID_used_by_PDO = 0x181;	/* 385 */
@@ -223,55 +236,31 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      };
 
 /* index 0x1600 :   Receive PDO 1 Mapping. */
-                    UNS8 Motor_Board_highestSubIndex_obj1600 = 8; /* number of subindex - 1*/
+                    UNS8 Motor_Board_highestSubIndex_obj1600 = 2; /* number of subindex - 1*/
                     UNS32 Motor_Board_obj1600[] = 
                     {
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0	/* 0 */
+                      0x20010020,	/* 536936480 */
+                      0x20020020	/* 537002016 */
                     };
                     subindex Motor_Board_Index1600[] = 
                      {
                        { RW, uint8, sizeof (UNS8), (void*)&Motor_Board_highestSubIndex_obj1600 },
                        { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1600[0] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1600[1] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1600[2] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1600[3] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1600[4] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1600[5] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1600[6] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1600[7] }
+                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1600[1] }
                      };
 
 /* index 0x1601 :   Receive PDO 2 Mapping. */
-                    UNS8 Motor_Board_highestSubIndex_obj1601 = 8; /* number of subindex - 1*/
+                    UNS8 Motor_Board_highestSubIndex_obj1601 = 2; /* number of subindex - 1*/
                     UNS32 Motor_Board_obj1601[] = 
                     {
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0	/* 0 */
+                      0x20030020,	/* 537067552 */
+                      0x20040020	/* 537133088 */
                     };
                     subindex Motor_Board_Index1601[] = 
                      {
                        { RW, uint8, sizeof (UNS8), (void*)&Motor_Board_highestSubIndex_obj1601 },
                        { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1601[0] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1601[1] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1601[2] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1601[3] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1601[4] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1601[5] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1601[6] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1601[7] }
+                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1601[1] }
                      };
 
 /* index 0x1602 :   Receive PDO 3 Mapping. */
@@ -621,6 +610,7 @@ const indextable Motor_Board_objdict[] =
   { (subindex*)Motor_Board_Index1017,sizeof(Motor_Board_Index1017)/sizeof(Motor_Board_Index1017[0]), 0x1017},
   { (subindex*)Motor_Board_Index1018,sizeof(Motor_Board_Index1018)/sizeof(Motor_Board_Index1018[0]), 0x1018},
   { (subindex*)Motor_Board_Index1200,sizeof(Motor_Board_Index1200)/sizeof(Motor_Board_Index1200[0]), 0x1200},
+  { (subindex*)Motor_Board_Index1280,sizeof(Motor_Board_Index1280)/sizeof(Motor_Board_Index1280[0]), 0x1280},
   { (subindex*)Motor_Board_Index1400,sizeof(Motor_Board_Index1400)/sizeof(Motor_Board_Index1400[0]), 0x1400},
   { (subindex*)Motor_Board_Index1401,sizeof(Motor_Board_Index1401)/sizeof(Motor_Board_Index1401[0]), 0x1401},
   { (subindex*)Motor_Board_Index1402,sizeof(Motor_Board_Index1402)/sizeof(Motor_Board_Index1402[0]), 0x1402},
@@ -661,34 +651,35 @@ const indextable * Motor_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODC
 		case 0x1017: i = 2;*callbacks = Motor_Board_Index1017_callbacks; break;
 		case 0x1018: i = 3;break;
 		case 0x1200: i = 4;break;
-		case 0x1400: i = 5;break;
-		case 0x1401: i = 6;break;
-		case 0x1402: i = 7;break;
-		case 0x1403: i = 8;break;
-		case 0x1600: i = 9;break;
-		case 0x1601: i = 10;break;
-		case 0x1602: i = 11;break;
-		case 0x1603: i = 12;break;
-		case 0x1800: i = 13;*callbacks = Motor_Board_Index1800_callbacks; break;
-		case 0x1801: i = 14;*callbacks = Motor_Board_Index1801_callbacks; break;
-		case 0x1802: i = 15;*callbacks = Motor_Board_Index1802_callbacks; break;
-		case 0x1803: i = 16;*callbacks = Motor_Board_Index1803_callbacks; break;
-		case 0x1A00: i = 17;break;
-		case 0x1A01: i = 18;break;
-		case 0x1A02: i = 19;break;
-		case 0x1A03: i = 20;break;
-		case 0x2001: i = 21;break;
-		case 0x2002: i = 22;break;
-		case 0x2003: i = 23;break;
-		case 0x2004: i = 24;break;
-		case 0x4000: i = 25;break;
-		case 0x6064: i = 26;break;
-		case 0x606C: i = 27;break;
-		case 0x6078: i = 28;break;
-		case 0x607A: i = 29;break;
-		case 0x60FF: i = 30;break;
-		case 0x6410: i = 31;break;
-		case 0x6502: i = 32;break;
+		case 0x1280: i = 5;break;
+		case 0x1400: i = 6;break;
+		case 0x1401: i = 7;break;
+		case 0x1402: i = 8;break;
+		case 0x1403: i = 9;break;
+		case 0x1600: i = 10;break;
+		case 0x1601: i = 11;break;
+		case 0x1602: i = 12;break;
+		case 0x1603: i = 13;break;
+		case 0x1800: i = 14;*callbacks = Motor_Board_Index1800_callbacks; break;
+		case 0x1801: i = 15;*callbacks = Motor_Board_Index1801_callbacks; break;
+		case 0x1802: i = 16;*callbacks = Motor_Board_Index1802_callbacks; break;
+		case 0x1803: i = 17;*callbacks = Motor_Board_Index1803_callbacks; break;
+		case 0x1A00: i = 18;break;
+		case 0x1A01: i = 19;break;
+		case 0x1A02: i = 20;break;
+		case 0x1A03: i = 21;break;
+		case 0x2001: i = 22;break;
+		case 0x2002: i = 23;break;
+		case 0x2003: i = 24;break;
+		case 0x2004: i = 25;break;
+		case 0x4000: i = 26;break;
+		case 0x6064: i = 27;break;
+		case 0x606C: i = 28;break;
+		case 0x6078: i = 29;break;
+		case 0x607A: i = 30;break;
+		case 0x60FF: i = 31;break;
+		case 0x6410: i = 32;break;
+		case 0x6502: i = 33;break;
 		default:
 			*errorCode = OD_NO_SUCH_OBJECT;
 			return NULL;
@@ -706,20 +697,20 @@ s_PDO_status Motor_Board_PDO_status[4] = {s_PDO_status_Initializer,s_PDO_status_
 
 const quick_index Motor_Board_firstIndex = {
   4, /* SDO_SVR */
-  0, /* SDO_CLT */
-  5, /* PDO_RCV */
-  9, /* PDO_RCV_MAP */
-  13, /* PDO_TRS */
-  17 /* PDO_TRS_MAP */
+  5, /* SDO_CLT */
+  6, /* PDO_RCV */
+  10, /* PDO_RCV_MAP */
+  14, /* PDO_TRS */
+  18 /* PDO_TRS_MAP */
 };
 
 const quick_index Motor_Board_lastIndex = {
   4, /* SDO_SVR */
-  0, /* SDO_CLT */
-  8, /* PDO_RCV */
-  12, /* PDO_RCV_MAP */
-  16, /* PDO_TRS */
-  20 /* PDO_TRS_MAP */
+  5, /* SDO_CLT */
+  9, /* PDO_RCV */
+  13, /* PDO_RCV_MAP */
+  17, /* PDO_TRS */
+  21 /* PDO_TRS_MAP */
 };
 
 const UNS16 Motor_Board_ObjdictSize = sizeof(Motor_Board_objdict)/sizeof(Motor_Board_objdict[0]); 

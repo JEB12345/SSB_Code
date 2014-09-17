@@ -26,14 +26,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 // AVR implementation of the CANopen driver includes
 // Hardware related macros and ATMEL lib can_drv
-#include "../config.h"
+#include "../libs/dspic_CanFestival/CanFestival-3/include/config.h"
 //#include "can_drv.h"
-#include "canfestival.h"
+#include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/canfestival.h"
 #include <p33Exxxx.h>
 
 // Canfestivals includes
-#include "../can.h"
-
+#include "../libs/dspic_CanFestival/CanFestival-3/include/can.h"
 
 /************************* To be called by user app ***************************/
 
@@ -46,4 +45,3 @@ unsigned canReceive(Message* m);
 
 
 #endif
-

@@ -9,7 +9,7 @@
 #include <xc.h>
 #include "motor_can_state.h"
 
-#include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
+#include "can_dspic33e_motor.h"
 
 #include "motor_can.h"
 #include "motor_objdict.h"
@@ -31,8 +31,6 @@ static void can_reset(CO_Data* d);
 static void can_enable_heartbeat(uint16_t time);
 static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time);
 static void ConfigureSlaveNode(CO_Data* d, unsigned char nodeId);
-
-char heartbeat = 1;
 
 #include <ecan.h>
 

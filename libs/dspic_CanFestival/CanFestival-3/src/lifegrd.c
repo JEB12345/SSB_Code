@@ -177,7 +177,6 @@ void ProducerHeartbeatAlarm(CO_Data* d, UNS32 id)
 {
   if(*d->ProducerHeartBeatTime)
     {
-      P6_RG7 = !P6_RG7;
       Message msg;
       /* Time expired, the heartbeat must be sent immediately
       ** generate the correct node-id: this is done by the offset 1792
