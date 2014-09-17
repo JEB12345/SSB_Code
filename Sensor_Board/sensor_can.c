@@ -210,52 +210,8 @@ void can_time_dispatch()
 
 void can_push_state()
 {
-    UNS32 data_loadcell[4] = {loadcell_state.values[0],
-                                loadcell_state.values[1],
-                                loadcell_state.values[2],
-                                loadcell_state.values[3]};
-    UNS32 s = 0;
-    static uint8_t state = 0;
-
-    switch(state++){
-        case 0:
-            s = sizeof(UNS32);
-            writeLocalDict(&Sensor_Board_Data,   // CO_Data* for this uC
-            0x2001,                // Index
-            0x00,                  // Sub-Index]
-            data_loadcell[0],                // void * SourceData Location
-            &s,                    // UNS8 * Size of Data
-            1);                    // UNS8 checkAccess
-            break;
-        case 1:
-            s = sizeof(UNS32);
-            writeLocalDict(&Sensor_Board_Data,   // CO_Data* for this uC
-            0x2002,                // Index
-            0x00,                  // Sub-Index
-            data_loadcell[1],                // void * SourceData Location
-            &s,                    // UNS8 * Size of Data
-            1);                    // UNS8 checkAccess
-            break;
-        case 2:
-            s = sizeof(UNS32);
-            writeLocalDict(&Sensor_Board_Data,   // CO_Data* for this uC
-            0x2003,                // Index
-            0x00,                  // Sub-Index
-            data_loadcell[2],                // void * SourceData Location
-            &s,                    // UNS8 * Size of Data
-            1);                    // UNS8 checkAccess
-            break;
-        case 3:
-            s = sizeof(UNS32);
-            writeLocalDict(&Sensor_Board_Data,   // CO_Data* for this uC
-            0x2004,                // Index
-            0x00,                  // Sub-Index
-            data_loadcell[3],                // void * SourceData Location
-            &s,                    // UNS8 * Size of Data
-            1);                    // UNS8 checkAccess
-            break;
-        default:
-            state = 0;
-            break;
-    };
+	Strain_Gauge1 = loadcell_state.values[0];
+	Strain_Gauge2 = loadcell_state.values[1];
+	Strain_Gauge2 = loadcell_state.values[2];
+	Strain_Gauge2 = loadcell_state.values[3];
 }

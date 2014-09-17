@@ -110,7 +110,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS32 Motor_Board_obj1016[]={0};
 
 /* index 0x1017 :   Producer Heartbeat Time. */
-                    UNS16 Motor_Board_obj1017 = 0x3E8;	/* 1000 */
+                    UNS16 Motor_Board_obj1017 = 0xA;	/* 10 */
                     ODCallback_t Motor_Board_Index1017_callbacks[] = 
                      {
                        NULL,
@@ -199,8 +199,8 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x1402 :   Receive PDO 3 Parameter. */
                     UNS8 Motor_Board_highestSubIndex_obj1402 = 6; /* number of subindex - 1*/
-                    UNS32 Motor_Board_obj1402_COB_ID_used_by_PDO = 0x400;	/* 1024 */
-                    UNS8 Motor_Board_obj1402_Transmission_Type = 0x0;	/* 0 */
+                    UNS32 Motor_Board_obj1402_COB_ID_used_by_PDO = 0x381;	/* 897 */
+                    UNS8 Motor_Board_obj1402_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Motor_Board_obj1402_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Motor_Board_obj1402_Compatibility_Entry = 0x0;	/* 0 */
                     UNS16 Motor_Board_obj1402_Event_Timer = 0x0;	/* 0 */
@@ -264,29 +264,17 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      };
 
 /* index 0x1602 :   Receive PDO 3 Mapping. */
-                    UNS8 Motor_Board_highestSubIndex_obj1602 = 8; /* number of subindex - 1*/
+                    UNS8 Motor_Board_highestSubIndex_obj1602 = 2; /* number of subindex - 1*/
                     UNS32 Motor_Board_obj1602[] = 
                     {
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0	/* 0 */
+                      0x607A0020,	/* 1618608160 */
+                      0x60FF0020	/* 1627324448 */
                     };
                     subindex Motor_Board_Index1602[] = 
                      {
                        { RW, uint8, sizeof (UNS8), (void*)&Motor_Board_highestSubIndex_obj1602 },
                        { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1602[0] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1602[1] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1602[2] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1602[3] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1602[4] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1602[5] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1602[6] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1602[7] }
+                       { RW, uint32, sizeof (UNS32), (void*)&Motor_Board_obj1602[1] }
                      };
 
 /* index 0x1603 :   Receive PDO 4 Mapping. */

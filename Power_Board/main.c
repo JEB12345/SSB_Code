@@ -61,6 +61,11 @@ int main(int argc, char** argv)
 		while (1);
 	}
 
+	// Def for Old board v1
+#ifdef OLD_BOARD
+	VMOTOR_EN = 1;
+#endif
+
 	for (;;) {
 		// All programs that run on a 1ms loop should go in this if statement
 		if (timer_state.systime != timer_state.prev_systime) {
@@ -148,13 +153,15 @@ int main(int argc, char** argv)
 			 *
 			 ******************************************************************/
 			if ((adc_values.AN7) > 0x0960) {
-				VBAT_5V5_EN = ON;
+				RF_GND_EN = ON;
+//				VBAT_5V5_EN = ON;
 				EN_BACKUP_5V5 = OFF;
 				EN_VBAT_5V5 = ON;
 				LED_STATUS = OFF;
 			} else {
+				RF_GND_EN = OFF;
 				EN_BACKUP_5V5 = ON;
-				VBAT_5V5_EN = OFF;
+//				VBAT_5V5_EN = OFF;
 				EN_VBAT_5V5 = OFF;
 				LED_STATUS = ON;
 			}
@@ -166,9 +173,9 @@ int main(int argc, char** argv)
 			 * power switch is flipped off. This is not ideal and will not always
 			 * cut power to board when VBAT_5V5 is main power source.
 			 ******************************************************************/
-			if (adc_values.AN8 < 0x0800) {
-				VBAT_5V5_EN = OFF;
-			}
+//			if (adc_values.AN8 < 0x0800) {
+//				VBAT_5V5_EN = OFF;
+//			}
 		}
 	}
 

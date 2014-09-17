@@ -104,7 +104,7 @@ int main(int argc, char** argv)
 	led_rgb_set(50, 0, 100);
 
 	// Turn on the BBB by enabling the 5.5->5V LDO
-//	BBB_Power = 1;
+	BBB_Power = 1;
 
 	// Commented out the CAN code since it has some while loops which hang if it is not connected.
 	can_state.init_return = RET_UNKNOWN;
@@ -121,7 +121,7 @@ int main(int argc, char** argv)
 			//everything in here will be executed once every ms
 			//make sure that everything in here takes less than 1ms
 			//useful for checking state consistency, synchronization, watchdog...
-
+			//			LED_1 = 0;
 			led_update();
 
 			if (imu_state.init_return == RET_OK) {
@@ -129,6 +129,15 @@ int main(int argc, char** argv)
 			}
 			if (can_state.init_return == RET_OK) {
 				can_process();
+
+				if (timer_state.systime % 1000 == 0) {
+					if (i) {
+						Target_position = 50;
+					} else {
+						Target_position = 20;
+					}
+					i ^= 1;
+				}
 
 				if (timer_state.systime % timeStep == 0) {
 					can_push_state();
@@ -162,16 +171,12 @@ int main(int argc, char** argv)
 						C1TR67CONbits.TXREQ6 = 1;
 						txreq_bitarray = txreq_bitarray & 0b10111111;
 					}
-					if (txreq_bitarray & 0b10000000 && !C1TR67CONbits.TXREQ7) {
-						C1TR67CONbits.TXREQ7 = 1;
-						txreq_bitarray = txreq_bitarray & 0b01111111;
-					}
 				}
 				can_time_dispatch();
 			}
 
 			if (timer_state.systime % 25 == 0) {
-//				LED_4 = !LED_4;
+				//				LED_4 = !LED_4;
 				LED_1 = !LED_1;
 			}
 
@@ -219,6 +224,7 @@ int main(int argc, char** argv)
 				uart_tx_update_index();
 				uart_tx_start_transmit();
 			}
+			//			LED_1 = 1;
 		} else {
 			//untimed processes in main loop:
 			//executed as fast as possible

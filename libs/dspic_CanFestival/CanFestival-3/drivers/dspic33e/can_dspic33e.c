@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 ///////////////////////////////////////////////////////////////////////////////
 ////////////////////// USER FUNCTIONS Replace when this is a library //////////
+
 /******************************************************************************
  * Function:     void Ecan1WriteRxAcptFilter(int16_t n, int32_t identifier,
  *               uint16_t exide,uint16_t bufPnt,uint16_t maskSel)
@@ -61,49 +62,46 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * Overview:      Configures Acceptance filter "n" for ECAN1.
  *****************************************************************************/
-void Ecan1WriteRxAcptFilter( int16_t n, int32_t identifier, uint16_t exide, uint16_t bufPnt, uint16_t maskSel )
+void Ecan1WriteRxAcptFilter(int16_t n, int32_t identifier, uint16_t exide, uint16_t bufPnt, uint16_t maskSel)
 {
-    uint32_t    sid10_0 = 0;
+	uint32_t sid10_0 = 0;
 
-    uint32_t    eid15_0 = 0;
+	uint32_t eid15_0 = 0;
 
-    uint32_t    eid17_16 = 0;
-    uint16_t    *sidRegAddr;
-    uint16_t    *bufPntRegAddr;
-    uint16_t    *maskSelRegAddr;
-    uint16_t    *fltEnRegAddr;
+	uint32_t eid17_16 = 0;
+	uint16_t *sidRegAddr;
+	uint16_t *bufPntRegAddr;
+	uint16_t *maskSelRegAddr;
+	uint16_t *fltEnRegAddr;
 
-    C1CTRL1bits.WIN = 1;
+	C1CTRL1bits.WIN = 1;
 
-    // Obtain the Address of CiRXFnSID, CiBUFPNTn, CiFMSKSELn and CiFEN register for a given filter number "n"
-    sidRegAddr = ( uint16_t * ) ( &C1RXF0SID + (n << 1) );
-    bufPntRegAddr = ( uint16_t * ) ( &C1BUFPNT1 + (n >> 2) );
-    maskSelRegAddr = ( uint16_t * ) ( &C1FMSKSEL1 + (n >> 3) );
-    fltEnRegAddr = ( uint16_t * ) ( &C1FEN1 );
+	// Obtain the Address of CiRXFnSID, CiBUFPNTn, CiFMSKSELn and CiFEN register for a given filter number "n"
+	sidRegAddr = (uint16_t *) (&C1RXF0SID + (n << 1));
+	bufPntRegAddr = (uint16_t *) (&C1BUFPNT1 + (n >> 2));
+	maskSelRegAddr = (uint16_t *) (&C1FMSKSEL1 + (n >> 3));
+	fltEnRegAddr = (uint16_t *) (&C1FEN1);
 
-    // Bit-filed manupulation to write to Filter identifier register
-    if( exide == 1 )
-    {   // Filter Extended Identifier
-        eid15_0 = ( identifier & 0xFFFF );
-        eid17_16 = ( identifier >> 16 ) & 0x3;
-        sid10_0 = ( identifier >> 18 ) & 0x7FF;
+	// Bit-filed manupulation to write to Filter identifier register
+	if (exide == 1) { // Filter Extended Identifier
+		eid15_0 = (identifier & 0xFFFF);
+		eid17_16 = (identifier >> 16) & 0x3;
+		sid10_0 = (identifier >> 18) & 0x7FF;
 
-        *sidRegAddr = ( ((sid10_0) << 5) + 0x8 ) + eid17_16;    // Write to CiRXFnSID Register
-        *( sidRegAddr + 1 ) = eid15_0;  // Write to CiRXFnEID Register
-    }
-    else
-    {   // Filter Standard Identifier
-        sid10_0 = ( identifier & 0x7FF );
-        *sidRegAddr = ( sid10_0 ) << 5; // Write to CiRXFnSID Register
-        *( sidRegAddr + 1 ) = 0;        // Write to CiRXFnEID Register
-    }
+		*sidRegAddr = (((sid10_0) << 5) + 0x8) + eid17_16; // Write to CiRXFnSID Register
+		*(sidRegAddr + 1) = eid15_0; // Write to CiRXFnEID Register
+	} else { // Filter Standard Identifier
+		sid10_0 = (identifier & 0x7FF);
+		*sidRegAddr = (sid10_0) << 5; // Write to CiRXFnSID Register
+		*(sidRegAddr + 1) = 0; // Write to CiRXFnEID Register
+	}
 
-    *bufPntRegAddr = ( *bufPntRegAddr ) & ( 0xFFFF - (0xF << (4 * (n & 3))) );      // clear nibble
-    *bufPntRegAddr = ( (bufPnt << (4 * (n & 3))) | (*bufPntRegAddr) );              // Write to C1BUFPNTn Register
-    *maskSelRegAddr = ( *maskSelRegAddr ) & ( 0xFFFF - (0x3 << ((n & 7) * 2)) );    // clear 2 bits
-    *maskSelRegAddr = ( (maskSel << (2 * (n & 7))) | (*maskSelRegAddr) );           // Write to C1FMSKSELn Register
-    *fltEnRegAddr = ( (0x1 << n) | (*fltEnRegAddr) );   // Write to C1FEN1 Register
-    C1CTRL1bits.WIN = 0;
+	*bufPntRegAddr = (*bufPntRegAddr) & (0xFFFF - (0xF << (4 * (n & 3)))); // clear nibble
+	*bufPntRegAddr = ((bufPnt << (4 * (n & 3))) | (*bufPntRegAddr)); // Write to C1BUFPNTn Register
+	*maskSelRegAddr = (*maskSelRegAddr) & (0xFFFF - (0x3 << ((n & 7) * 2))); // clear 2 bits
+	*maskSelRegAddr = ((maskSel << (2 * (n & 7))) | (*maskSelRegAddr)); // Write to C1FMSKSELn Register
+	*fltEnRegAddr = ((0x1 << n) | (*fltEnRegAddr)); // Write to C1FEN1 Register
+	C1CTRL1bits.WIN = 0;
 }
 
 /******************************************************************************
@@ -113,7 +111,7 @@ void Ecan1WriteRxAcptFilter( int16_t n, int32_t identifier, uint16_t exide, uint
  * PreCondition:  None
  *
  * Input:        m-> Mask number [0-2]
-                 identifier-> Bit ordering is given below n-> Filter number [0-15]
+		 identifier-> Bit ordering is given below n-> Filter number [0-15]
  *                identifier-> Bit ordering is given below
  *                Filter mask Identifier (29-bits) :
  *                0b000f ffff ffff ffff ffff ffff ffff ffff
@@ -135,54 +133,45 @@ void Ecan1WriteRxAcptFilter( int16_t n, int32_t identifier, uint16_t exide, uint
  *
  * Overview:      Configures Acceptance filter "n" for ECAN1.
  *****************************************************************************/
-void Ecan1WriteRxAcptMask( int16_t m, int32_t identifier, uint16_t mide, uint16_t exide )
+void Ecan1WriteRxAcptMask(int16_t m, int32_t identifier, uint16_t mide, uint16_t exide)
 {
-    uint32_t    sid10_0 = 0;
+	uint32_t sid10_0 = 0;
 
-    uint32_t    eid15_0 = 0;
+	uint32_t eid15_0 = 0;
 
-    uint32_t    eid17_16 = 0;
-    uint16_t    *maskRegAddr;
+	uint32_t eid17_16 = 0;
+	uint16_t *maskRegAddr;
 
-    C1CTRL1bits.WIN = 1;
+	C1CTRL1bits.WIN = 1;
 
-    // Obtain the Address of CiRXMmSID register for given Mask number "m"
-    maskRegAddr = ( uint16_t * ) ( &C1RXM0SID + (m << 1) );
+	// Obtain the Address of CiRXMmSID register for given Mask number "m"
+	maskRegAddr = (uint16_t *) (&C1RXM0SID + (m << 1));
 
-    // Bit-filed manupulation to write to Filter Mask register
-    if( exide == 1 )
-    {   // Filter Extended Identifier
-        eid15_0 = ( identifier & 0xFFFF );
-        eid17_16 = ( identifier >> 16 ) & 0x3;
-        sid10_0 = ( identifier >> 18 ) & 0x7FF;
+	// Bit-filed manupulation to write to Filter Mask register
+	if (exide == 1) { // Filter Extended Identifier
+		eid15_0 = (identifier & 0xFFFF);
+		eid17_16 = (identifier >> 16) & 0x3;
+		sid10_0 = (identifier >> 18) & 0x7FF;
 
-        if( mide == 1 )
-        {
-            *maskRegAddr = ( (sid10_0) << 5 ) + 0x0008 + eid17_16;  // Write to CiRXMnSID Register
-        }
-        else
-        {
-            *maskRegAddr = ( (sid10_0) << 5 ) + eid17_16;           // Write to CiRXMnSID Register
-        }
+		if (mide == 1) {
+			*maskRegAddr = ((sid10_0) << 5) + 0x0008 + eid17_16; // Write to CiRXMnSID Register
+		} else {
+			*maskRegAddr = ((sid10_0) << 5) + eid17_16; // Write to CiRXMnSID Register
+		}
 
-        *( maskRegAddr + 1 ) = eid15_0; // Write to CiRXMnEID Register
-    }
-    else
-    {   // Filter Standard Identifier
-        sid10_0 = ( identifier & 0x7FF );
-        if( mide == 1 )
-        {
-            *maskRegAddr = ( (sid10_0) << 5 ) + 0x0008; // Write to CiRXMnSID Register
-        }
-        else
-        {
-            *maskRegAddr = ( sid10_0 ) << 5;            // Write to CiRXMnSID Register
-        }
+		*(maskRegAddr + 1) = eid15_0; // Write to CiRXMnEID Register
+	} else { // Filter Standard Identifier
+		sid10_0 = (identifier & 0x7FF);
+		if (mide == 1) {
+			*maskRegAddr = ((sid10_0) << 5) + 0x0008; // Write to CiRXMnSID Register
+		} else {
+			*maskRegAddr = (sid10_0) << 5; // Write to CiRXMnSID Register
+		}
 
-        *( maskRegAddr + 1 ) = 0;                       // Write to CiRXMnEID Register
-    }
+		*(maskRegAddr + 1) = 0; // Write to CiRXMnEID Register
+	}
 
-    C1CTRL1bits.WIN = 0;
+	C1CTRL1bits.WIN = 0;
 }
 ///////////////////////////////////////////////////////////////////////////////
 ////////////////////// USER FUNCTIONS Replace when this is a library //////////
@@ -263,7 +252,7 @@ OUTPUT	1 if successful
 	C1TR45CONbits.TXEN4 = 1;
 	C1TR45CONbits.TXEN5 = 1;
 	C1TR67CONbits.TXEN6 = 1;
-	C1TR67CONbits.TXEN7 = 1;
+	C1TR67CONbits.TXEN7 = 0;
 
 
 	//CONFIG DMA
@@ -298,21 +287,19 @@ OUTPUT	1 if successful
 	IEC0bits.DMA0IE = 0; // Disable DMA Channel 0 interrupt (everything is handled in the CAN interrupt)
 	IEC0bits.DMA1IE = 0;
 
-//	C1CTRL1bits.WIN = 1;
-//	C1FMSKSEL1bits.F0MSK = 0x0; //Filter 0 will use mask 0
-//	C1RXM0SIDbits.SID = 0x0; //0x000; // accept all
-//	//C1FEN1bits.FLTEN0 = 1;
-//	C1RXF0SIDbits.SID = 0x0; //0x7EE;// set filter
-//	C1RXM0SIDbits.MIDE = 0x1; //only receive standard frames
-//	C1RXF0SIDbits.EXIDE = 0x0;
-//	C1BUFPNT1bits.F0BP = 0x0; //0x1; //use message buffer 0 to receive data
-//	C1FEN1bits.FLTEN0 = 0x1; //Filter 0 enabled for Identifier match with incoming message
-//	C1CTRL1bits.WIN = 0;
-	int i;
-	for(i=8;i<16;i++){
-		Ecan1WriteRxAcptFilter(i,0x000,0,i,0);
-		Ecan1WriteRxAcptMask(0,0x000,0,0);
-	}
+	//	C1CTRL1bits.WIN = 1;
+	//	C1FMSKSEL1bits.F0MSK = 0x0; //Filter 0 will use mask 0
+	//	C1RXM0SIDbits.SID = 0x0; //0x000; // accept all
+	//	//C1FEN1bits.FLTEN0 = 1;
+	//	C1RXF0SIDbits.SID = 0x0; //0x7EE;// set filter
+	//	C1RXM0SIDbits.MIDE = 0x1; //only receive standard frames
+	//	C1RXF0SIDbits.EXIDE = 0x0;
+	//	C1BUFPNT1bits.F0BP = 0x0; //0x1; //use message buffer 0 to receive data
+	//	C1FEN1bits.FLTEN0 = 0x1; //Filter 0 enabled for Identifier match with incoming message
+	//	C1CTRL1bits.WIN = 0;
+
+	Ecan1WriteRxAcptFilter(7, 0x000, 0, 7, 0);
+	Ecan1WriteRxAcptMask(0, 0x000, 0, 0);
 
 	// Place ECAN1 into normal mode
 	desired_mode = 0b000;
@@ -488,22 +475,22 @@ OUTPUT	1 if  hardware -> CAN frame
 		//	    C1TR67CONbits.TXEN6 = 1;
 		//	    C1TR67CONbits.TX6PRI = 0x11;
 		//	    C1TR67CONbits.TXREQ6 = 1;
-		bufferSwitch++;
+		bufferSwitch=0;
 		break;
-	case 7:
-		ecan1TXMsgBuf[7][0] = word0;
-		ecan1TXMsgBuf[7][1] = word1;
-		ecan1TXMsgBuf[7][2] = ((word2 & 0xFFF0) + m->len);
-		ecan1TXMsgBuf[7][3] = (((uint16_t) m->data[1]) << 8) | (m->data[0]&0xFF);
-		ecan1TXMsgBuf[7][4] = (((uint16_t) m->data[3]) << 8) | (m->data[2]&0xFF);
-		ecan1TXMsgBuf[7][5] = (((uint16_t) m->data[5]) << 8) | (m->data[4]&0xFF);
-		ecan1TXMsgBuf[7][6] = (((uint16_t) m->data[7]) << 8) | (m->data[6]&0xFF);
-		txreq_bitarray = txreq_bitarray | 0b10000000;
-
-		//	    C1TR67CONbits.TXEN7 = 1;
-		//	    C1TR67CONbits.TXREQ7 = 1;
-		bufferSwitch = 0;
-		break;
+//	case 7:
+//		ecan1TXMsgBuf[7][0] = word0;
+//		ecan1TXMsgBuf[7][1] = word1;
+//		ecan1TXMsgBuf[7][2] = ((word2 & 0xFFF0) + m->len);
+//		ecan1TXMsgBuf[7][3] = (((uint16_t) m->data[1]) << 8) | (m->data[0]&0xFF);
+//		ecan1TXMsgBuf[7][4] = (((uint16_t) m->data[3]) << 8) | (m->data[2]&0xFF);
+//		ecan1TXMsgBuf[7][5] = (((uint16_t) m->data[5]) << 8) | (m->data[4]&0xFF);
+//		ecan1TXMsgBuf[7][6] = (((uint16_t) m->data[7]) << 8) | (m->data[6]&0xFF);
+//		txreq_bitarray = txreq_bitarray | 0b10000000;
+//
+//		//	    C1TR67CONbits.TXEN7 = 1;
+//		//	    C1TR67CONbits.TXREQ7 = 1;
+//		bufferSwitch = 0;
+//		break;
 	default:
 		bufferSwitch = 0;
 		break;
@@ -575,11 +562,11 @@ void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
 		m.len = 255;
 
 		// Obtain the buffer the message was stored into, checking that the value is valid to refer to a buffer
-//		if (C1VECbits.ICODE < 8) {
-			buffer = C1VECbits.ICODE;
-//		}
+		//		if (C1VECbits.ICODE < 8) {
+		buffer = C1VECbits.ICODE;
+		//		}
 
-		ecan_msg_buf_ptr = ecan1RXMsgBuf[buffer-8];
+		ecan_msg_buf_ptr = ecan1RXMsgBuf[buffer];
 
 		// Clear the buffer full status bit so more messages can be received.
 		if (C1RXFUL1 & (1 << buffer)) {
