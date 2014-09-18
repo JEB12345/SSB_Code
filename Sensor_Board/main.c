@@ -131,12 +131,12 @@ int main(int argc, char** argv)
 				can_process();
 
 				if (timer_state.systime % 1000 == 0) {
-					if (i) {
+//					if (i) {
 						Target_position = 50;
-					} else {
-						Target_position = 20;
-					}
-					i ^= 1;
+//					} else {
+//						Target_position = 20;
+//					}
+//					i ^= 1;
 				}
 
 				if (timer_state.systime % timeStep == 0) {
