@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for file in sensor12_*.log; do
+  tmp=${file#sensor12_}
+  mv ${file} ${tmp%.log}_sensor12.log
+done

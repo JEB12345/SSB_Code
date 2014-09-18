@@ -1,7 +1,7 @@
 % This script opens data collected from the SUPERball sensorboard over
 % UART, as a binary file, and parses and plots that data.
 % @author Roya Firoozi, Drew Sabelhaus
-clc;clear all;
+clc;clear;
 fileNames = dir('*.log');
 avgDataPoints = zeros(1,length(fileNames));
 namesOfFiles = avgDataPoints;
@@ -174,10 +174,13 @@ axis([0,floor(length(data_mat)/16),0,2^24-1])
 % Always remember to close() anything you open()!
 fclose(fileID);
 end
+[p,ErrorEst] = polyfit(namesOfFiles,avgDataPoints,2);
+[fit_plot,delta] = polyval(p,namesOfFiles,ErrorEst);
 h=figure;
-plot(namesOfFiles,avgDataPoints);
+plot(namesOfFiles,fit_plot,'-',namesOfFiles,avgDataPoints,'+',namesOfFiles,fit_plot+2*delta,'r:',namesOfFiles,fit_plot-2*delta,'r:');
+legend('Polynomial Model','Data','95% Confidence');
 xlabel('Ideal Data Point Values');
 ylabel('Averaged Data Points');
 saveas(h,'Sensor_Data','fig');
 save('Sensor_Data_Full');
-save('Sensor_Data_Plot','avgDataPoints','namesOfFiles');
+save('Sensor_Data_Plot','avgDataPoints','namesOfFiles','p','ErrorEst','fit_plot','delta');
