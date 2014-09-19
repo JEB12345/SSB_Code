@@ -22,7 +22,7 @@ extern "C" {
      *
      * @return The function will return an error if initalization failed.
      */
-    return_value_t can_init();
+    return_value_t can_motor_init();
 
     /**
      * @brief can_process() checks to see if there is a message, if so push it

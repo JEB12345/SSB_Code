@@ -6,7 +6,7 @@ return_value_t enable_pins_init() {
     EN_VBAT_5V5   =     0;//DISABLED
     VBAT_5V5_EN   =     0;//DISABLED, Controls the Buck Converter
     KILLSWITCH_uC =     0;//DISABLED
-    EN_MOTOR_CURRENT =  1;//DISABLED
+    EN_MOTOR_CURRENT =  0;//DISABLED
 
     //5V5 Output Control Pins Init
     EN_OUT_1 =  0;//DISABLED

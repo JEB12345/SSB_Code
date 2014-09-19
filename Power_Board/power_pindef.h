@@ -11,6 +11,8 @@
 #include "power_state.h"
 #include <p33Exxxx.h>
 
+//#define OLD_BOARD
+
 return_value_t pin_init();
 
 //LEDs
@@ -25,6 +27,13 @@ return_value_t pin_init();
 #define VBAT_5V5_EN         LATAbits.LATA10 //Enables the Buck IC
 #define KILLSWITCH_uC       LATAbits.LATA8
 #define EN_MOTOR_CURRENT    LATEbits.LATE15
+
+//RF Pins
+#define RF_GND_EN           LATBbits.LATB13
+
+#ifdef OLD_BOARD
+#define VMOTOR_EN           LATDbits.LATD8
+#endif
 
 //5V5 Output Control Pins
 #define EN_OUT_1            LATBbits.LATB9

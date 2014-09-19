@@ -93,7 +93,7 @@ return_value_t init_adc()
     IEC1bits.T5IE = 1;          //Enable Timer 5 Interrupt
 
     /*******************************
-     * Initializes the DMA0 Module
+     * Initializes the DMA2 Module
      *******************************/
     unsigned int config;
     unsigned int irq;
@@ -101,49 +101,49 @@ return_value_t init_adc()
     unsigned int pad_address;
     unsigned int count;
 
-    IFS0bits.DMA0IF = 0;        //Clear the DMA Interrupt Flag bit
-    IEC0bits.DMA0IE = 0;        //Disable DMA CH0 Interrupt
+    IFS1bits.DMA2IF = 0;        //Clear the DMA Interrupt Flag bit
+    IEC1bits.DMA2IE = 0;        //Disable DMA CH0 Interrupt
 
-    DMA0CONbits.CHEN = 0;       //Disable DMA0 for Configuration
-    DMA0CONbits.AMODE = 0b00;   //Register indirect mode w/ post-increment
-    DMA0CONbits.MODE = 0b10;    //Continuous Ping-Pong mode
-    DMA0CONbits.SIZE = 0;       //Data is Word Sized
-    DMA0CONbits.DIR = 0;        //Peripheral to DMA
-    DMA0CONbits.HALF = 0;       //Initiate interrupt when all of the data has been moved
-    DMA0CONbits.NULLW = 0;      //Normal Opertaion
+    DMA2CONbits.CHEN = 0;       //Disable DMA2 for Configuration
+    DMA2CONbits.AMODE = 0b00;   //Register indirect mode w/ post-increment
+    DMA2CONbits.MODE = 0b10;    //Continuous Ping-Pong mode
+    DMA2CONbits.SIZE = 0;       //Data is Word Sized
+    DMA2CONbits.DIR = 0;        //Peripheral to DMA
+    DMA2CONbits.HALF = 0;       //Initiate interrupt when all of the data has been moved
+    DMA2CONbits.NULLW = 0;      //Normal Opertaion
 
-//    config = DMA0CON | 0b1000000000000000;
+//    config = DMA2CON | 0b1000000000000000;
 //    irq = 0b00001101;
 //    count = 1;
 //    pad_address = (volatile unsigned int)&ADC1BUF0; //Points DMA to ADC buffer
 //    stb_address = 0x0;
-//    OpenDMA0(config,irq,__builtin_dmaoffset(&BufferA),stb_address,pad_address,count);
+//    OpenDMA2(config,irq,__builtin_dmaoffset(&BufferA),stb_address,pad_address,count);
 
-    DMA0PAD = (volatile unsigned int)&ADC1BUF0; //Points DMA to ADC buffer
-    DMA0CNT = 31;               //32 DMA request (4 buffers, each with 8 words)
-    DMA0REQ = 13;               //Select ADC1 as DMA source
+    DMA2PAD = (volatile unsigned int)&ADC1BUF0; //Points DMA to ADC buffer
+    DMA2CNT = 31;               //32 DMA request (4 buffers, each with 8 words)
+    DMA2REQ = 13;               //Select ADC1 as DMA source
 
-    DMA0STBL = __builtin_dmaoffset(BufferA);
-    DMA0STBH = 0x0000;
+    DMA2STBL = __builtin_dmaoffset(BufferA);
+    DMA2STBH = 0x0000;
 
-    DMA0STAL = __builtin_dmaoffset(BufferB);
-    DMA0STAH = 0x0000;
+    DMA2STAL = __builtin_dmaoffset(BufferB);
+    DMA2STAH = 0x0000;
 
-    IFS0bits.DMA0IF = 0;        //Clear the DMA Interrupt Flag bit
-    IEC0bits.DMA0IE = 1;        //Enable DMA Interrupt bit
+    IFS1bits.DMA2IF = 0;        //Clear the DMA Interrupt Flag bit
+    IEC1bits.DMA2IE = 1;        //Enable DMA Interrupt bit
 
     /*********************
      * Turning on Modules
      *********************/
     T5CONbits.TON = 1;          //Start Timer 3
-    DMA0CONbits.CHEN = 1;       //Enable DMA
+    DMA2CONbits.CHEN = 1;       //Enable DMA
     AD1CON1bits.ADON = 1;       //Turn on the ADC
     Delay_us(20);
 
     return RET_OK;
 }
 
-void __attribute__((interrupt, no_auto_psv)) _DMA0Interrupt(void)
+void __attribute__((interrupt, no_auto_psv)) _DMA2Interrupt(void)
 {
     static uint8_t DMAbuffer = 1;
     static uint8_t ADC_State = 0;
@@ -193,7 +193,7 @@ void __attribute__((interrupt, no_auto_psv)) _DMA0Interrupt(void)
     }
     DMAbuffer ^= 1;
 
-    IFS0bits.DMA0IF = 0;        //Clear the DMA Interrupt Flag bit
+    IFS1bits.DMA2IF = 0;        //Clear the DMA Interrupt Flag bit
 }
 
 void __attribute__((__interrupt__, auto_psv)) _T5Interrupt(void)
