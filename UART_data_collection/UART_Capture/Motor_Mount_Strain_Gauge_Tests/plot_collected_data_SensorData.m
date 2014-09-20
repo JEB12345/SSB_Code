@@ -175,18 +175,18 @@ axis([0,floor(length(data_mat)/16),0,2^24-1])
 % Always remember to close() anything you open()!
 fclose(fileID);
 end
-[p1,ErrorEst1] = polyfit(avgDataPoints,namesOfFiles,1);
-[fit_plot1,delta1] = polyval(p1,avgDataPoints,ErrorEst1);
-[p2,ErrorEst2] = polyfit(avgDataPoints,namesOfFiles,2);
-[fit_plot2,delta2] = polyval(p2,avgDataPoints,ErrorEst2);
+%[p1,ErrorEst1] = polyfit(avgDataPoints,namesOfFiles,1);
+%[fit_plot1,delta1] = polyval(p1,avgDataPoints,ErrorEst1);
+%[p2,ErrorEst2] = polyfit(avgDataPoints,namesOfFiles,2);
+%[fit_plot2,delta2] = polyval(p2,avgDataPoints,ErrorEst2);
+%h=figure;
+%plot(avgDataPoints,fit_plot1,'g-',avgDataPoints,fit_plot2,'b-',avgDataPoints,namesOfFiles,'k+',avgDataPoints,fit_plot1+2*delta1,'r:',avgDataPoints,fit_plot1-2*delta1,'r:',avgDataPoints,fit_plot2+2*delta2,'r:',avgDataPoints,fit_plot2-2*delta2,'r:');
+%legend('Polynomial Model n=1','Polynomial Model n=2','Data','95% Confidence');
+[p,ErrorEst] = polyfit(namesOfFiles,avgDataPoints,2);
+[fit_plot,delta] = polyval(p,namesOfFiles,ErrorEst);
 h=figure;
-plot(avgDataPoints,fit_plot1,'g-',avgDataPoints,fit_plot2,'b-',avgDataPoints,namesOfFiles,'k+',avgDataPoints,fit_plot1+2*delta1,'r:',avgDataPoints,fit_plot1-2*delta1,'r:',avgDataPoints,fit_plot2+2*delta2,'r:',avgDataPoints,fit_plot2-2*delta2,'r:');
-legend('Polynomial Model n=1','Polynomial Model n=2','Data','95% Confidence');
-% [p,ErrorEst] = polyfit(namesOfFiles,avgDataPoints,2);
-% [fit_plot,delta] = polyval(p,namesOfFiles,ErrorEst);
-% h=figure;
-% plot(namesOfFiles,fit_plot,'-',namesOfFiles,avgDataPoints,'+',namesOfFiles,fit_plot+2*delta,'r:',namesOfFiles,fit_plot-2*delta,'r:');
-% legend('Polynomial Model','Data','95% Confidence');
+plot(namesOfFiles,fit_plot,'-',namesOfFiles,avgDataPoints,'+',namesOfFiles,fit_plot+2*delta,'r:',namesOfFiles,fit_plot-2*delta,'r:');
+legend('Polynomial Model','Data','95% Confidence');
 xlabel('Ideal Data Point Values');
 ylabel('Averaged Data Points (10^4)');
 saveas(h,'Sensor_Data','fig');
