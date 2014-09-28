@@ -19,6 +19,7 @@
 #include "sensor_timers.h"
 #include "sensor_memdebug.h"
 #include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
+#include "motor_control.h"
 /**
  * This is test code for the MPU60
  * ********************************
@@ -121,7 +122,7 @@ int main(int argc, char** argv)
 			//everything in here will be executed once every ms
 			//make sure that everything in here takes less than 1ms
 			//useful for checking state consistency, synchronization, watchdog...
-			//			LED_1 = 0;
+
 			led_update();
 
 			if (imu_state.init_return == RET_OK) {
@@ -130,13 +131,13 @@ int main(int argc, char** argv)
 			if (can_state.init_return == RET_OK) {
 				can_process();
 
-				if (timer_state.systime % 1000 == 0) {
-//					if (i) {
-						Target_position = 50;
-//					} else {
-//						Target_position = 20;
-//					}
-//					i ^= 1;
+				if (timer_state.systime % 2000 == 0) {
+					if (i) {
+						Target_position = 2000;
+					} else {
+						Target_position = 1000;
+					}
+					i ^= 1;
 				}
 
 				if (timer_state.systime % timeStep == 0) {
@@ -178,6 +179,10 @@ int main(int argc, char** argv)
 			if (timer_state.systime % 25 == 0) {
 				//				LED_4 = !LED_4;
 				LED_1 = !LED_1;
+			}
+
+			if (timer_state.systime % 1 == 0) {
+				Target_Tension = impedance_controller(Position_actual_value,Velocity_actual_value);
 			}
 
 			if (timer_state.systime % 1 == 0) {
@@ -224,7 +229,6 @@ int main(int argc, char** argv)
 				uart_tx_update_index();
 				uart_tx_start_transmit();
 			}
-			//			LED_1 = 1;
 		} else {
 			//untimed processes in main loop:
 			//executed as fast as possible

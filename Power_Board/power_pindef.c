@@ -36,9 +36,10 @@ return_value_t pin_init() {
     //Power & Motor Enable Pins
     TRISDbits.TRISD5 = 0;   //EN_BACKUP_5V5
     TRISDbits.TRISD6 = 0;   //EN_VBAT_5V5
-    TRISAbits.TRISA10 = 1;  //VBAT_5V5_EN
+    TRISAbits.TRISA10 = 0;  //VBAT_5V5_EN
     TRISAbits.TRISA8 = 0;   //KILLSWITCH_uC
     TRISEbits.TRISE15 = 0;  //EN_MOTOR_CURRENT
+    CNPUBbits.CNPUB7 = 1;   //Internal Pull-Up
 
     //RF Pints
     TRISBbits.TRISB13 = 0;  //RF_GND_EN
