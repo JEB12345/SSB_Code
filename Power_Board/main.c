@@ -46,11 +46,12 @@ int main(int argc, char** argv)
 
 	EN_OUT_1 = 1;
 	EN_OUT_2 = 1;
-	EN_OUT_3 = 1;
-	EN_OUT_4 = 1;
+	EN_OUT_3 = 0;
+	EN_OUT_4 = 0;
 
 	//Enable Motor Output
 	KILLSWITCH_uC = ON;
+	EN_MOTOR_CURRENT = ON;
 
 	LED_B = ON;
 
@@ -153,16 +154,14 @@ int main(int argc, char** argv)
 			 *
 			 ******************************************************************/
 			if ((adc_values.AN7) > 0x0960) {
-				RF_GND_EN = ON;
-//				VBAT_5V5_EN = ON;
+				VBAT_5V5_EN = ON;
 				EN_BACKUP_5V5 = OFF;
 				EN_VBAT_5V5 = ON;
 				LED_STATUS = OFF;
 			} else {
-				RF_GND_EN = OFF;
 				EN_BACKUP_5V5 = ON;
-//				VBAT_5V5_EN = OFF;
 				EN_VBAT_5V5 = OFF;
+				VBAT_5V5_EN = OFF;
 				LED_STATUS = ON;
 			}
 

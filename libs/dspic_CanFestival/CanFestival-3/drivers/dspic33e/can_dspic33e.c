@@ -556,7 +556,6 @@ void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
 		//        if(rxbuffer_stop>CAN_RX_BUF_SIZE){
 		//            rxbuffer_stop = 0;
 		//        }
-		LED_4 ^= 1;
 		m.cob_id = 0xFFFF;
 		m.rtr = 1;
 		m.len = 255;
