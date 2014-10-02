@@ -73,7 +73,8 @@ int main(int argc, char** argv)
 	uint32_t led_colors = 0;
 	uint8_t at_parm_test[10];
 	unsigned once;
-	uint8_t i = 0;
+	uint32_t i = 300;
+	uint8_t flag = 0;
 	volatile uint8_t* uart_tx_packet = 0;
 	volatile uint8_t* uart_rx_packet;
 	uint32_t old_loadcell_data;
@@ -131,13 +132,27 @@ int main(int argc, char** argv)
 			if (can_state.init_return == RET_OK) {
 				can_process();
 
-				if (timer_state.systime % 2000 == 0) {
-					if (i) {
-						Target_position = 2000;
+				if (timer_state.systime % 200 == 0) {
+					Target_position = i;
+					if (!flag) {
+						if (i >= 3000) {
+							flag = 1;
+						} else {
+							i += 100;
+						}
 					} else {
-						Target_position = 1000;
+						if (i <= 100) {
+							flag = 0;
+						} else {
+							i -= 100;
+						}
 					}
-					i ^= 1;
+					//					if (i) {
+					//						Target_position = 300;
+					//					} else {
+					//						Target_position = 200;
+					//					}
+					//					i ^= 1;
 				}
 
 				if (timer_state.systime % timeStep == 0) {
@@ -182,7 +197,7 @@ int main(int argc, char** argv)
 			}
 
 			if (timer_state.systime % 1 == 0) {
-				Target_Tension = impedance_controller(Position_actual_value,Velocity_actual_value);
+				Target_Tension = impedance_controller(Position_actual_value, Velocity_actual_value);
 			}
 
 			if (timer_state.systime % 1 == 0) {
