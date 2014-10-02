@@ -3,6 +3,13 @@
 % @author Drew Sabelhaus
 % 9-27-14
 
+% INSTRUCTIONS
+% Once SSH'd into the BeagleBone, run candump and pipe the file:
+% candump -c can0,1f1:283 >> step_inputs_9-27-14_1634.log
+% Then scp the file over to your computer, from your local terminal:
+% scp debian@192.168.0.160:/home/debian/data_logs/step_inputs_9-27-14_1634.log step_inputs_9-27-14_1634.log
+% Then change the file path below.
+
 clc; close all; clear all;
 
 % The path of the log file to open
