@@ -50,11 +50,19 @@ void MPU60xx_Sleep(uint8_t enabled) {
     I2C_WriteToReg(DEFAULT_ADDRESS, RA_PWR_MGMT_1, buffer[0]);
 }
 
+void MPU60xx_SetI2CAuxPassthrough(){
+	buffer[0] = I2C_ReadFromReg(DEFAULT_ADDRESS, RA_INT_PIN_CONFIG);
+	I2C_WriteToReg(DEFAULT_ADDRESS, RA_INT_PIN_CONFIG, ((buffer[0] & (1 << 1))));
+	buffer[0] = I2C_ReadFromReg(DEFAULT_ADDRESS, RA_USER_CONTROL);
+	I2C_WriteToReg(DEFAULT_ADDRESS, RA_USER_CONTROL, ((buffer[0] & (0 << 1))));
+}
 
 void MPU60xx_SetGyroRange(uint8_t range) {
     buffer[0] = I2C_ReadFromReg(DEFAULT_ADDRESS, RA_GYRO_CONFIG);
     I2C_WriteToReg(DEFAULT_ADDRESS, RA_GYRO_CONFIG, ((buffer[0] & 0xE0) | (range << 3)));
 }
+
+
 
 
 void MPU60xx_SetAccelRange(uint8_t range) {

@@ -34,8 +34,10 @@ typedef struct {
 // Main 1ms loop timer data
 typedef struct {
     return_value_t          init_return;
-    unsigned int volatile   systime;        //updated by a timer
+    unsigned int volatile   systime;        //updated by timer 1
     unsigned int            prev_systime;   //updated in main loop
+    unsigned int volatile   fasttime;      //updated by timer 4
+    unsigned int            prev_fasttime;  //updated in main loop
 } timer_data;
 
 // ADC data Struct for buffer

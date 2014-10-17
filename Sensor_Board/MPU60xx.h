@@ -67,6 +67,8 @@ typedef struct {
 #define RA_PWR_MGMT_1       0x6B
 #define RA_PWR_MGMT_2       0x6C
 #define RA_WHO_AM_I         0x75
+#define RA_INT_PIN_CONFIG   0x37
+#define RA_USER_CONTROL     0x6A
 
 /**
  * @brief Gyro range settings.
@@ -137,6 +139,12 @@ void MPU60xx_Init();
  * @param enabled New sleep mode enabled status.
  */
 void MPU60xx_Sleep(uint8_t enabled);
+
+/**
+ * @brief Enable I2C AUX to be accessible by Host Processor
+ * @see page 24 of RM-MPU-6000A-00v4.2.pdf
+ */
+void MPU60xx_SetI2CAuxPassthrough();
 
 /**
  * @brief Sets accelerometer range and sensitivity.

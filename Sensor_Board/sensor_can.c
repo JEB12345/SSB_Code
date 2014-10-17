@@ -51,9 +51,11 @@ return_value_t can_init()
     setState(&Sensor_Board_Data, Initialisation);	// Init the state
     setState(&Sensor_Board_Data, Operational);
 
+    can_enable_slave_heartbeat(0x04,100);
     can_enable_slave_heartbeat(0x03,100);
     can_enable_slave_heartbeat(0x02,100);
     can_enable_heartbeat(100);
+    can_start_node(0x04);
     can_start_node(0x03);
     can_start_node(0x02);
 

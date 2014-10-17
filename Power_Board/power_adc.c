@@ -9,6 +9,7 @@
 #include "power_adc.h"
 #include "power_pindef.h"
 #include "power_state.h"
+#include "us_delay.h"
 
 //__eds__ uint16_t BufferA[8] __attribute__((eds,aligned(64)));
 //__eds__ uint16_t BufferB[8] __attribute__((eds,aligned(64)));
@@ -74,24 +75,7 @@ return_value_t init_adc()
     //Flags and Interrupts
     IFS0bits.AD1IF = 0;         //Clear ADC Interrupt flag bit
     IEC0bits.AD1IE = 0;         //Disable ADC interrupt
-
-    /****************************************
-     * Initializes Timer 5 for ADC Triggering
-    *****************************************/
-    T4CONbits.TON = 0;          //Stop any 4/5 timer
-    T4CONbits.T32 = 0;          //Sets Timer 4 and Timer 5 as separate 15-bit timers
-    T5CONbits.TON = 0;          //Disables the Timer 5 module
-    T5CONbits.TSIDL = 0;        //Coninuous mode during idle
-    T5CONbits.TGATE = 0;        //Gated time accumulation disabled
-    T5CONbits.TCKPS = 0b00;     //1:1 Prescaler
-    T5CONbits.TCS = 0;          //Use Internal Clock (Fp)
-
-    //Settings the Loop Time
-    TMR5 = 0x00;                //Clear Timer 5 register
-    PR5 = 140;                  //Fp / (TCKPS*PR5) = LoopTime => 70000000/(1*140)=500000Hz
-    IFS1bits.T5IF = 0;          //Clear Timer 5 Interrupt Flag
-    IEC1bits.T5IE = 1;          //Enable Timer 5 Interrupt
-
+    
     /*******************************
      * Initializes the DMA2 Module
      *******************************/
@@ -135,7 +119,6 @@ return_value_t init_adc()
     /*********************
      * Turning on Modules
      *********************/
-    T5CONbits.TON = 1;          //Start Timer 5
     DMA2CONbits.CHEN = 1;       //Enable DMA
     AD1CON1bits.ADON = 1;       //Turn on the ADC
     Delay_us(20);
@@ -194,18 +177,4 @@ void __attribute__((interrupt, no_auto_psv)) _DMA2Interrupt(void)
     DMAbuffer ^= 1;
 
     IFS1bits.DMA2IF = 0;        //Clear the DMA Interrupt Flag bit
-}
-
-void __attribute__((__interrupt__, auto_psv)) _T5Interrupt(void)
-{
-    IFS1bits.T5IF = 0; // Clear Timer 5 Interrupt Flag
-}
-
-void Delay_us(unsigned int delay)
-{
-    uint16_t i;
-    for (i = 0; i < delay; i++){
-        __asm__ volatile ("repeat #39");
-        __asm__ volatile ("nop");
-    }
 }

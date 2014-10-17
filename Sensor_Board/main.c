@@ -20,6 +20,7 @@
 #include "sensor_memdebug.h"
 #include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
 #include "motor_control.h"
+
 /**
  * This is test code for the MPU60
  * ********************************
@@ -28,6 +29,9 @@
 #include <uart.h>
  * ********************************
  */
+#include "I2CdsPIC.h"
+#include "MPU60xx.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <p33Exxxx.h>
@@ -64,6 +68,7 @@ void IMU2String(char *strBuff, MPU6050_Data input)
 }
  * *******************************
  */
+MPU6050_Data imuData;
 
 /*
  * 
@@ -97,6 +102,9 @@ int main(int argc, char** argv)
 	 * ********************************
 	 */
 
+	I2C_Init();
+	MPU60xx_Init();
+
 	led_rgb_off();
 
 	//memtest();
@@ -126,13 +134,36 @@ int main(int argc, char** argv)
 
 			led_update();
 
-			if (imu_state.init_return == RET_OK) {
-				imu_read_state();
+			if (timer_state.systime % 10 == 0) {
+				/**
+				 * This is test code for the MPU60
+				 * ********************************
+	    //                    MPU60xx_Get6AxisData(&imuData);
+	    //                    uint8_t i;
+	    //                    IMU2String(strBuff, imuData);
+	    //
+	    //                    for (i = 0; i < strlen(strBuff); i++) {
+	    //                            WriteUART1(strBuff[i]);
+	    //                            while (BusyUART1());
+	    //                    }
+
+				memset(strBuff, NULL, 128);
+				 * ********************************
+				 */
+				MPU60xx_Get6AxisData(&imuData);
+	                        
 			}
+
+			/**
+                         * CANFestival Loop
+                         */
 			if (can_state.init_return == RET_OK) {
 				can_process();
 
-				if (timer_state.systime % 200 == 0) {
+				/**
+				 * Motor Position Testing Loop
+				 */
+				if (timer_state.systime % 1000 == 0) {
 					Target_position = i;
 					if (!flag) {
 						if (i >= 3000) {
@@ -148,16 +179,24 @@ int main(int argc, char** argv)
 						}
 					}
 					//					if (i) {
-					//						Target_position = 300;
+					//						Target_position = 3000;
 					//					} else {
-					//						Target_position = 200;
+					//						Target_position = 1000;
 					//					}
 					//					i ^= 1;
 				}
 
+				/**
+				 * Sets CANFestival shared variables
+				 * specific to Sensor Board
+				 */
 				if (timer_state.systime % timeStep == 0) {
 					can_push_state();
 				}
+
+				/**
+				 * Handles CAN transmission buffers
+				 */
 				if (timer_state.systime % 1 == 0) {
 					if (txreq_bitarray & 0b00000001 && !C1TR01CONbits.TXREQ0) {
 						C1TR01CONbits.TXREQ0 = 1;
@@ -191,59 +230,52 @@ int main(int argc, char** argv)
 				can_time_dispatch();
 			}
 
+			/**
+                         * Blinking LED Loop
+                         */
 			if (timer_state.systime % 25 == 0) {
 				//				LED_4 = !LED_4;
 				LED_1 = !LED_1;
 			}
 
+			/**
+                         * Tension Controller Loop
+                         */
 			if (timer_state.systime % 1 == 0) {
 				Target_Tension = impedance_controller(Position_actual_value, Velocity_actual_value);
 			}
 
-			if (timer_state.systime % 1 == 0) {
-
-				/**
-				 * This is test code for the MPU60
-				 * ********************************
-	    //                    MPU60xx_Get6AxisData(&imuData);
-	    //                    uint8_t i;
-	    //                    IMU2String(strBuff, imuData);
-	    //
-	    //                    for (i = 0; i < strlen(strBuff); i++) {
-	    //                            WriteUART1(strBuff[i]);
-	    //                            while (BusyUART1());
-	    //                    }
-
-				memset(strBuff, NULL, 128);
-				 * ********************************
-				 */
-				uart_tx_packet = uart_tx_cur_packet();
-				uart_tx_packet[0] = 0xFF; //counting
-				uart_tx_packet[1] = 0xFF; //CMD
-				uart_tx_packet[2] = 14;
-				//uart_tx_packet[3] = loadcell_state.sg_data_0;
-				uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
-				uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
-				uart_tx_packet[5] = (loadcell_state.values[0])&0xFF;
-				uart_tx_packet[6] = 0x01;
-				//uart_tx_packet[6] = 0xFF;
-				uart_tx_packet[7] = 0x89; // same as " "
-				//uart_tx_packet[7] = 0xFF;
-				//uart_tx_packet[8] = (loadcell_state.values[1]>>16)&0xFF;
-				uart_tx_packet[8] = 0xFF;
-				//uart_tx_packet[9] = (loadcell_state.values[1]>>8)&0xFF;
-				uart_tx_packet[9] = 0xFF;
-				//uart_tx_packet[10] = loadcell_state.values[1]&0xFF;
-				uart_tx_packet[10] = 0xFF;
-				uart_tx_packet[11] = 0x02;
-				//uart_tx_packet[11] = 0xFF;
-				uart_tx_packet[12] = 0x8b; // same as "\n"
-				//uart_tx_packet[12] = 0xFF;
-
-				uart_tx_compute_cks(uart_tx_packet);
-				uart_tx_update_index();
-				uart_tx_start_transmit();
-			}
+			/**
+                         * UART Message Loop
+                         */
+//			if (timer_state.systime % 1 == 0) {
+//				uart_tx_packet = uart_tx_cur_packet();
+//				uart_tx_packet[0] = 0xFF; //counting
+//				uart_tx_packet[1] = 0xFF; //CMD
+//				uart_tx_packet[2] = 14;
+//				//uart_tx_packet[3] = loadcell_state.sg_data_0;
+//				uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
+//				uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
+//				uart_tx_packet[5] = (loadcell_state.values[0])&0xFF;
+//				uart_tx_packet[6] = 0x01;
+//				//uart_tx_packet[6] = 0xFF;
+//				uart_tx_packet[7] = 0x89; // same as " "
+//				//uart_tx_packet[7] = 0xFF;
+//				//uart_tx_packet[8] = (loadcell_state.values[1]>>16)&0xFF;
+//				uart_tx_packet[8] = 0xFF;
+//				//uart_tx_packet[9] = (loadcell_state.values[1]>>8)&0xFF;
+//				uart_tx_packet[9] = 0xFF;
+//				//uart_tx_packet[10] = loadcell_state.values[1]&0xFF;
+//				uart_tx_packet[10] = 0xFF;
+//				uart_tx_packet[11] = 0x02;
+//				//uart_tx_packet[11] = 0xFF;
+//				uart_tx_packet[12] = 0x8b; // same as "\n"
+//				//uart_tx_packet[12] = 0xFF;
+//
+//				uart_tx_compute_cks(uart_tx_packet);
+//				uart_tx_update_index();
+//				uart_tx_start_transmit();
+//			}
 		} else {
 			//untimed processes in main loop:
 			//executed as fast as possible

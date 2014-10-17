@@ -14,9 +14,17 @@
 #include "power_adc.h"
 #include "power_uart.h"
 #include "power_can.h"
+#include "power_spi.h"
 #include "superball_communication.h"
 #include "power_objdict.h"
+#include "nRF24L01/src/nrf24l01.h"
 #include <p33Exxxx.h>
+
+/*******************************************
+ * This switches the board between reciever(default) or transmitter
+ * for the nRF device: #define TRANSMITTER
+ ******************************************/
+#define TRANSMITTER
 
 extern timer_data timer_state;
 extern analog_data adc_values;
@@ -36,6 +44,7 @@ int main(int argc, char** argv)
 	timers_init();
 	init_adc();
 	uart_init();
+	init_RF_spi();
 
 	// Parameter Initalziations
 	timer_state.prev_systime = 0;
@@ -43,17 +52,34 @@ int main(int argc, char** argv)
 	uint16_t timeStep = 50;
 	volatile uint8_t* uart_tx_packet = 0;
 	volatile uint8_t* uart_rx_packet = 0;
+	char buzzerOn = OFF;
+	unsigned char testTXpayload[1];
+	unsigned char testRXpayload[1];
 
 	EN_OUT_1 = 1;
 	EN_OUT_2 = 1;
 	EN_OUT_3 = 0;
 	EN_OUT_4 = 0;
 
-	//Enable Motor Output
-	KILLSWITCH_uC = ON;
-	EN_MOTOR_CURRENT = ON;
+	BUZZER = 0;
 
-	LED_B = ON;
+	//Enable Motor Current Sensing
+	EN_MOTOR_CURRENT = ON;
+	// Def for Old board version 1
+#ifdef OLD_BOARD
+	VMOTOR_EN = 1;
+#endif
+
+#ifdef TRANSMITTER
+	init_RF_device_TX();
+	//	nrf24l01_initialize_debug(true, 1, false);
+	testTXpayload[0] = 0xAB;
+#else
+	init_RF_device_RX();
+	//	nrf24l01_initialize_debug(true, 1, false);
+	nrf24l01_set_as_rx(true);
+	testRXpayload[0] = 0x00;
+#endif
 
 	// Enable CAN after calling the EN_OUT_# commands.
 	// This prevents the while loop in the can_init() from stalling.
@@ -62,25 +88,35 @@ int main(int argc, char** argv)
 		while (1);
 	}
 
-	// Def for Old board v1
-#ifdef OLD_BOARD
-	VMOTOR_EN = 1;
-#endif
-
 	for (;;) {
-		// All programs that run on a 1ms loop should go in this if statement
 		if (timer_state.systime != timer_state.prev_systime) {
 			timer_state.prev_systime = timer_state.systime;
 
-			//            if(timer_state.systime%timeStep == 0){
-			//               LED_B=!LED_B;
-			//            }
-			//
-			//            if(timer_state.systime%50 == 0){
-			//                LED_G = !LED_G;
-			//            }
+			/**
+			 * Buzzer for audio notifications
+			 * 1kHz is the highest freq. at the moment
+			 */
+			if (buzzerOn) {
+				if (timer_state.systime % 1 == 0) {
+					BUZZER = !BUZZER;
+				}
+			}
 
-			if (timer_state.systime % 1 == 0) {
+			if (timer_state.systime % 100 == 0) {
+#ifdef TRANSMITTER
+				//TODO: Might need to check if the CE IRQ pins are functioning correctly
+				nrf24l01_write_tx_payload(testTXpayload, 1, true);
+				nrf24l01_irq_clear_all();
+#else
+				nrf24l01_read_rx_payload(testRXpayload, 1);
+				nrf24l01_irq_clear_all();
+#endif
+			}
+
+			/**
+			 * This loop is for UART transmission
+			 */
+			if (timer_state.systime % 100 == 0) {
 				uart_tx_packet = uart_tx_cur_packet();
 				uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
 				uart_tx_packet[1] = 0xFF; //CMD
@@ -92,16 +128,23 @@ int main(int argc, char** argv)
 
 				uart_tx_packet[7] = 0x89;
 
+#ifdef TRANSMITTER
 				uart_tx_packet[8] = (Strain_Gauge2 >> 24)&0xFF;
 				uart_tx_packet[9] = (Strain_Gauge2 >> 16)&0xFF;
 				uart_tx_packet[10] = (Strain_Gauge2 >> 8)&0xFF;
 				uart_tx_packet[11] = (Strain_Gauge2)&0xFF;
+#else
+				uart_tx_packet[8] = testRXpayload[0];
+#endif
 				uart_tx_compute_cks(uart_tx_packet);
 				uart_tx_update_index();
 				uart_tx_start_transmit();
 
 			}
 
+			/**
+			 * This loop process all CAN and CANFestival code
+			 */
 			if (can_state.init_return == RET_OK) {
 				can_process();
 
@@ -146,7 +189,6 @@ int main(int argc, char** argv)
 				}
 				can_time_dispatch();
 			}
-
 		} else { //Everything else that needs to run faster than 1ms goes in the else statement
 
 			/*******************************************************************
@@ -158,11 +200,16 @@ int main(int argc, char** argv)
 				EN_BACKUP_5V5 = OFF;
 				EN_VBAT_5V5 = ON;
 				LED_STATUS = OFF;
+				//Enable Motor Output
+				KILLSWITCH_uC = ON;
 			} else {
 				EN_BACKUP_5V5 = ON;
 				EN_VBAT_5V5 = OFF;
 				VBAT_5V5_EN = OFF;
 				LED_STATUS = ON;
+				//Diables Motor Output
+				KILLSWITCH_uC = OFF;
+				//				buzzerOn = ON;
 			}
 
 			/*******************************************************************
@@ -172,9 +219,9 @@ int main(int argc, char** argv)
 			 * power switch is flipped off. This is not ideal and will not always
 			 * cut power to board when VBAT_5V5 is main power source.
 			 ******************************************************************/
-//			if (adc_values.AN8 < 0x0800) {
-//				VBAT_5V5_EN = OFF;
-//			}
+			//			if (adc_values.AN8 < 0x0800) {
+			//				VBAT_5V5_EN = OFF;
+			//			}
 		}
 	}
 

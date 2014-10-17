@@ -41,5 +41,18 @@ return_value_t pin_init();
 #define EN_OUT_3            LATCbits.LATC13
 #define EN_OUT_4            LATBbits.LATB8
 
+//RF SPI Control
+#define RF_IRQ              PORTGbits.RG9
+#define RF_CE               LATAbits.LATA7
+#define RF_CSN              LATBbits.LATB0
+#define RF_MISO             LATAbits.LATA9
+#define RF_GND_EN           LATBbits.LATB13
+/**
+ Pin defines used in nRF library are located in nrf24l01.h
+ */
+
+//BUZZER
+#define BUZZER              LATGbits.LATG8
+
 #endif	/* POWER_PINDEF_H */
 

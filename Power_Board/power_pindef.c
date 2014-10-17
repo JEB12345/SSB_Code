@@ -6,6 +6,7 @@
  */
 
 #include "power_pindef.h"
+#include <pps.h>
 
 return_value_t pin_init() {
 
@@ -68,10 +69,19 @@ return_value_t pin_init() {
      /*
      * CAN
      */
-    TRISCbits.TRISC6 = 0; //TX = output
+    TRISCbits.TRISC8 = 0; //TX = output
     _RP56R = 0b001110;//TX
     RPINR26bits.C1RXR = 55; //RX RP55
 
+    //SPI for RF
+    TRISBbits.TRISB13 = 0;	// RF_GND_EN
+    TRISBbits.TRISB0 = 0;	// RF_CSN
+    RPINR8bits.IC4R = 25;	// RF_MISO
+    TRISAbits.TRISA4 = 0;	// RF_MOSI
+    TRISAbits.TRISA7 = 0;	// RF_CE
+
+    //Buzzer 0.0
+    TRISGbits.TRISG8 = 0;	// BUZZER
+
     return RET_OK;
 }
-
