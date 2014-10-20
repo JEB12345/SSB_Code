@@ -499,7 +499,7 @@ unsigned char nrf24l01_nop()
 void nrf24l01_transmit()
 {
 	nrf24l01_set_ce();
-	delay_us(11);
+	delay_us(20);
 	nrf24l01_clear_ce();
 }
 

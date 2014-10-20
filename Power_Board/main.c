@@ -72,12 +72,11 @@ int main(int argc, char** argv)
 
 #ifdef TRANSMITTER
 	init_RF_device_TX();
-	//	nrf24l01_initialize_debug(true, 1, false);
 	testTXpayload[0] = 0xAB;
 #else
 	init_RF_device_RX();
-	//	nrf24l01_initialize_debug(true, 1, false);
-	nrf24l01_set_as_rx(true);
+//	nrf24l01_set_as_rx(true);
+//	nrf24l01_flush_rx();
 	testRXpayload[0] = 0x00;
 #endif
 
@@ -104,11 +103,15 @@ int main(int argc, char** argv)
 
 			if (timer_state.systime % 100 == 0) {
 #ifdef TRANSMITTER
-				//TODO: Might need to check if the CE IRQ pins are functioning correctly
-				nrf24l01_write_tx_payload(testTXpayload, 1, true);
 				nrf24l01_irq_clear_all();
+				nrf24l01_write_tx_payload(testTXpayload, 1, true);
 #else
-				nrf24l01_read_rx_payload(testRXpayload, 1);
+				if (nrf24l01_irq_rx_dr_active() == true) {
+					nrf24l01_read_rx_payload(testRXpayload, 1);
+					nrf24l01_clear_ce();
+					nrf24l01_irq_clear_all();
+					nrf24l01_set_ce();
+				}
 				nrf24l01_irq_clear_all();
 #endif
 			}
@@ -129,10 +132,11 @@ int main(int argc, char** argv)
 				uart_tx_packet[7] = 0x89;
 
 #ifdef TRANSMITTER
-				uart_tx_packet[8] = (Strain_Gauge2 >> 24)&0xFF;
-				uart_tx_packet[9] = (Strain_Gauge2 >> 16)&0xFF;
-				uart_tx_packet[10] = (Strain_Gauge2 >> 8)&0xFF;
-				uart_tx_packet[11] = (Strain_Gauge2)&0xFF;
+				//				uart_tx_packet[8] = (Strain_Gauge2 >> 24)&0xFF;
+				//				uart_tx_packet[9] = (Strain_Gauge2 >> 16)&0xFF;
+				//				uart_tx_packet[10] = (Strain_Gauge2 >> 8)&0xFF;
+				//				uart_tx_packet[11] = (Strain_Gauge2)&0xFF;
+				uart_tx_packet[8] = testTXpayload[0];
 #else
 				uart_tx_packet[8] = testRXpayload[0];
 #endif

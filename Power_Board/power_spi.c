@@ -39,8 +39,8 @@ return_value_t init_RF_spi()
 	SPI1CON1bits.CKP = 0; // Idle state for clock is a low level;
 	// active state is a low level
 	SPI1CON1bits.MSTEN = 1; // Master mode enabled
-	// SPI Baud = Fcy / (PPRE * SPRE) => 10 Mbaud = 70000000 / (1 * 7)
-	SPI1CON1bits.PPRE = 0b11; //1 // Primary prescale bit for SPI clock; 0b11 = 1:1;  0b10 = 4:1; 0b01 = 16:1; 0b00 = 64:1
+	// SPI Baud = Fcy / (PPRE * SPRE) =>  Mbaud = 70000000 / (4 * 7)
+	SPI1CON1bits.PPRE = 0b10; //4 // Primary prescale bit for SPI clock; 0b11 = 1:1;  0b10 = 4:1; 0b01 = 16:1; 0b00 = 64:1
 	SPI1CON1bits.SPRE = 0b001; //7 // Secondary prescale bit for SPI clock; 0b111 = 1:1; 0b110 = 1:2 ... 0b000 = 1:8
 	SPI1CON1bits.SSEN = 0; // Slave select pin disabled
 
@@ -74,25 +74,26 @@ void init_RF_device_RX()
 		true,
 		nrf24l01_EN_AA_ENAA_NONE,
 		nrf24l01_EN_RXADDR_ERX_ALL,
-		nrf24l01_SETUP_AW_3BYTES,
+		nrf24l01_SETUP_AW_5BYTES,
 		nrf24l01_SETUP_RETR_ARC_0,
 		100, // Channel Value
 		0x27, // based off of Ken's robot's code (set bitrate to 250kbps)
-		global_addr, // P0
-		rod_addr, // P1
+		&global_addr, // P0
+		&rod_addr, // P1
 		nrf24l01_RX_ADDR_P2_DEFAULT_VAL,
 		nrf24l01_RX_ADDR_P3_DEFAULT_VAL,
 		nrf24l01_RX_ADDR_P4_DEFAULT_VAL,
 		nrf24l01_RX_ADDR_P5_DEFAULT_VAL,
 		NULL,
-		0b1, // P0 width is 1 byte(s)
-		0b1, // P1 width is 1 byte(s)
+		1, // P0 width is 1 byte(s)
+		1, // P1 width is 1 byte(s)
 		nrf24l01_RX_PW_P2_DEFAULT_VAL,
 		nrf24l01_RX_PW_P3_DEFAULT_VAL,
 		nrf24l01_RX_PW_P4_DEFAULT_VAL,
 		nrf24l01_RX_PW_P5_DEFAULT_VAL);
-	
-	nrf24l01_write_register(nrf24l01_FEATURE, 0x01, 1);
+
+	nrf24l01_set_as_rx_param(true, config);
+//	nrf24l01_write_register(nrf24l01_FEATURE, 0x01, 1);
 }
 
 void init_RF_device_TX()
@@ -105,26 +106,26 @@ void init_RF_device_TX()
 	nrf24l01_initialize(config,
 		false,
 		nrf24l01_EN_AA_ENAA_NONE,
-		nrf24l01_EN_RXADDR_DEFAULT_VAL,
-		nrf24l01_SETUP_AW_3BYTES,
+		nrf24l01_EN_RXADDR_ERX_ALL,
+		nrf24l01_SETUP_AW_5BYTES,
 		nrf24l01_SETUP_RETR_ARC_0,
 		100, // Channel Value
 		0x27, // based off of Ken's robot's code (set bitrate to 250kbps)
-		NULL, // P0
+		&global_addr, // P0
 		NULL, // P1
 		nrf24l01_RX_ADDR_P2_DEFAULT_VAL,
 		nrf24l01_RX_ADDR_P3_DEFAULT_VAL,
 		nrf24l01_RX_ADDR_P4_DEFAULT_VAL,
 		nrf24l01_RX_ADDR_P5_DEFAULT_VAL,
-		global_addr, // TX_ADDR
-		0b1, // P0 width is 1 byte(s)
-		nrf24l01_RX_PW_P1_DEFAULT_VAL, // P1 width is 1 byte(s)
+		&global_addr, // TX_ADDR
+		1, // P0 width is 1 byte(s)
+		nrf24l01_RX_PW_P1_DEFAULT_VAL, // P1 width is default byte(s)
 		nrf24l01_RX_PW_P2_DEFAULT_VAL,
 		nrf24l01_RX_PW_P3_DEFAULT_VAL,
 		nrf24l01_RX_PW_P4_DEFAULT_VAL,
 		nrf24l01_RX_PW_P5_DEFAULT_VAL);
 
-	nrf24l01_set_as_tx();
+	nrf24l01_set_as_tx_param(config);
 }
 
 unsigned char spi1_send_read_byte(unsigned char byte)
