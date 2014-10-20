@@ -7,4 +7,5 @@ We are also using a submodule for the MPU60x0 IMU. A submodule is an external gi
 In order to pull this submodule, you will need to call:
 "git submodule init" then,
 "git submodule update"
- 
+
+Please read this blog post on submodules. It is a good quick overview of their basic usage: http://www.arlocarreon.com/blog/git/git-repo-inside-a-git-repo/ 
