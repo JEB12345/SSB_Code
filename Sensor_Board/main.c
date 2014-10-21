@@ -9,7 +9,6 @@
 #include "clock.h"
 #include "sensor_can.h" //always include first, as this sets a number of config variables
 #include "sensor_adc.h"
-//#include "sensor_imu.h"
 #include "sensor_led.h"
 #include "sensor_loadcell.h"
 #include "sensor_pindefs.h"
@@ -22,15 +21,11 @@
 #include "motor_control.h"
 
 /**
- * This is test code for the MPU60
- * ********************************
-#include "I2CdsPIC.h"
-#include "MPU60xx.h"
-#include <uart.h>
- * ********************************
+ * This is code from the git submodule for the MPU60xx library
  */
-#include "I2CdsPIC.h"
-#include "MPU60xx.h"
+#include "MPU60xx/I2CdsPIC.h"
+#include "MPU60xx/MPU60xx.h"
+#include "MPU60xx/MAG3110.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,31 +39,8 @@ extern imu_data imu_state;
 extern can_data can_state;
 extern uint8_t txreq_bitarray;
 
-/**
- * This is test code for the MPU60
- * ********************************
 MPU6050_Data imuData;
-char strBuff[128] = "";
-
-void IMU2String(char *strBuff, MPU6050_Data input)
-{
-	char textBuff[16] = "";
-	strcat(strBuff, itoa(textBuff, input.accelX, 10));
-	strcat(strBuff, ",");
-	strcat(strBuff, itoa(textBuff, input.accelY, 10));
-	strcat(strBuff, ",");
-	strcat(strBuff, itoa(textBuff, input.accelZ, 10));
-	strcat(strBuff, ",");
-	strcat(strBuff, itoa(textBuff, input.gyroX, 10));
-	strcat(strBuff, ",");
-	strcat(strBuff, itoa(textBuff, input.gyroY, 10));
-	strcat(strBuff, ",");
-	strcat(strBuff, itoa(textBuff, input.gyroZ, 10));
-	strcat(strBuff, "\r\n\0");
-}
- * *******************************
- */
-MPU6050_Data imuData;
+MAG3110_Data magData;
 
 /*
  * 
@@ -94,27 +66,16 @@ int main(int argc, char** argv)
 	loadcell_init();
 	loadcell_start();
 
-	/**
-	 * This is test code for the MPU60
-	 * ********************************
-	I2C_Init();
-	MPU60xx_Init();
-	 * ********************************
-	 */
-
-	I2C_Init();
-	MPU60xx_Init();
+	I2C_Init(I2C_CALC_BRG(400000, 70000000));
+	MPU60xx_Init(true);
+	MAG3110_Init();
 
 	led_rgb_off();
-
-	//memtest();
-	imu_state.init_return = RET_UNKNOWN;
-	//imu_init();
 
 	led_rgb_set(50, 0, 100);
 
 	// Turn on the BBB by enabling the 5.5->5V LDO
-	BBB_Power = 1;
+//	BBB_Power = 1;
 
 	// Commented out the CAN code since it has some while loops which hang if it is not connected.
 	can_state.init_return = RET_UNKNOWN;
@@ -134,29 +95,15 @@ int main(int argc, char** argv)
 
 			led_update();
 
-			if (timer_state.systime % 10 == 0) {
-				/**
-				 * This is test code for the MPU60
-				 * ********************************
-	    //                    MPU60xx_Get6AxisData(&imuData);
-	    //                    uint8_t i;
-	    //                    IMU2String(strBuff, imuData);
-	    //
-	    //                    for (i = 0; i < strlen(strBuff); i++) {
-	    //                            WriteUART1(strBuff[i]);
-	    //                            while (BusyUART1());
-	    //                    }
-
-				memset(strBuff, NULL, 128);
-				 * ********************************
-				 */
+			if (timer_state.systime % 50 == 0) {
 				MPU60xx_Get6AxisData(&imuData);
-	                        
+				MAG3110_Get3AxisData(&magData);
+				MAG3110_GetTempurature(&magData);
 			}
 
 			/**
-                         * CANFestival Loop
-                         */
+			 * CANFestival Loop
+			 */
 			if (can_state.init_return == RET_OK) {
 				can_process();
 
@@ -231,29 +178,41 @@ int main(int argc, char** argv)
 			}
 
 			/**
-                         * Blinking LED Loop
-                         */
+			 * Blinking LED Loop
+			 */
 			if (timer_state.systime % 25 == 0) {
 				//				LED_4 = !LED_4;
 				LED_1 = !LED_1;
 			}
 
 			/**
-                         * Tension Controller Loop
-                         */
+			 * Tension Controller Loop
+			 */
 			if (timer_state.systime % 1 == 0) {
 				Target_Tension = impedance_controller(Position_actual_value, Velocity_actual_value);
 			}
 
 			/**
-                         * UART Message Loop
-                         */
-//			if (timer_state.systime % 1 == 0) {
-//				uart_tx_packet = uart_tx_cur_packet();
-//				uart_tx_packet[0] = 0xFF; //counting
-//				uart_tx_packet[1] = 0xFF; //CMD
-//				uart_tx_packet[2] = 14;
-//				//uart_tx_packet[3] = loadcell_state.sg_data_0;
+			 * UART Message Loop
+			 */
+			if (timer_state.systime % 1 == 0) {
+				uart_tx_packet = uart_tx_cur_packet();
+				uart_tx_packet[0] = 0xFF; //counting
+				uart_tx_packet[1] = 0xFF; //CMD
+				uart_tx_packet[2] = 14;
+				uart_tx_packet[3] = (imuData.accelX >> 8)&0xFF;
+				uart_tx_packet[4] = (imuData.accelX)&0xFF;
+				uart_tx_packet[5] = (imuData.accelY >> 8)&0xFF;
+				uart_tx_packet[6] = (imuData.accelY)&0xFF;
+				uart_tx_packet[7] = (imuData.accelZ >> 8)&0xFF;
+				uart_tx_packet[8] = (imuData.accelZ)&0xFF;
+				uart_tx_packet[9] = magData.mag_X_msb;
+				uart_tx_packet[10] = magData.mag_X_lsb;
+				uart_tx_packet[11] = magData.mag_Y_msb;
+				uart_tx_packet[12] = magData.mag_Y_lsb;
+				uart_tx_packet[13] = magData.mag_Z_msb;
+				uart_tx_packet[14] = magData.mag_Z_lsb;
+
 //				uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
 //				uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
 //				uart_tx_packet[5] = (loadcell_state.values[0])&0xFF;
@@ -271,11 +230,11 @@ int main(int argc, char** argv)
 //				//uart_tx_packet[11] = 0xFF;
 //				uart_tx_packet[12] = 0x8b; // same as "\n"
 //				//uart_tx_packet[12] = 0xFF;
-//
-//				uart_tx_compute_cks(uart_tx_packet);
-//				uart_tx_update_index();
-//				uart_tx_start_transmit();
-//			}
+
+				uart_tx_compute_cks(uart_tx_packet);
+				uart_tx_update_index();
+				uart_tx_start_transmit();
+			}
 		} else {
 			//untimed processes in main loop:
 			//executed as fast as possible

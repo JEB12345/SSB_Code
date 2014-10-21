@@ -147,7 +147,7 @@ return_value_t pin_init()
     TRISAbits.TRISA10 = 0;
 
     //UART 1
-    _RP36R = 0b000001; //RB4 UART 1 tx
+    _RP35R = 0b000001; //RB3 UART 1 tx
     RPINR18bits.U1RXR = 44; //RB12 uart 1 rx s
 
     //BBB Power Toggle
