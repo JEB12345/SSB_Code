@@ -15,6 +15,7 @@
 #include "sensor_state.h"
 #include "sensor_memdebug.h"
 #include "sensor_uart.h"
+#include "Uart2.h"
 #include "sensor_timers.h"
 #include "sensor_memdebug.h"
 #include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
@@ -26,7 +27,9 @@
 #include "MPU60xx/I2CdsPIC.h"
 #include "MPU60xx/MPU60xx.h"
 #include "MPU60xx/MAG3110.h"
+#include "MPU60xx/IMU.h"
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <p33Exxxx.h>
@@ -52,8 +55,8 @@ int main(int argc, char** argv)
 	unsigned once;
 	uint32_t i = 300;
 	uint8_t flag = 0;
-	volatile uint8_t* uart_tx_packet = 0;
-	volatile uint8_t* uart_rx_packet;
+	uint8_t* uart_tx_packet = 0;
+	uint8_t* uart_rx_packet;
 	uint32_t old_loadcell_data;
 	uint16_t timeStep = 50;
 
@@ -63,21 +66,33 @@ int main(int argc, char** argv)
 	timers_init();
 	state_init();
 	uart_init();
+
+	// Set up UART2 for 115200 baud. There's no round() on the dsPICs, so we implement our own.
+	double brg = (double) 140000000 / 2.0 / 16.0 / 115200.0 - 1.0;
+	if (brg - floor(brg) >= 0.5) {
+		brg = ceil(brg);
+	} else {
+		brg = floor(brg);
+	}
+	Uart2Init(brg); // Init UART 2 as 115200 baud/s
+	
 	loadcell_init();
 	loadcell_start();
 
-	I2C_Init(I2C_CALC_BRG(400000, 70000000));
-	MPU60xx_Init(true);
-	MAG3110_Init();
+	//	I2C_Init(I2C_CALC_BRG(400000, 70000000));
+	//	MPU60xx_Init(true);
+	//	MAG3110_Init();
+	IMU_Init(400000, 70000000);
+	IMU_Init(400000, 70000000);
+
 
 	led_rgb_off();
 
 	led_rgb_set(50, 0, 100);
 
 	// Turn on the BBB by enabling the 5.5->5V LDO
-//	BBB_Power = 1;
+	//	BBB_Power = 1;
 
-	// Commented out the CAN code since it has some while loops which hang if it is not connected.
 	can_state.init_return = RET_UNKNOWN;
 	if (can_init()) {
 		while (1);
@@ -85,6 +100,9 @@ int main(int argc, char** argv)
 
 	timer_state.prev_systime = 0;
 	timer_state.systime = 0;
+
+	// Start Reading the int pin on IMU
+	imuData.startData = 1;
 
 	for (;;) {
 		if (timer_state.systime != timer_state.prev_systime) {
@@ -94,12 +112,6 @@ int main(int argc, char** argv)
 			//useful for checking state consistency, synchronization, watchdog...
 
 			led_update();
-
-			if (timer_state.systime % 50 == 0) {
-				MPU60xx_Get6AxisData(&imuData);
-				MAG3110_Get3AxisData(&magData);
-				MAG3110_GetTempurature(&magData);
-			}
 
 			/**
 			 * CANFestival Loop
@@ -195,8 +207,12 @@ int main(int argc, char** argv)
 			/**
 			 * UART Message Loop
 			 */
-			if (timer_state.systime % 1 == 0) {
+			if (timer_state.systime % 100 == 0) {
+				uint8_t numChar;
+				uint8_t uart2Data[100];
 				uart_tx_packet = uart_tx_cur_packet();
+				numChar = sprintf(uart2Data, "%d, %d, %d, %d, %d, %d, %d, %d, %d\n",
+					imuData.accelX, imuData.accelY, imuData.accelZ, imuData.gyroX, imuData.gyroY, imuData.gyroZ, magData.magX, magData.magY, magData.magZ);
 				uart_tx_packet[0] = 0xFF; //counting
 				uart_tx_packet[1] = 0xFF; //CMD
 				uart_tx_packet[2] = 14;
@@ -213,25 +229,26 @@ int main(int argc, char** argv)
 				uart_tx_packet[13] = magData.mag_Z_msb;
 				uart_tx_packet[14] = magData.mag_Z_lsb;
 
-//				uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
-//				uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
-//				uart_tx_packet[5] = (loadcell_state.values[0])&0xFF;
-//				uart_tx_packet[6] = 0x01;
-//				//uart_tx_packet[6] = 0xFF;
-//				uart_tx_packet[7] = 0x89; // same as " "
-//				//uart_tx_packet[7] = 0xFF;
-//				//uart_tx_packet[8] = (loadcell_state.values[1]>>16)&0xFF;
-//				uart_tx_packet[8] = 0xFF;
-//				//uart_tx_packet[9] = (loadcell_state.values[1]>>8)&0xFF;
-//				uart_tx_packet[9] = 0xFF;
-//				//uart_tx_packet[10] = loadcell_state.values[1]&0xFF;
-//				uart_tx_packet[10] = 0xFF;
-//				uart_tx_packet[11] = 0x02;
-//				//uart_tx_packet[11] = 0xFF;
-//				uart_tx_packet[12] = 0x8b; // same as "\n"
-//				//uart_tx_packet[12] = 0xFF;
+				//				uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
+				//				uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
+				//				uart_tx_packet[5] = (loadcell_state.values[0])&0xFF;
+				//				uart_tx_packet[6] = 0x01;
+				//				//uart_tx_packet[6] = 0xFF;
+				//				uart_tx_packet[7] = 0x89; // same as " "
+				//				//uart_tx_packet[7] = 0xFF;
+				//				//uart_tx_packet[8] = (loadcell_state.values[1]>>16)&0xFF;
+				//				uart_tx_packet[8] = 0xFF;
+				//				//uart_tx_packet[9] = (loadcell_state.values[1]>>8)&0xFF;
+				//				uart_tx_packet[9] = 0xFF;
+				//				//uart_tx_packet[10] = loadcell_state.values[1]&0xFF;
+				//				uart_tx_packet[10] = 0xFF;
+				//				uart_tx_packet[11] = 0x02;
+				//				//uart_tx_packet[11] = 0xFF;
+				//				uart_tx_packet[12] = 0x8b; // same as "\n"
+				//				//uart_tx_packet[12] = 0xFF;
 
-				uart_tx_compute_cks(uart_tx_packet);
+				//				uart_tx_compute_cks(uart_tx_packet);
+				Uart2WriteData(uart2Data, numChar);
 				uart_tx_update_index();
 				uart_tx_start_transmit();
 			}

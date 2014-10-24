@@ -301,7 +301,7 @@ typedef union {
     void reset_board();
 
     #define UART_TX_PACKET_MAX_LEN  50
-#define UART_TX_PACKET_BUFF_LEN 10
+#define UART_TX_PACKET_BUFF_LEN 50
 #define UART_RX_PACKET_BUFF_LEN 10
 #define UART_RX_PACKET_MAX_LEN  50
 
