@@ -208,11 +208,14 @@ int main(int argc, char** argv)
 			 * UART Message Loop
 			 */
 			if (timer_state.systime % 100 == 0) {
+				// Data normilization
+				float normData[9] = {0};
+				
 				uint8_t numChar;
 				uint8_t uart2Data[100];
 				uart_tx_packet = uart_tx_cur_packet();
-				numChar = sprintf(uart2Data, "%d, %d, %d, %d, %d, %d, %d, %d, %d\n",
-					imuData.accelX, imuData.accelY, imuData.accelZ, imuData.gyroX, imuData.gyroY, imuData.gyroZ, magData.magX, magData.magY, magData.magZ);
+				numChar = sprintf(uart2Data, "%f, %f, %f, %f, %f, %f, %f, %f, %f\n",
+					normData[0],normData[1],normData[2],normData[3],normData[4],normData[5],normData[6],normData[7],normData[8]);
 				uart_tx_packet[0] = 0xFF; //counting
 				uart_tx_packet[1] = 0xFF; //CMD
 				uart_tx_packet[2] = 14;
