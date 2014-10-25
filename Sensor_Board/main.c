@@ -42,8 +42,9 @@ extern imu_data imu_state;
 extern can_data can_state;
 extern uint8_t txreq_bitarray;
 
-MPU6050_Data imuData;
+MPU6050_Data mpuData;
 MAG3110_Data magData;
+IMU_Data imuData;
 
 /*
  * 
@@ -102,7 +103,7 @@ int main(int argc, char** argv)
 	timer_state.systime = 0;
 
 	// Start Reading the int pin on IMU
-	imuData.startData = 1;
+	mpuData.startData = 1;
 
 	for (;;) {
 		if (timer_state.systime != timer_state.prev_systime) {
@@ -209,22 +210,22 @@ int main(int argc, char** argv)
 			 */
 			if (timer_state.systime % 100 == 0) {
 				// Data normilization
-				float normData[9] = {0};
+				IMU_normalizeData(mpuData, magData, &imuData);
 				
 				uint8_t numChar;
 				uint8_t uart2Data[100];
 				uart_tx_packet = uart_tx_cur_packet();
-				numChar = sprintf(uart2Data, "%f, %f, %f, %f, %f, %f, %f, %f, %f\n",
-					normData[0],normData[1],normData[2],normData[3],normData[4],normData[5],normData[6],normData[7],normData[8]);
+//				numChar = sprintf(uart2Data, "%f, %f, %f, %f, %f, %f, %f, %f, %f\n",
+//					imuData.accelX,imuData.accelY,imuData.accelZ,imuData.gyroX,imuData.gyroY,imuData.gyroZ,imuData.magX,imuData.magY,imuData.magZ);
 				uart_tx_packet[0] = 0xFF; //counting
 				uart_tx_packet[1] = 0xFF; //CMD
 				uart_tx_packet[2] = 14;
-				uart_tx_packet[3] = (imuData.accelX >> 8)&0xFF;
-				uart_tx_packet[4] = (imuData.accelX)&0xFF;
-				uart_tx_packet[5] = (imuData.accelY >> 8)&0xFF;
-				uart_tx_packet[6] = (imuData.accelY)&0xFF;
-				uart_tx_packet[7] = (imuData.accelZ >> 8)&0xFF;
-				uart_tx_packet[8] = (imuData.accelZ)&0xFF;
+				uart_tx_packet[3] = (mpuData.accelX >> 8)&0xFF;
+				uart_tx_packet[4] = (mpuData.accelX)&0xFF;
+				uart_tx_packet[5] = (mpuData.accelY >> 8)&0xFF;
+				uart_tx_packet[6] = (mpuData.accelY)&0xFF;
+				uart_tx_packet[7] = (mpuData.accelZ >> 8)&0xFF;
+				uart_tx_packet[8] = (mpuData.accelZ)&0xFF;
 				uart_tx_packet[9] = magData.mag_X_msb;
 				uart_tx_packet[10] = magData.mag_X_lsb;
 				uart_tx_packet[11] = magData.mag_Y_msb;

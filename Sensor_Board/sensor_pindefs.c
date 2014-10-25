@@ -4,7 +4,7 @@
 #include "MPU60xx/IMU.h"
 #include <pps.h>
 
-extern MPU6050_Data imuData;
+extern MPU6050_Data mpuData;
 extern MAG3110_Data magData;
 
 return_value_t pin_init()
@@ -171,10 +171,10 @@ return_value_t pin_init()
 
 void __attribute__((__interrupt__)) _CNInterrupt(void)
 {
-	if (imuData.startData == 1) {
+	if (mpuData.startData == 1) {
 		if (PORTFbits.RF0 == 1) {
 			// Gets the IMU data after the INT pin has been triggered
-			IMU_GetData(&imuData, &magData);
+			IMU_GetData(&mpuData, &magData);
 		}
 	}
 
