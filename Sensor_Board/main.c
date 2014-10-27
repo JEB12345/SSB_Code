@@ -34,7 +34,6 @@
 #include <stdlib.h>
 #include <p33Exxxx.h>
 
-
 extern system_data system_state;
 extern timer_data timer_state;
 extern loadcell_data loadcell_state;
@@ -45,6 +44,8 @@ extern uint8_t txreq_bitarray;
 MPU6050_Data mpuData;
 MAG3110_Data magData;
 IMU_Data imuData;
+float quaterion[4] = {0, 0, 0, 0};
+float ypr[3] = {0, 0, 0};
 
 /*
  * 
@@ -76,14 +77,10 @@ int main(int argc, char** argv)
 		brg = floor(brg);
 	}
 	Uart2Init(brg); // Init UART 2 as 115200 baud/s
-	
+
 	loadcell_init();
 	loadcell_start();
 
-	//	I2C_Init(I2C_CALC_BRG(400000, 70000000));
-	//	MPU60xx_Init(true);
-	//	MAG3110_Init();
-	IMU_Init(400000, 70000000);
 	IMU_Init(400000, 70000000);
 
 
@@ -113,6 +110,19 @@ int main(int argc, char** argv)
 			//useful for checking state consistency, synchronization, watchdog...
 
 			led_update();
+
+			if (timer_state.systime % 10 == 1) {
+				IMU_GetQuaternion(quaterion);
+				IMU_QuaternionToYawPitchRoll(quaterion, ypr);
+			}
+
+			if (timer_state.systime % 5 == 1) {
+				// Run AHRS algorithm
+				IMU_UpdateAHRS(&imuData);
+
+//				// Run IMU algorithm (does not use MAG data)
+//				IMU_UpdateIMU(&imuData);
+			}
 
 			/**
 			 * CANFestival Loop
@@ -209,14 +219,13 @@ int main(int argc, char** argv)
 			 * UART Message Loop
 			 */
 			if (timer_state.systime % 100 == 0) {
-				// Data normilization
-				IMU_normalizeData(mpuData, magData, &imuData);
-				
 				uint8_t numChar;
 				uint8_t uart2Data[100];
 				uart_tx_packet = uart_tx_cur_packet();
-//				numChar = sprintf(uart2Data, "%f, %f, %f, %f, %f, %f, %f, %f, %f\n",
-//					imuData.accelX,imuData.accelY,imuData.accelZ,imuData.gyroX,imuData.gyroY,imuData.gyroZ,imuData.magX,imuData.magY,imuData.magZ);
+				//				numChar = sprintf(uart2Data, "%f, %f, %f, %f, %f, %f, %f, %f, %f\n",
+				//					imuData.accelX, imuData.accelY, imuData.accelZ, imuData.gyroX, imuData.gyroY, imuData.gyroZ, imuData.magX, imuData.magY, imuData.magZ);
+				numChar = sprintf(uart2Data, "%f,%f,%f\n",
+					ypr[0], ypr[1], ypr[2]);
 				uart_tx_packet[0] = 0xFF; //counting
 				uart_tx_packet[1] = 0xFF; //CMD
 				uart_tx_packet[2] = 14;
@@ -277,3 +286,20 @@ int main(int argc, char** argv)
 	return(EXIT_SUCCESS);
 }
 
+/**
+ * This is the interrupt function for the INT pin on the MPU6000
+ */
+void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void)
+{
+	if (mpuData.startData == 1) {
+		if (PORTFbits.RF0 == 1) {
+			// Gets the IMU data after the INT pin has been triggered
+			IMU_GetData(&mpuData, &magData);
+
+			// Data normilization
+			IMU_normalizeData(mpuData, magData, &imuData);
+		}
+	}
+
+	IFS1bits.CNIF = 0; // Clear the interrupt flag
+}

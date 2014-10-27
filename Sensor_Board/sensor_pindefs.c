@@ -4,9 +4,6 @@
 #include "MPU60xx/IMU.h"
 #include <pps.h>
 
-extern MPU6050_Data mpuData;
-extern MAG3110_Data magData;
-
 return_value_t pin_init()
 {
 	//Set all pins to input
@@ -155,8 +152,8 @@ return_value_t pin_init()
 	RPINR18bits.U1RXR = 44; //RB12 uart 1 rx s
 
 	//UART 2
-	_RP35R = 0b000011;	// RB3 UART 2 TX
-	RPINR19bits.U2RXR = 43;	// RB2 UART 2 RX
+	_RP35R = 0b000011; // RB3 UART 2 TX
+	RPINR19bits.U2RXR = 43; // RB2 UART 2 RX
 
 	//BBB Power Toggle
 	TRISBbits.TRISB13 = 0;
@@ -167,16 +164,4 @@ return_value_t pin_init()
 	IEC1bits.CNIE = 1; // Enables CN interrupts
 
 	return RET_OK;
-}
-
-void __attribute__((__interrupt__)) _CNInterrupt(void)
-{
-	if (mpuData.startData == 1) {
-		if (PORTFbits.RF0 == 1) {
-			// Gets the IMU data after the INT pin has been triggered
-			IMU_GetData(&mpuData, &magData);
-		}
-	}
-
-	IFS1bits.CNIF = 0; // Clear the interrupt flag
 }
