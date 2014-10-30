@@ -20,13 +20,12 @@
 #include "sensor_memdebug.h"
 #include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
 #include "motor_control.h"
+#include "packing.h"
 
 /**
  * This is code from the git submodule for the MPU60xx library
  */
 #include "MPU60xx/I2CdsPIC.h"
-#include "MPU60xx/MPU60xx.h"
-#include "MPU60xx/MAG3110.h"
 #include "MPU60xx/IMU.h"
 
 #include <math.h>
@@ -46,6 +45,8 @@ MAG3110_Data magData;
 IMU_Data imuData;
 float quaterion[4] = {0, 0, 0, 0};
 float ypr[3] = {0, 0, 0};
+
+char hex2char(char halfhex);
 
 /*
  * 
@@ -120,8 +121,8 @@ int main(int argc, char** argv)
 				// Run AHRS algorithm
 				IMU_UpdateAHRS(&imuData);
 
-//				// Run IMU algorithm (does not use MAG data)
-//				IMU_UpdateIMU(&imuData);
+				//				// Run IMU algorithm (does not use MAG data)
+				//				IMU_UpdateIMU(&imuData);
 			}
 
 			/**
@@ -218,29 +219,17 @@ int main(int argc, char** argv)
 			/**
 			 * UART Message Loop
 			 */
-			if (timer_state.systime % 100 == 0) {
+			if (timer_state.systime % 10 == 0) {
 				uint8_t numChar;
 				uint8_t uart2Data[100];
 				uart_tx_packet = uart_tx_cur_packet();
 				//				numChar = sprintf(uart2Data, "%f, %f, %f, %f, %f, %f, %f, %f, %f\n",
 				//					imuData.accelX, imuData.accelY, imuData.accelZ, imuData.gyroX, imuData.gyroY, imuData.gyroZ, imuData.magX, imuData.magY, imuData.magZ);
-				numChar = sprintf(uart2Data, "%f,%f,%f\n",
-					ypr[0], ypr[1], ypr[2]);
-				uart_tx_packet[0] = 0xFF; //counting
-				uart_tx_packet[1] = 0xFF; //CMD
-				uart_tx_packet[2] = 14;
-				uart_tx_packet[3] = (mpuData.accelX >> 8)&0xFF;
-				uart_tx_packet[4] = (mpuData.accelX)&0xFF;
-				uart_tx_packet[5] = (mpuData.accelY >> 8)&0xFF;
-				uart_tx_packet[6] = (mpuData.accelY)&0xFF;
-				uart_tx_packet[7] = (mpuData.accelZ >> 8)&0xFF;
-				uart_tx_packet[8] = (mpuData.accelZ)&0xFF;
-				uart_tx_packet[9] = magData.mag_X_msb;
-				uart_tx_packet[10] = magData.mag_X_lsb;
-				uart_tx_packet[11] = magData.mag_Y_msb;
-				uart_tx_packet[12] = magData.mag_Y_lsb;
-				uart_tx_packet[13] = magData.mag_Z_msb;
-				uart_tx_packet[14] = magData.mag_Z_lsb;
+				//				numChar = sprintf(uart2Data, "%f,%f,%f\n",
+				//					ypr[0], ypr[1], ypr[2]);
+				//				numChar = sprintf(uart2Data, "%f,%f,%f,%f\n",
+				//					quaterion[0], quaterion[1], quaterion[2], quaterion[3]);
+				IMU_QuaternionToString(quaterion, uart2Data);
 
 				//				uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
 				//				uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
@@ -261,9 +250,10 @@ int main(int argc, char** argv)
 				//				//uart_tx_packet[12] = 0xFF;
 
 				//				uart_tx_compute_cks(uart_tx_packet);
-				Uart2WriteData(uart2Data, numChar);
-				uart_tx_update_index();
-				uart_tx_start_transmit();
+				//				Uart2WriteData(uart2Data, numChar);
+				Uart2WriteData(uart2Data, 37);
+				//				uart_tx_update_index();
+				//				uart_tx_start_transmit();
 			}
 		} else {
 			//untimed processes in main loop:
@@ -284,6 +274,20 @@ int main(int argc, char** argv)
 		}
 	}
 	return(EXIT_SUCCESS);
+}
+
+char hex2char(char halfhex)
+{
+	char rv;
+	// Test for numeric characters
+	if (halfhex <= 9 && halfhex >= 0) {
+		return(halfhex + '0');
+	}// Otherwise check for upper-case A-F
+	else if ((rv = halfhex - 10) <= 5 && rv >= 0) {
+		return rv + 'A';
+	} // Finally check for lower-case a-f
+	// Otherwise return -1 as an error
+	return -1;
 }
 
 /**
