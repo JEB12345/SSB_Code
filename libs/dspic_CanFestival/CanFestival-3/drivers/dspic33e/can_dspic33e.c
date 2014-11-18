@@ -333,17 +333,7 @@ OUTPUT	1 if  hardware -> CAN frame
 	static uint8_t bufferSwitch = 0;
 	static char firstTime = 1;
 
-	// Divide the identifier into bit-chunks for storage
-	// into the registers.
-	//    if (message->frame_type == CAN_FRAME_EXT) {
-	//        eid5_0 = (message->id & 0x3F);
-	//        eid17_6 = (message->id >> 6) & 0xFFF;
-	//        sid10_0 = (message->id >> 18) & 0x7FF;
-	//        word0 = 1;
-	//        word1 = eid17_6;
-	//    } else {
 	sid10_0 = (m->cob_id & 0x7FF);
-	//    }
 
 	word0 |= (sid10_0 << 2);
 	word2 |= (eid5_0 << 10);
@@ -354,25 +344,6 @@ OUTPUT	1 if  hardware -> CAN frame
 		word2 |= 0x0200;
 	}
 
-	//TODO: use multiple transmit buffers
-	//    while(C1TR01CONbits.TXREQ1 == 1);
-	//
-	//    ecan1TXMsgBuf[1][0] = word0;
-	//    ecan1TXMsgBuf[1][1] = word1;
-	//    ecan1TXMsgBuf[1][2] = ((word2 & 0xFFF0) + m->len);
-	//    ecan1TXMsgBuf[1][3] = (((uint16_t) m->data[1]) << 8) |(m->data[0]&0xFF);
-	//    ecan1TXMsgBuf[1][4] = (((uint16_t) m->data[3]) << 8) |(m->data[2]&0xFF);
-	//    ecan1TXMsgBuf[1][5] = (((uint16_t) m->data[5]) << 8) |(m->data[4]&0xFF);
-	//     ecan1TXMsgBuf[1][6] = (((uint16_t) m->data[7]) << 8) |(m->data[6]&0xFF);
-	//
-	//    // Set the correct transfer intialization bit (TXREQ) based on message buffer.
-	//    //offset = message->buffer >> 1;
-	//    //bufferCtrlRegAddr = (uint16_t *) (&C1TR01CON + offset);
-	//    //bit_to_set = 1 << (3 | ((message->buffer & 1) << 3));
-	//    //*bufferCtrlRegAddr |= bit_to_set;
-	//    C1TR01CONbits.TXEN1 = 1;
-	//    C1TR01CONbits.TX0PRI = 0;
-	//    C1TR01CONbits.TXREQ1 = 1;
 	switch (bufferSwitch) {
 	case 0:
 		ecan1TXMsgBuf[0][0] = word0;
@@ -384,9 +355,6 @@ OUTPUT	1 if  hardware -> CAN frame
 		ecan1TXMsgBuf[0][6] = (((uint16_t) m->data[7]) << 8) | (m->data[6]&0xFF);
 		txreq_bitarray = txreq_bitarray | 0b00000001;
 
-		//	    C1TR01CONbits.TXEN0 = 1;
-		//	    C1TR01CONbits.TX0PRI = 0x11;
-		//	    C1TR01CONbits.TXREQ0 = 1;
 		bufferSwitch++;
 		break;
 	case 1:
@@ -399,8 +367,6 @@ OUTPUT	1 if  hardware -> CAN frame
 		ecan1TXMsgBuf[1][6] = (((uint16_t) m->data[7]) << 8) | (m->data[6]&0xFF);
 		txreq_bitarray = txreq_bitarray | 0b00000010;
 
-		//	    C1TR01CONbits.TXEN1 = 1;
-		//	    C1TR01CONbits.TXREQ1 = 1;
 		bufferSwitch++;
 		break;
 	case 2:
@@ -413,9 +379,6 @@ OUTPUT	1 if  hardware -> CAN frame
 		ecan1TXMsgBuf[2][6] = (((uint16_t) m->data[7]) << 8) | (m->data[6]&0xFF);
 		txreq_bitarray = txreq_bitarray | 0b00000100;
 
-		//	    C1TR23CONbits.TXEN2 = 1;
-		//	    C1TR23CONbits.TX2PRI = 0x11;
-		//	    C1TR23CONbits.TXREQ2 = 1;
 		bufferSwitch++;
 		break;
 
@@ -429,8 +392,6 @@ OUTPUT	1 if  hardware -> CAN frame
 		ecan1TXMsgBuf[3][6] = (((uint16_t) m->data[7]) << 8) | (m->data[6]&0xFF);
 		txreq_bitarray = txreq_bitarray | 0b00001000;
 
-		//	    C1TR23CONbits.TXEN3 = 1;
-		//	    C1TR23CONbits.TXREQ3 = 1;
 		bufferSwitch++;
 		break;
 	case 4:
@@ -442,10 +403,7 @@ OUTPUT	1 if  hardware -> CAN frame
 		ecan1TXMsgBuf[4][5] = (((uint16_t) m->data[5]) << 8) | (m->data[4]&0xFF);
 		ecan1TXMsgBuf[4][6] = (((uint16_t) m->data[7]) << 8) | (m->data[6]&0xFF);
 		txreq_bitarray = txreq_bitarray | 0b00010000;
-		//
-		//	    C1TR45CONbits.TXEN4 = 1;
-		//	    C1TR45CONbits.TX4PRI = 0x11;
-		//	    C1TR45CONbits.TXREQ4 = 1;
+
 		bufferSwitch++;
 		break;
 	case 5:
@@ -458,8 +416,6 @@ OUTPUT	1 if  hardware -> CAN frame
 		ecan1TXMsgBuf[5][6] = (((uint16_t) m->data[7]) << 8) | (m->data[6]&0xFF);
 		txreq_bitarray = txreq_bitarray | 0b00100000;
 
-		//	    C1TR45CONbits.TXEN5 = 1;
-		//	    C1TR45CONbits.TXREQ5 = 1;
 		bufferSwitch++;
 		break;
 	case 6:
@@ -472,25 +428,9 @@ OUTPUT	1 if  hardware -> CAN frame
 		ecan1TXMsgBuf[6][6] = (((uint16_t) m->data[7]) << 8) | (m->data[6]&0xFF);
 		txreq_bitarray = txreq_bitarray | 0b01000000;
 
-		//	    C1TR67CONbits.TXEN6 = 1;
-		//	    C1TR67CONbits.TX6PRI = 0x11;
-		//	    C1TR67CONbits.TXREQ6 = 1;
 		bufferSwitch=0;
 		break;
-//	case 7:
-//		ecan1TXMsgBuf[7][0] = word0;
-//		ecan1TXMsgBuf[7][1] = word1;
-//		ecan1TXMsgBuf[7][2] = ((word2 & 0xFFF0) + m->len);
-//		ecan1TXMsgBuf[7][3] = (((uint16_t) m->data[1]) << 8) | (m->data[0]&0xFF);
-//		ecan1TXMsgBuf[7][4] = (((uint16_t) m->data[3]) << 8) | (m->data[2]&0xFF);
-//		ecan1TXMsgBuf[7][5] = (((uint16_t) m->data[5]) << 8) | (m->data[4]&0xFF);
-//		ecan1TXMsgBuf[7][6] = (((uint16_t) m->data[7]) << 8) | (m->data[6]&0xFF);
-//		txreq_bitarray = txreq_bitarray | 0b10000000;
-//
-//		//	    C1TR67CONbits.TXEN7 = 1;
-//		//	    C1TR67CONbits.TXREQ7 = 1;
-//		bufferSwitch = 0;
-//		break;
+
 	default:
 		bufferSwitch = 0;
 		break;

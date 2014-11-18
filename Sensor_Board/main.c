@@ -27,6 +27,7 @@
  */
 #include "MPU60xx/I2CdsPIC.h"
 #include "MPU60xx/IMU.h"
+#include "MPU60xx/IMU_Math.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -90,7 +91,7 @@ int main(int argc, char** argv)
 	led_rgb_set(50, 0, 100);
 
 	// Turn on the BBB by enabling the 5.5->5V LDO
-	//	BBB_Power = 1;
+	BBB_Power = 1;
 
 	can_state.init_return = RET_UNKNOWN;
 	if (can_init()) {
@@ -114,7 +115,7 @@ int main(int argc, char** argv)
 
 			if (timer_state.systime % 10 == 1) {
 				IMU_GetQuaternion(quaterion);
-				IMU_QuaternionToYawPitchRoll(quaterion, ypr);
+				QuaternionToYawPitchRoll(quaterion, ypr);
 			}
 
 			if (timer_state.systime % 5 == 1) {
@@ -220,38 +221,38 @@ int main(int argc, char** argv)
 			 * UART Message Loop
 			 */
 			if (timer_state.systime % 10 == 0) {
-				uint8_t numChar;
-				uint8_t uart2Data[100];
-				uart_tx_packet = uart_tx_cur_packet();
-				//				numChar = sprintf(uart2Data, "%f, %f, %f, %f, %f, %f, %f, %f, %f\n",
-				//					imuData.accelX, imuData.accelY, imuData.accelZ, imuData.gyroX, imuData.gyroY, imuData.gyroZ, imuData.magX, imuData.magY, imuData.magZ);
-				//				numChar = sprintf(uart2Data, "%f,%f,%f\n",
-				//					ypr[0], ypr[1], ypr[2]);
-				//				numChar = sprintf(uart2Data, "%f,%f,%f,%f\n",
-				//					quaterion[0], quaterion[1], quaterion[2], quaterion[3]);
-				IMU_QuaternionToString(quaterion, uart2Data);
-
-				//				uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
-				//				uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
-				//				uart_tx_packet[5] = (loadcell_state.values[0])&0xFF;
-				//				uart_tx_packet[6] = 0x01;
-				//				//uart_tx_packet[6] = 0xFF;
-				//				uart_tx_packet[7] = 0x89; // same as " "
-				//				//uart_tx_packet[7] = 0xFF;
-				//				//uart_tx_packet[8] = (loadcell_state.values[1]>>16)&0xFF;
-				//				uart_tx_packet[8] = 0xFF;
-				//				//uart_tx_packet[9] = (loadcell_state.values[1]>>8)&0xFF;
-				//				uart_tx_packet[9] = 0xFF;
-				//				//uart_tx_packet[10] = loadcell_state.values[1]&0xFF;
-				//				uart_tx_packet[10] = 0xFF;
-				//				uart_tx_packet[11] = 0x02;
-				//				//uart_tx_packet[11] = 0xFF;
-				//				uart_tx_packet[12] = 0x8b; // same as "\n"
-				//				//uart_tx_packet[12] = 0xFF;
-
-				//				uart_tx_compute_cks(uart_tx_packet);
-				//				Uart2WriteData(uart2Data, numChar);
-				Uart2WriteData(uart2Data, 37);
+//				uint8_t numChar;
+//				uint8_t uart2Data[100];
+//				uart_tx_packet = uart_tx_cur_packet();
+//				//				numChar = sprintf(uart2Data, "%f, %f, %f, %f, %f, %f, %f, %f, %f\n",
+//				//					imuData.accelX, imuData.accelY, imuData.accelZ, imuData.gyroX, imuData.gyroY, imuData.gyroZ, imuData.magX, imuData.magY, imuData.magZ);
+//				//				numChar = sprintf(uart2Data, "%f,%f,%f\n",
+//				//					ypr[0], ypr[1], ypr[2]);
+//				//				numChar = sprintf(uart2Data, "%f,%f,%f,%f\n",
+//				//					quaterion[0], quaterion[1], quaterion[2], quaterion[3]);
+//				IMU_QuaternionToString(quaterion, uart2Data);
+//
+//				//				uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
+//				//				uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
+//				//				uart_tx_packet[5] = (loadcell_state.values[0])&0xFF;
+//				//				uart_tx_packet[6] = 0x01;
+//				//				//uart_tx_packet[6] = 0xFF;
+//				//				uart_tx_packet[7] = 0x89; // same as " "
+//				//				//uart_tx_packet[7] = 0xFF;
+//				//				//uart_tx_packet[8] = (loadcell_state.values[1]>>16)&0xFF;
+//				//				uart_tx_packet[8] = 0xFF;
+//				//				//uart_tx_packet[9] = (loadcell_state.values[1]>>8)&0xFF;
+//				//				uart_tx_packet[9] = 0xFF;
+//				//				//uart_tx_packet[10] = loadcell_state.values[1]&0xFF;
+//				//				uart_tx_packet[10] = 0xFF;
+//				//				uart_tx_packet[11] = 0x02;
+//				//				//uart_tx_packet[11] = 0xFF;
+//				//				uart_tx_packet[12] = 0x8b; // same as "\n"
+//				//				//uart_tx_packet[12] = 0xFF;
+//
+//				//				uart_tx_compute_cks(uart_tx_packet);
+//				//				Uart2WriteData(uart2Data, numChar);
+//				Uart2WriteData(uart2Data, 37);
 				//				uart_tx_update_index();
 				//				uart_tx_start_transmit();
 			}
@@ -304,6 +305,5 @@ void __attribute__((__interrupt__, no_auto_psv)) _CNInterrupt(void)
 			IMU_normalizeData(mpuData, magData, &imuData);
 		}
 	}
-
 	IFS1bits.CNIF = 0; // Clear the interrupt flag
 }
