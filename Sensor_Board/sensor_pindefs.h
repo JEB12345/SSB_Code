@@ -12,9 +12,9 @@
 extern "C" {
 #endif
 
-return_value_t pin_init();
+    return_value_t pin_init();
 
-//LEDs
+    //LEDs
 #define RGB_RED     LATGbits.LATG8
 #define RGB_BLUE    LATGbits.LATG6
 #define RGB_GREEN   LATAbits.LATA0
@@ -23,10 +23,10 @@ return_value_t pin_init();
 #define LED_3       LATCbits.LATC13
 #define LED_2       LATDbits.LATD8
 
-//IMU
+    //IMU
 #define INT_IMU     PORTFbits.RF0 //actually tied to INT1
 
-//RF
+    //RF
 #define XBEE_nATTN      PORTEbits.RE14//actually tied to INT2
 #define XBEE_nSSEL      LATBbits.LATB9
 #define XBEE_SLEEP_RQ   LATFbits.LATF1
@@ -35,26 +35,23 @@ return_value_t pin_init();
 #define XBEE_DOUT_INPUT (TRISCbits.TRISC10 = 1)
 #define XBEE_DOUT_OUTPUT (TRISCbits.TRISC10 = 0)
 
-//POWER MOSFETS
+    //POWER MOSFETS
 #define NFET_1      LATCbits.LATC12 //PWR_SW1
 #define NFET_2      LATCbits.LATC15 //PWR_SW2
 #define NFET_3      LATAbits.LATA10 //PWR_SW3
 
-//LOAD CELL
+    //LOAD CELL
 #define SHD         LATCbits.LATC6
 #define SS          LATBbits.LATB0
 #define SG_MISO     PORTAbits.RA9
 
-//BBB Power Toggle
-#define BBB_Power   LATBbits.LATB13
-
-//Pin Out Connectors
-//ANALOG pins -> analog input specified in ADC module if needed
-//other pins -> define direction here
+    //Pin Out Connectors
+    //ANALOG pins -> analog input specified in ADC module if needed
+    //other pins -> define direction here
 #define PIN_OUTPUT  1
 #define PIN_INPUT   0
 
-//P6 connector
+    //P6 connector
 #define RB14_IO        PIN_OUTPUT
 #define RG9_IO         PIN_INPUT
 #define RA11_IO        PIN_OUTPUT
@@ -66,7 +63,7 @@ return_value_t pin_init();
 #define RB1_IO         PIN_INPUT
 #define RB3_IO         PIN_INPUT
 
-//P7 connector
+    //P7 connector
 #define RE12_IO        PIN_INPUT
 #define RA8_IO         PIN_INPUT
 #define RE13_IO        PIN_INPUT
@@ -163,9 +160,9 @@ return_value_t pin_init();
 #define P7_RC10    LATCbits.LATC10
 #endif
 
-/*
- * Motor control stuff
- */
+    /*
+     * Motor control stuff
+     */
 #define     OCTW    PORTBbits.RB1
 #define     FAULT   PORTBbits.RB2
 #define     EN_GATE LATAbits.LATA1
