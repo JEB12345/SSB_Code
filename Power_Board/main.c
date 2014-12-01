@@ -5,7 +5,8 @@
  * Created on March 20, 2014, 1:20 PM
  */
 
-#include "clock.h"
+//#include "clock.h"
+#include "power_clock.h"
 #include "power_pindef.h"
 #include "power_led.h"
 #include "power_state.h"
