@@ -20,7 +20,7 @@ return_value_t timers_init()
 	T1CONbits.TCS = 0; // Select internal instruction cycle clock
 	T1CONbits.TGATE = 0; // Disable Gated Timer mode
 	T1CONbits.TCKPS = 1; // prescaler: 1/8
-	PR1 = 8750; //8750*8=70000 = 1ms
+	PR1 = 8750; //8750*8=70000 = 1ms (millisecond, 1 kHz)
 
 	TMR1 = 0x00; // Clear timer register
 	IPC0bits.T1IP = 0x06; // Set Timer1 Interrupt Priority Level to 6 = very high priority
