@@ -35,8 +35,7 @@ extern uint8_t txreq_bitarray;
 /*
  * 
  */
-int
-main (int argc, char** argv)
+int main (int argc, char** argv)
 {
 
   // Init Function Calls
@@ -47,8 +46,9 @@ main (int argc, char** argv)
   init_adc ();
   uart_init ();
   init_RF_spi ();
+  led_init ();
 
-  // Parameter Initalziations
+  // Parameter Initalziations for timer, UART
   timer_state.prev_systime = 0;
   timer_state.systime = 0;
   uint16_t timeStep = 50;
@@ -58,6 +58,7 @@ main (int argc, char** argv)
   unsigned char testTXpayload[1];
   unsigned char testRXpayload[1];
 
+  //5V5 Output Control Pins
   EN_OUT_1 = 1;
   EN_OUT_2 = 1;
   EN_OUT_3 = 0;
@@ -84,11 +85,13 @@ main (int argc, char** argv)
 
   // Enable CAN after calling the EN_OUT_# commands.
   // This prevents the while loop in the can_init() from stalling.
+
   can_state.init_return = RET_UNKNOWN;
   if (can_init ())
     {
       while (1);
     }
+   
 
   for (;;)
     {
@@ -107,6 +110,7 @@ main (int argc, char** argv)
                   BUZZER = !BUZZER;
                 }
             }
+           
 
           if (timer_state.systime % 100 == 0)
             {
@@ -139,10 +143,10 @@ main (int argc, char** argv)
               uart_tx_packet[7] = 0x89;
 
 #ifdef TRANSMITTER
-              //				uart_tx_packet[8] = (Strain_Gauge2 >> 24)&0xFF;
-              //				uart_tx_packet[9] = (Strain_Gauge2 >> 16)&0xFF;
-              //				uart_tx_packet[10] = (Strain_Gauge2 >> 8)&0xFF;
-              //				uart_tx_packet[11] = (Strain_Gauge2)&0xFF;
+              //uart_tx_packet[8] = (Strain_Gauge2 >> 24)&0xFF;
+              //uart_tx_packet[9] = (Strain_Gauge2 >> 16)&0xFF;
+              //uart_tx_packet[10] = (Strain_Gauge2 >> 8)&0xFF;
+              //uart_tx_packet[11] = (Strain_Gauge2)&0xFF;
               uart_tx_packet[8] = testTXpayload[0];
 #else
               uart_tx_packet[8] = testRXpayload[0];
@@ -212,6 +216,7 @@ main (int argc, char** argv)
                 }
               can_time_dispatch ();
             }
+           
         }
       else
         { //Everything else that needs to run faster than 1ms goes in the else statement
@@ -239,6 +244,8 @@ main (int argc, char** argv)
               KILLSWITCH_uC = OFF;
               //				buzzerOn = ON;
             }
+
+          
 
           /*******************************************************************
            * Software controlled Killswitch for power switch

@@ -15,6 +15,7 @@ extern "C" {
 #endif
 
 void Delay_us(unsigned int delay);
+//void Delay_us(uint32_t delay);
 
 
 #ifdef	__cplusplus
