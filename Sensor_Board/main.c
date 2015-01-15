@@ -58,7 +58,7 @@ main (int argc, char** argv)
   uint32_t led_colors = 0;
   uint8_t at_parm_test[10];
   unsigned once;
-  uint32_t i = 300;
+  uint32_t i = 0;
   uint8_t flag = 0;
   uint8_t* uart_tx_packet = 0;
   uint8_t* uart_rx_packet;
@@ -87,7 +87,7 @@ main (int argc, char** argv)
   loadcell_init ();
   loadcell_start ();
 
-  IMU_Init (400000, 70000000);
+  //  IMU_Init (400000, 70000000);
 
   led_rgb_off ();
   led_rgb_set (50, 0, 100);
@@ -142,35 +142,40 @@ main (int argc, char** argv)
                */
               if (timer_state.systime % 1000 == 0)
                 {
-                  Target_position = i;
-                  if (!flag)
-                    {
-                      if (i >= 3000)
-                        {
-                          flag = 1;
-                        }
-                      else
-                        {
-                          i += 100;
-                        }
-                    }
-                  else
-                    {
-                      if (i <= 100)
-                        {
-                          flag = 0;
-                        }
-                      else
-                        {
-                          i -= 100;
-                        }
-                    }
-                  //					if (i) {
-                  //						Target_position = 3000;
-                  //					} else {
-                  //						Target_position = 1000;
-                  //					}
-                  //					i ^= 1;
+                  LED_4 = !LED_4;
+                  //                  Target_position = i;
+                  //                  if (!flag)
+                  //                    {
+                  //                      if (i >= 3000)
+                  //                        {
+                  //                          flag = 1;
+                  //                        }
+                  //                      else
+                  //                        {
+                  //                          i += 100;
+                  //                        }
+                  //                    }
+                  //                  else
+                  //                    {
+                  //                      if (i <= 100)
+                  //                        {
+                  //                          flag = 0;
+                  //                        }
+                  //                      else
+                  //                        {
+                  //                          i -= 100;
+                  //                        }
+                  //                    }
+                  //                  if (i)
+                  //                    {
+                  //                      Target_position = 1000;
+                  //                    }
+                  //                  else
+                  //                    {
+                  //                      Target_position = 0;
+                  //                    }
+                  //                  i = !i;
+                  Target_position = 3000;
                 }
 
               /**
