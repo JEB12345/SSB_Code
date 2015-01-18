@@ -45,14 +45,14 @@ return_value_t timers_init()
 	T4CONbits.TON = 0; //Disables the Timer 4 module
 	T4CONbits.TSIDL = 0; //Stop during idle
 	T4CONbits.TGATE = 0; //Gated time accumulation disabled
-	T4CONbits.TCKPS = 0b00; //1:1 Prescaler
+	T4CONbits.TCKPS = 0b01; //1:8 Prescaler
 	T4CONbits.TCS = 0; //Use Internal Clock (Fp)
 
 	//Settings the Loop Time
 	TMR4 = 0x00; //Clear Timer 4 register
-	PR4 = 700; //Fp / (TCKPS*PR4) = LoopTime => 70000000/(1*700)=100000Hz
+	PR4 = 0xFFFF; //Fp / (TCKPS*PR4) = LoopTime => 70000000/(8xPR4)=100000Hz
 	IFS1bits.T4IF = 0; //Clear Timer 4 Interrupt Flag
-	IEC1bits.T4IE = 1; //Enable Timer 4 Interrupt
+	IEC1bits.T4IE = 1; //enable/disable Timer 4 Interrupt
 	timer_state.fasttime = 0; //Init counter for timer
 	/****************************************/
 

@@ -122,7 +122,53 @@ typedef struct {
     typedef struct {
         return_value_t          init_return;
         state_t volatile state; //system state
+        uint8_t             system_id;//TODO get this number from the bootloader
     } system_data;
+
+    typedef struct {
+        uint8_t address[5];
+        uint8_t address_length;
+        uint16_t data[32];
+        uint8_t data_length;
+    } nrf24l01_tx_packet;
+
+    typedef struct {
+        uint8_t pipe;
+        uint16_t data[32];
+        uint8_t data_length; //TODO: NOT YET IMPLEMENTED
+    } nrf24l01_rx_packet;
+
+#define RF_RX_PACKET_BUFF_LEN 5
+#define RF_TX_PACKET_BUFF_LEN 5
+
+    typedef struct {
+        return_value_t      init_return;
+        volatile uint8_t    spi_rf_busy;
+        volatile uint16_t   spi_rf_buffer[360];
+        volatile uint16_t   spi_rf_buffer_ind[150];
+        volatile uint16_t   spi_rf_buffer_rec[360];
+        volatile uint16_t   spi_rf_num_msg;
+        volatile uint16_t   spi_rf_cur_msg;
+        volatile uint16_t   spi_rf_buffer_i;
+        volatile uint8_t    RF_INTERRUPT;
+        volatile uint8_t    RF_status; /*Last received status message from RF */
+        volatile uint8_t    rf_data_available;
+
+        //used in update function
+        uint8_t             rf_state;
+        uint16_t            rf_tx_delay;
+        uint16_t            motor_nonce; //concatenation of 16 first bits of motor data
+
+        //used to send and receive data
+        uint16_t            tx_packets_start;
+        uint16_t            tx_packets_end;
+        nrf24l01_tx_packet  tx_packets[RF_TX_PACKET_BUFF_LEN];
+
+        uint16_t            rx_packets_start;
+        uint16_t            rx_packets_end;
+        nrf24l01_rx_packet  rx_packets[RF_RX_PACKET_BUFF_LEN];
+        nrf24l01_rx_packet* rx_buffer;
+    } nrf24l01_data;
 
     return_value_t state_init();
     

@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+    #define CAN_PUSH_UPDATE_TIME 50
+
     /**
      * @brief can_init() Initalizes the dspic33e's CAN Bus at 1Mbaud
      *
@@ -55,6 +57,8 @@ extern "C" {
     void can_time_dispatch();
 
     void can_push_state();
+
+    void can_update();
 
 #ifdef	__cplusplus
 }

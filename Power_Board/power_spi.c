@@ -119,11 +119,11 @@ void init_RF_device_TX()
 		nrf24l01_RX_ADDR_P5_DEFAULT_VAL,
 		&global_addr, // TX_ADDR
 		1, // P0 width is 1 byte(s)
-		nrf24l01_RX_PW_P1_DEFAULT_VAL, // P1 width is default byte(s)
-		nrf24l01_RX_PW_P2_DEFAULT_VAL,
-		nrf24l01_RX_PW_P3_DEFAULT_VAL,
-		nrf24l01_RX_PW_P4_DEFAULT_VAL,
-		nrf24l01_RX_PW_P5_DEFAULT_VAL);
+		32, // P1 width is default byte(s)
+		32,
+		32,
+		32,
+		32);
 
 	nrf24l01_set_as_tx_param(config);
 }

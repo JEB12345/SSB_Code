@@ -21,6 +21,7 @@
  * @return
  */
 return_value_t init_adc();
+void adc_update();
 void Delay_us(unsigned int delay);
 
 #endif	/* POWER_ADC_H */

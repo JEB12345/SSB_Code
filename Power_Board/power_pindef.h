@@ -47,6 +47,7 @@ return_value_t pin_init();
 #define RF_CSN              LATBbits.LATB0
 #define RF_MISO             LATAbits.LATA9
 #define RF_GND_EN           LATBbits.LATB13
+#define RF_BUF              SPI1BUF
 /**
  Pin defines used in nRF library are located in nrf24l01.h
  */

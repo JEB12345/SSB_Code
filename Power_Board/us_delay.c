@@ -13,7 +13,7 @@ void Delay_us(unsigned int delay)
 {
     uint16_t i;
     for (i = 0; i < delay; i++){
-        __asm__ volatile ("repeat #39");
+        __asm__ volatile ("repeat #69");
         __asm__ volatile ("nop");
     }
 }

@@ -18,6 +18,7 @@ __eds__ unsigned int BufferA[32] __attribute__((eds,aligned(64)));
 __eds__ unsigned int BufferB[32] __attribute__((eds,aligned(64)));
 
 analog_data adc_values;
+extern timer_data timer_state;
 
 return_value_t init_adc()
 {
@@ -124,6 +125,22 @@ return_value_t init_adc()
     Delay_us(20);
 
     return RET_OK;
+}
+
+void adc_update() {
+    if ((adc_values.AN7) > 0x0960) {
+        VBAT_5V5_EN = ON;
+        EN_BACKUP_5V5 = OFF;
+        EN_VBAT_5V5 = ON;
+        //Enable Motor Output
+        KILLSWITCH_uC = ON;
+    } else {
+        EN_BACKUP_5V5 = ON;
+        EN_VBAT_5V5 = OFF;
+        VBAT_5V5_EN = OFF;
+        //Diables Motor Output
+        KILLSWITCH_uC = OFF;
+    }
 }
 
 void __attribute__((interrupt, no_auto_psv)) _DMA2Interrupt(void)

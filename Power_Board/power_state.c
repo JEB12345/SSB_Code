@@ -1,11 +1,10 @@
 #include "power_state.h"
 #include <p33Exxxx.h>
 
-    system_data system_state;
+system_data system_state;
 
 return_value_t state_init()
 {
-    int i;
     system_state.init_return = RET_OK;
     system_state.state = STATE_INITIALIZED;
 

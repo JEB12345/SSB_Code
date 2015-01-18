@@ -1,10 +1,12 @@
 
 #include "power_uart.h"
 #include "power_state.h"
+#include "power_objdict.h"
 #include "p33Exxxx.h"
 #include <stdint.h>
 
 uart_data uart_state;
+extern timer_data timer_state;
 
 
 return_value_t uart_init()
@@ -64,10 +66,12 @@ void uart_tx_compute_cks(volatile uint8_t* packet)
 
 inline void uart_tx_update_index()
 {
-    if (uart_state.tx_packets_end >= UART_TX_PACKET_BUFF_LEN - 1)
+    if (uart_state.tx_packets_end >= UART_TX_PACKET_BUFF_LEN - 1){
         uart_state.tx_packets_end = 0;
-    else
+    }
+    else {
         ++uart_state.tx_packets_end;
+    }
 }
 
 volatile uint8_t* uart_rx_cur_packet()
@@ -82,10 +86,12 @@ volatile uint8_t* uart_rx_cur_packet()
 
 void uart_rx_packet_consumed()
 {
-    if (uart_state.rx_packets_start >= UART_RX_PACKET_BUFF_LEN - 1)
+    if (uart_state.rx_packets_start >= UART_RX_PACKET_BUFF_LEN - 1){
         uart_state.rx_packets_start = 0;
-    else
+    }
+    else {
         ++uart_state.rx_packets_start;
+    }
 }
 
 void __attribute__((__interrupt__ , no_auto_psv)) _U1ErrInterrupt(void) {
@@ -120,8 +126,10 @@ void __attribute__ ((interrupt, no_auto_psv)) _U1TXInterrupt(void) {
 
 void uart_tx_start_transmit()
 {
-    uart_state.tx_idle = 0;
-    _U1TXInterrupt();
+    if(uart_state.tx_idle){
+        uart_state.tx_idle = 0;
+        _U1TXInterrupt();
+    }
 }
 
 void __attribute__ ((interrupt, no_auto_psv)) _U1RXInterrupt(void) {
@@ -188,4 +196,30 @@ void __attribute__ ((interrupt, no_auto_psv)) _U1RXInterrupt(void) {
     IFS0bits.U1RXIF = 0;
 }
 
+void uart_update() {
+    volatile uint8_t* uart_tx_packet = 0;
+    volatile uint8_t* uart_rx_packet = 0;
+    if (timer_state.systime % 100 == 0) {
+        uart_tx_packet = uart_tx_cur_packet();
+        uart_tx_packet[3] = (Strain_Gauge1 >> 24)&0xFF;
+        uart_tx_packet[4] = (Strain_Gauge1 >> 16)&0xFF;
+        uart_tx_packet[5] = (Strain_Gauge1 >> 8)&0xFF;
+        uart_tx_packet[6] = (Strain_Gauge1)&0xFF;
 
+        uart_tx_packet[7] = 0x89;
+
+#ifdef TRANSMITTER
+        //uart_tx_packet[8] = (Strain_Gauge2 >> 24)&0xFF;
+        //uart_tx_packet[9] = (Strain_Gauge2 >> 16)&0xFF;
+        //uart_tx_packet[10] = (Strain_Gauge2 >> 8)&0xFF;
+        //uart_tx_packet[11] = (Strain_Gauge2)&0xFF;
+        uart_tx_packet[8] = 0;//testTXpayload[0];
+#else
+        uart_tx_packet[8] = 0;//testRXpayload[0];
+#endif
+        uart_tx_compute_cks(uart_tx_packet);
+        uart_tx_update_index();
+        uart_tx_start_transmit();
+
+    }
+}

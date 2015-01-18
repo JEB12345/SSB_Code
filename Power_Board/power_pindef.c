@@ -41,9 +41,7 @@ return_value_t pin_init() {
     TRISAbits.TRISA8 = 0;   //KILLSWITCH_uC
     TRISEbits.TRISE15 = 0;  //EN_MOTOR_CURRENT
     CNPUBbits.CNPUB7 = 1;   //Internal Pull-Up
-
-    //RF Pints
-    TRISBbits.TRISB13 = 0;  //RF_GND_EN
+    PTCONbits.PTEN = 0;     //just to make sure that the PWM is disabled
 
 #ifdef OLD_BOARD
     TRISDbits.TRISD8 = 0;
@@ -76,12 +74,18 @@ return_value_t pin_init() {
     //SPI for RF
     TRISBbits.TRISB13 = 0;	// RF_GND_EN
     TRISBbits.TRISB0 = 0;	// RF_CSN
-    RPINR8bits.IC4R = 25;	// RF_MISO
+    //RPINR8bits.IC4R = 25;	// RF_MISO
     TRISAbits.TRISA4 = 0;	// RF_MOSI
     TRISAbits.TRISA7 = 0;	// RF_CE
+    CVRCONbits.CVR2OE = 0;
+    RF_CSN = 1; // default value
+    RF_CE = 0;
+    PTCONbits.PTEN = 0;
+
 
     //Buzzer 0.0
     TRISGbits.TRISG8 = 0;	// BUZZER
+    _RP120R = 0b010011;         // OC4
 
     return RET_OK;
 }

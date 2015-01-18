@@ -24,7 +24,7 @@ extern "C" {
 
     volatile uint8_t* uart_rx_cur_packet();
     void uart_rx_packet_consumed();
-
+    void uart_update();
 
 
 #ifdef	__cplusplus
