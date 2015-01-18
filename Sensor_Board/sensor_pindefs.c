@@ -99,6 +99,8 @@ pin_init ()
   //OLD BBB Power Toggle
   TRISBbits.TRISB13 = 1; //MUST BE SET TO INPUT!!
   PORTBbits.RB13 = 0; //MUST BE SET OT OFF!!
+//  TRISBbits.TRISB13 = 0;
+//  LATBbits.LATB13 = 1;
 
   //IMU Trigger
   CNENFbits.CNIEF0 = 1; // Enables RF0 as interrupt detection

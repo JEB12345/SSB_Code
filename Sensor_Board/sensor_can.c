@@ -71,7 +71,7 @@ uint8_t can_process()
         return 0;
     } 
     while(canReceive(&rec_m)){
-        if(rec_m.cob_id&0x70F){
+        if(rec_m.cob_id&0x0F){
             if(rec_m.data[0] == 0x7F){
                 can_enable_slave_heartbeat((UNS16)rec_m.cob_id&0x0FF,100);
                 can_start_node(rec_m.cob_id&0x0FF);
