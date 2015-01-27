@@ -9,7 +9,7 @@
 
 //void Delay_us(unsigned int delay)
 //void Delay_us(uint32_t delay)
-void Delay_us(unsigned int delay)
+inline void Delay_us(unsigned int delay)
 {
     uint16_t i;
     for (i = 0; i < delay; i++){

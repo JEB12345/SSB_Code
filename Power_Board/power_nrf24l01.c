@@ -120,33 +120,10 @@ return_value_t nrf24l01_init(void) {
 
     //power toggle the chip
     RF_GND_EN = 0;
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    RF_GND_EN = 1;
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    Delay_us(1000);
-    
+    for(i=0;i<50;++i){
+        Delay_us(1000);//50ms
+    }
+    RF_GND_EN = 1;    
 
     SPI1STATbits.SPIEN = 0; // Disable SPI module
     
@@ -162,7 +139,7 @@ return_value_t nrf24l01_init(void) {
     SPI1CON1bits.MODE16 = 0; // Communication is byte-wide (8 bits)
     SPI1CON1bits.SMP = 0; // Input data is sampled at the middle of data output time
 
-    SPI1CON1bits.CKE = 0; // Serial output data changes on transition
+    SPI1CON1bits.CKE = 1; // Serial output data changes on transition
     // from Idle clock state to active clock state
     SPI1CON1bits.CKP = 0; // Idle state for clock is a low level;
     // active state is a high level
@@ -172,7 +149,7 @@ return_value_t nrf24l01_init(void) {
     SPI1CON1bits.SSEN = 0; // Slave select pin disabled
 
     SPI1CON2bits.FRMEN = 0; // Frame mode disabled
-    SPI1CON2bits.SPIBEN = 1;
+    SPI1CON2bits.SPIBEN = 0;//1;
 
     // SPISTAT Register Settings
     SPI1STATbits.SPISIDL = 0; // Discontinue module operation when device enters Idle mode
@@ -189,15 +166,15 @@ return_value_t nrf24l01_init(void) {
     rf_init_data();
 
     /*wait >=100 ms for the RF to go in power down mode*/
-    for(i=0;i<200;++i){
+    for(i=0;i<150;++i){
         Delay_us(1000);
     };
 
-    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_CONFIG, nrf24l01_CONFIG_DEFAULT_VAL);
+    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_CONFIG, nrf24l01_CONFIG_DEFAULT_VAL    );
     rf_spi_send();
-    for(i=0;i<20;++i){
-        Delay_us(1000);
-    };
+//    for(i=0;i<20;++i){
+//        Delay_us(1000);
+//    };
 
     /*Write CONFIG to RF */
     //RF_RX_SEND_2(nrf24l01_W_REGISTER | nrf24l01_CONFIG, nrf24l01_CONFIG_EN_CRC);
@@ -271,27 +248,39 @@ return_value_t nrf24l01_init(void) {
         Delay_us(1000);
     };
 
-
     /*Set PRIM_RX high*/
     RF_SEND_2( nrf24l01_W_REGISTER | nrf24l01_CONFIG, nrf24l01_CONFIG_PWR_UP | nrf24l01_CONFIG_PRIM_RX | nrf24l01_CONFIG_EN_CRC );
     /*Transmit everything in the SPI buffer*/
     rf_spi_send();
-
-//    RF_SEND_2( nrf24l01_CONFIG,0xFF); //read config reg
-//    rf_spi_send();
+    RF_SEND_2( nrf24l01_CONFIG,0xFF); //read config reg
+    rf_spi_send();
 
     nrf24l01_state.rf_data_available = 0;
 
-    for(i=0;i<20;++i){
+    for(i=0;i<20;++i){ //wait while going to RX state
         Delay_us(1000);
     };
 
-    RF_CE = 1; //start in RX mode
-    nrf24l01_state.init_return = RET_OK;
-    return RET_OK;
+    //verify config reg status
+    RF_SEND_2( nrf24l01_CONFIG,0xFF); //read config reg
+    rf_spi_send();
+    if((nrf24l01_state.spi_rf_buffer_rec[1]&nrf24l01_CONFIG_PRIM_RX)&&
+            (nrf24l01_state.spi_rf_buffer_rec[1]&nrf24l01_CONFIG_PWR_UP)&&
+            (nrf24l01_state.spi_rf_buffer_rec[1]&nrf24l01_CONFIG_EN_CRC)){
+            //all good
+        RF_CE = 1; //start in RX mode
+        nrf24l01_state.init_return = RET_OK;
+        return RET_OK;
+    } else {
+        RF_CE = 1; //probably won't work, but try anyway
+        nrf24l01_state.init_return = RET_ERROR;
+        return RET_ERROR;
+    }
 }
 
-
+/**
+ * Initializes the internal data structures and state
+ */
 void rf_init_data()
 {
     nrf24l01_state.spi_rf_buffer_ind[0] = 0;
@@ -305,25 +294,27 @@ void rf_init_data()
     nrf24l01_state.tx_packets_end = 0;
 }
 
-void rf_spi_send_test(){
-    uint16_t j;
+//void rf_spi_send_test(){
+//    uint16_t j;
+//
+//    RF_CSN =0;
+//    for(nrf24l01_state.spi_rf_buffer_ind[0]; j<nrf24l01_state.spi_rf_buffer_ind[1];++j){
+//        nrf24l01_state.spi_rf_busy = 1;
+//        RF_BUF = nrf24l01_state.spi_rf_buffer[j];
+//        while(nrf24l01_state.spi_rf_busy);
+//        nrf24l01_state.spi_rf_buffer_rec[j] = RF_BUF;
+//    }
+//    RF_CSN = 1;
+//    nrf24l01_state.RF_status = nrf24l01_state.spi_rf_buffer_rec[nrf24l01_state.spi_rf_buffer_ind[0]];
+//    nrf24l01_state.spi_rf_num_msg = 0;
+//    nrf24l01_state.spi_rf_cur_msg = 1;
+//    nrf24l01_state.spi_rf_buffer_i = 0;
+//}
 
-    RF_CSN =0;
-    for(nrf24l01_state.spi_rf_buffer_ind[0]; j<nrf24l01_state.spi_rf_buffer_ind[1];++j){
-        nrf24l01_state.spi_rf_busy = 1;
-        RF_BUF = nrf24l01_state.spi_rf_buffer[j];
-        while(nrf24l01_state.spi_rf_busy);
-        nrf24l01_state.spi_rf_buffer_rec[j] = RF_BUF;
-    }
-    RF_CSN = 1;
-    nrf24l01_state.RF_status = nrf24l01_state.spi_rf_buffer_rec[nrf24l01_state.spi_rf_buffer_ind[0]];
-    nrf24l01_state.spi_rf_num_msg = 0;
-    nrf24l01_state.spi_rf_cur_msg = 1;
-    nrf24l01_state.spi_rf_buffer_i = 0;
-}
-
+/**
+ * Transmits pending messages over SPI to the RF module
+ */
 void rf_spi_send(){
-    /*Transmits all pending messages over SPI to the module*/
     uint16_t j;
     int16_t k;
 
@@ -333,32 +324,26 @@ void rf_spi_send(){
         /*k==current received byte index*/
         /*Pull CSN low*/
         RF_CSN = 0;
-
-        Delay_us(10);//TODO: is this needed?
         
         for(j=nrf24l01_state.spi_rf_buffer_ind[nrf24l01_state.spi_rf_cur_msg-1];
                 j<nrf24l01_state.spi_rf_buffer_ind[nrf24l01_state.spi_rf_cur_msg];
                 ++j){
             nrf24l01_state.spi_rf_busy = 1;
 
-            //while(SPI1STATbits.SPITBF);
             SPI1BUF = nrf24l01_state.spi_rf_buffer[j];
             /*check if TX buffers are not full*/
             ++k;
             //while(nrf24l01_state.spi_rf_busy);
             /*TODO: check if there's something in the receive buffer*/
 
-            //while(!SPI1STATbits.SPIRBF);
-            while (!SPI1STATbits.SRMPT);
+            while(!SPI1STATbits.SPIRBF);
+            //while (!SPI1STATbits.SRMPT);
             nrf24l01_state.spi_rf_buffer_rec[k] = SPI1BUF;
-            
-            Delay_us(1);
         }
-        Delay_us(10);//TODO: is this needed?
         /*CSN high*/
         RF_CSN = 1;
 
-        Delay_us(10);//TODO: is this needed?
+        Delay_us(1);//TODO: is this needed?
 
     }
     if(nrf24l01_state.spi_rf_num_msg>0){
@@ -390,9 +375,12 @@ void nrf24l01_update() {
     };
 }
 
+/**
+ * Badly chosen function name: Checks for received data (RF_IRQ low), but also
+ * starts transmitting outgoing data if any.
+ */
 void nrf24l01_handle_rx(){
     uint8_t rx_pipe;
-    uint16_t rf_data[32];
     nrf24l01_tx_packet* tx_pkt;
     uint16_t i;
     
@@ -405,7 +393,7 @@ void nrf24l01_handle_rx(){
             RF_SEND_33(nrf24l01_R_RX_PAYLOAD, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP);
             rf_spi_send();
             RF_CE = 0;
-            Delay_us(15);
+            Delay_us(15); //TODO: do we need this?
             RF_CE = 1;
 
             LED_STATUS = OFF; //toggle status LED
@@ -440,19 +428,18 @@ void nrf24l01_handle_rx(){
         //send RF message
         RF_SEND_VAR_CMD(nrf24l01_W_REGISTER | nrf24l01_TX_ADDR, tx_pkt->address, tx_pkt->address_length);
         //RF_SEND_4(nrf24l01_W_REGISTER | nrf24l01_TX_ADDR, 0xC2, 0xC2, 0xC2);
-        RF_SEND_VAR_CMD(nrf24l01_W_TX_PAYLOAD_NOACK, tx_pkt->data, 32);//tx_pkt->data_length);
+        RF_SEND_VAR_CMD(nrf24l01_W_TX_PAYLOAD_NOACK, tx_pkt->data, tx_pkt->data_length);
         rf_spi_send();
-        Delay_us(20);
+        //Delay_us(20);
         //go to TX mode
         RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_CONFIG, nrf24l01_CONFIG_PWR_UP | nrf24l01_CONFIG_EN_CRC);
         rf_spi_send();
 
-        Delay_us(20);
+        Delay_us(1);//TODO: needed?
         RF_CE = 1;
 
         nrf24l01_state.rf_state = RF_STATE_START_TX; //waits for IRQ and goes back to RX mode
     }
-
 }
 
 void nrf24l01_handle_wait_tx() {
@@ -479,18 +466,11 @@ void nrf24l01_handle_wait_tx() {
 }
 
 void nrf24l01_handle_start_tx() {
-//    RF_CE = 0;
-    
-    
-    memset(nrf24l01_state.spi_rf_buffer_rec,0xFF,10);
-    RF_SEND_2( nrf24l01_CONFIG,1);
-    rf_spi_send();
-
     //wait for irq
     if (!RF_IRQ) {
         //IRQ received, reset it and prepare for next transmit
         RF_CE = 0;
-        Delay_us(100);
+        //Delay_us(100);
         //acknowledge
         RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_STATUS, nrf24l01_STATUS_TX_DS); 
         //back to RX mode

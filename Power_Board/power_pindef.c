@@ -82,10 +82,12 @@ return_value_t pin_init() {
     RF_CE = 0;
     PTCONbits.PTEN = 0;
 
-
     //Buzzer 0.0
     TRISGbits.TRISG8 = 0;	// BUZZER
     _RP120R = 0b010011;         // OC4
+
+    //Backup bMCP73832attery charger
+    VBACKUP_CHARGER_DISABLE;
 
     return RET_OK;
 }

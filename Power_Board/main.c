@@ -57,7 +57,7 @@ int main (int argc, char** argv)
   uart_init ();
   led_init ();
   buzzer_set_frequency(TONE_A_6);
-  
+  nrf24l01_init();
   buzzer_set_frequency(TONE_A_5);
 
   // Parameter Initalziations for timer, UART
@@ -94,6 +94,8 @@ int main (int argc, char** argv)
 
   LED_STATUS = ON;
 
+  VBACKUP_CHARGER_ENABLE;
+
   //TODO: make sure the modulo operations don't hurt performance
   for (;;){
       if (timer_state.systime != timer_state.prev_systime)
@@ -109,7 +111,6 @@ int main (int argc, char** argv)
           if(timer_state.systime==250 && buzzer_init){
               buzzer_set_frequency(0);//turn buzzer off
               buzzer_init = 0;
-              nrf24l01_init();
           }
           buzzer_update();
 

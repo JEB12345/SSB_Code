@@ -31,7 +31,7 @@ return_value_t buzzer_set_frequency(uint16_t freq) { //in Hz
         //freq = 70000000/(8*PR4)/2
         //PR4 = 70000000/(8xfreq)
         //PR4 = 8750000/freq/2
-        //PR4 =
+        //PR4 = 4375000/freq
         tmr_temp = 4375000;
         tmr_temp /= freq;
 

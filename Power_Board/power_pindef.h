@@ -55,5 +55,11 @@ return_value_t pin_init();
 //BUZZER
 #define BUZZER              LATGbits.LATG8
 
+//BATTERY CHARGER
+#define VBACKUP_CHARGE_EN   LATBbits.LATB15
+#define VBACKUP_STAT        PORTBbits.RB1
+#define VBACKUP_CHARGER_ENABLE TRISBbits.TRISB15 = 0; VBACKUP_CHARGE_EN = 0
+#define VBACKUP_CHARGER_DISABLE TRISBbits.TRISB15 = 1
+
 #endif	/* POWER_PINDEF_H */
 
