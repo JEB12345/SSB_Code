@@ -80,11 +80,7 @@ int main (int argc, char** argv)
 
   //Enable Motor Current Sensing
   EN_MOTOR_CURRENT = 1;
-  // Def for Old board version 1
-#ifdef OLD_BOARD
-  VMOTOR_EN = 1;
-#endif
-
+ 
   // Enable CAN after calling the EN_OUT_# commands.
   // This prevents the while loop in the can_init() from stalling.
 
@@ -103,10 +99,11 @@ int main (int argc, char** argv)
         {
           timer_state.prev_systime = timer_state.systime;
 
-          //reset status led
-          if(timer_state.systime%100==0){
-              LED_STATUS = ON;
-          }
+//          //reset status led
+//          if(timer_state.systime%100==0){
+//              LED_STATUS = ON;
+//          }
+          
 
           //buzzer stuff
           if(timer_state.systime==250 && buzzer_init){
@@ -125,9 +122,10 @@ int main (int argc, char** argv)
            */
           can_update();
 
-          
-           
+          //kill switch PIC watchdog
+          uC_KS_1 = !uC_KS_1;
         }
+
       else { //Everything else that needs to run faster than 1ms goes in the else statement
 
           /*******************************************************************
@@ -159,10 +157,17 @@ int main (int argc, char** argv)
           }
 
           //Motor power
-          if(((adc_values.AN7) > 0x0960) && nrf24l01_state.rf_killswitch_state){
+          //TODO: enable/disable over CAN
+          //if(((adc_values.AN7) > 0x0960) && nrf24l01_state.rf_killswitch_state){
+          if(nrf24l01_state.rf_killswitch_state){
               KILLSWITCH_uC = ON;
           } else {
               KILLSWITCH_uC = OFF;
+          }
+          if(!KILLSWITCH_nFAULT){
+            //fault detected (overcurrent) by the mosfet driver!
+            //what do we do now?
+              buzzer_set_frequency(TONE_A_7);
           }
 
           //LEDs
@@ -178,6 +183,11 @@ int main (int argc, char** argv)
           } else {
               LED_B = 1;
           }
+          if(timer_state.fasttime<5000){
+              LED_STATUS = ON;
+          } else {
+              LED_STATUS = OFF;
+          }
       }
 
     }
@@ -185,7 +195,11 @@ int main (int argc, char** argv)
 }
 #else
 
-
+#define KS_SEND_SWITCHSTATE_PERIOD  25  //send KS state every N ms
+#define KS_SEND_SWITCHSTATE_OFFSET  0   //offset in ms (try not to send two packets at almost the same time)
+#define KS_SEND_SYNC_EVERY          10   //set the sync bit in every Nth KS state packet
+#define KS_SEND_BROADCAST_PERIOD    200 //send broacast every N ms
+#define KS_SEND_BROADCAST_OFFSET    13
 int main (int argc, char** argv)
 {
   state_init();
@@ -223,28 +237,36 @@ int main (int argc, char** argv)
       if (timer_state.systime != timer_state.prev_systime)
         {
           timer_state.prev_systime = timer_state.systime;
+          uC_KS_1 = !uC_KS_1;
 
           //reset status led
-          if(timer_state.systime%100==0){
-              LED_STATUS = ON;
-          } else if(timer_state.systime%100==50){
-              LED_STATUS = OFF;
-          }
+//          if(timer_state.systime%100==0){
+//              LED_STATUS = ON;
+//          } else if(timer_state.systime%100==50){
+//              LED_STATUS = OFF;
+//          }
 
 
           nrf24l01_update();
 
           uint16_t i;
-          if(timer_state.systime%100==50){
+          static uint16_t sync_ctr = 0;
+          //use this to send kill switch + sync data (1 byte)
+          if(timer_state.systime%KS_SEND_SWITCHSTATE_PERIOD==KS_SEND_SWITCHSTATE_OFFSET){
               nrf24l01_tx_packet* tx_pkt;
               tx_pkt = nrf24l01_tx_cur_packet();
-              for(i=0;i<32;++i){
-                tx_pkt->data[i] = 0;
-              }
+              memset(tx_pkt->data,0,sizeof(tx_pkt->data)); //not really needed, but useful for debugging
               if(kill_state==KILL_ALL_ON){
                   tx_pkt->data[0] = 0b11;
               } else {
                   tx_pkt->data[0] = 0b10;
+              }
+              if(sync_ctr++>=KS_SEND_SYNC_EVERY){
+                  sync_ctr = 0;
+                  tx_pkt->data[0] |= KILL_SYNC;
+                  LED_STATUS = ON;
+              } else {
+                  LED_STATUS = OFF;
               }
               tx_pkt->data_length = 1;
               tx_pkt->address_length = 3;
@@ -253,14 +275,11 @@ int main (int argc, char** argv)
               tx_pkt->address[2] = 1;
 
               nrf24l01_tx_update_index();
-
+              uC_KS_2 = !uC_KS_2;
           }
 
-          if(timer_state.systime%1000==999){
-             // nrf24l01_init();
-          }
-
-          if(timer_state.systime%100==0){
+          //use this to broadcast data (32 bytes)
+          if(timer_state.systime%KS_SEND_BROADCAST_PERIOD==KS_SEND_BROADCAST_OFFSET){
               nrf24l01_tx_packet* tx_pkt;
               tx_pkt = nrf24l01_tx_cur_packet();
               for(i=0;i<32;++i){
@@ -273,7 +292,6 @@ int main (int argc, char** argv)
               tx_pkt->address[2] = 3;
 
               nrf24l01_tx_update_index();
-
           }
 
           switch(kill_state) {

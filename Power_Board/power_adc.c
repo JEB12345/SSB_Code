@@ -149,6 +149,7 @@ void __attribute__((interrupt, no_auto_psv)) _DMA2Interrupt(void)
     static uint8_t ADC_State = 0;
     if(DMAbuffer){
         switch(ADC_State){
+            //TODO: VMOTOR_V, 5V_CUR, EX_4
             case 0:
                 adc_values.AN6 = BufferA[ADC_State];
                 ADC_State++;

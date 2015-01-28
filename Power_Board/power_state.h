@@ -36,7 +36,8 @@ typedef struct {
     return_value_t          init_return;
     unsigned int volatile   systime;        //updated by timer 1
     unsigned int            prev_systime;   //updated in main loop
-    unsigned int volatile   fasttime;      //updated by timer 4
+    uint32_t volatile       fasttime;      //updated by timer 5: 1tick/2uS (500KHz) synced over RF
+    uint32_t volatile       fasttime_irq;   
     unsigned int            prev_fasttime;  //updated in main loop
 } timer_data;
 
@@ -172,6 +173,10 @@ typedef struct {
         //RF killswitch status
         uint8_t             rf_killswitch_state; //1 == ON, 0 == OFF
     } nrf24l01_data;
+
+    typedef struct {
+        uint16_t            frequency;
+    } buzzer_data;
 
     return_value_t state_init();
     

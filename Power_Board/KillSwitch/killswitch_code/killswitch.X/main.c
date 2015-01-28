@@ -91,29 +91,29 @@ int main(int argc, char** argv) {
         prev_input_0 = INPUT_0;
         prev_input_1 = INPUT_1;
 
-        OUTPUT = 1;
+//        OUTPUT = 1;
 
-//        switch (state) {
-//            case S_DISABLED:
-//                OUTPUT = 0;
-//
-//                if(last_trans_0>=INPUT_0_TIMEOUT || last_trans_1>=INPUT_1_TIMEOUT){
-//                    disabled_ctr = 0;
-//                } else {
-//                    ++disabled_ctr;
-//                }
-//                if(disabled_ctr>INPUT_OK_DURATION){
-//                    state = S_ENABLED;
-//                }
-//                break;
-//            case S_ENABLED:
-//                OUTPUT = 1;
-//                //if no transitions detected for a while: switch to S_DISABLED
-//                if(last_trans_0>=INPUT_0_TIMEOUT || last_trans_1>=INPUT_1_TIMEOUT){
-//                    state = S_DISABLED;
-//                }
-//                break;
-//        };
+        switch (state) {
+            case S_DISABLED:
+                OUTPUT = 0;
+
+                if(last_trans_0>=INPUT_0_TIMEOUT || last_trans_1>=INPUT_1_TIMEOUT){
+                    disabled_ctr = 0;
+                } else {
+                    ++disabled_ctr;
+                }
+                if(disabled_ctr>INPUT_OK_DURATION){
+                    state = S_ENABLED;
+                }
+                break;
+            case S_ENABLED:
+                OUTPUT = 1;
+                //if no transitions detected for a while: switch to S_DISABLED
+                if(last_trans_0>=INPUT_0_TIMEOUT || last_trans_1>=INPUT_1_TIMEOUT){
+                    state = S_DISABLED;
+                }
+                break;
+        };
         if(state!=prev_state){
             last_trans_0 = last_trans_1 = 0;
             disabled_ctr = 0;

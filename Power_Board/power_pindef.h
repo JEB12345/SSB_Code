@@ -27,6 +27,9 @@ return_value_t pin_init();
 #define VBAT_5V5_EN         LATAbits.LATA10 //Enables the Buck IC
 #define KILLSWITCH_uC       LATAbits.LATA8
 #define EN_MOTOR_CURRENT    LATEbits.LATE15
+#define uC_KS_1             LATBbits.LATB4
+#define uC_KS_2             LATEbits.LATE14
+#define KILLSWITCH_nFAULT   PORTBbits.RB7
 
 //RF Pins
 #define RF_GND_EN           LATBbits.LATB13
