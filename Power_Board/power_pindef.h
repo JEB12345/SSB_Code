@@ -33,6 +33,8 @@ return_value_t pin_init();
 
 #ifdef OLD_BOARD
 #define VMOTOR_EN           LATDbits.LATD8
+#else
+#define VMOTOR_EN           PORTDbits.RD8
 #endif
 
 //5V5 Output Control Pins

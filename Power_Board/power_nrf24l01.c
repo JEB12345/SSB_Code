@@ -144,7 +144,7 @@ return_value_t nrf24l01_init(void) {
     SPI1CON1bits.CKP = 0; // Idle state for clock is a low level;
     // active state is a high level
     SPI1CON1bits.MSTEN = 1; // Master mode enabled
-    SPI1CON1bits.PPRE = 0b00; // Primary prescale bit for SPI clock; 0b11 = 1:1; 0b10 = 4:1; 0b01 = 16:1; 0b00 = 64:1
+    SPI1CON1bits.PPRE = 0b10; // Primary prescale bit for SPI clock; 0b11 = 1:1; 0b10 = 4:1; 0b01 = 16:1; 0b00 = 64:1
     SPI1CON1bits.SPRE = 0b001; // Secondary prescale bit for SPI clock; 0b111 = 1:1; 0b110 = 1:2 ... 0b000 = 1:8
     SPI1CON1bits.SSEN = 0; // Slave select pin disabled
 
@@ -182,13 +182,13 @@ return_value_t nrf24l01_init(void) {
     RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_EN_AA, 0x00);
     rf_spi_send();
     /*enable/disable RX data pipes*/
-    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_EN_RXADDR, 0b00111111); //4 pipes enabled
+    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_EN_RXADDR, 0b11); //2 pipes enabled
     rf_spi_send();
     /*set number of bytes in RX0 pipe*/
     RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_RX_PW_P0, 0b0100000); //32 bytes payload
     rf_spi_send();
     /*set number of bytes in RX1 pipe*/
-    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_RX_PW_P1, 0b0100000); //32 bytes payload
+    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_RX_PW_P1, 0b1); //1 byte payload
     rf_spi_send();
     /*set number of bytes in RX2 pipe*/
     RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_RX_PW_P2, 0b0100000); //32 bytes payload
@@ -205,20 +205,21 @@ return_value_t nrf24l01_init(void) {
     /*Set address width to 3bytes*/
     RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_SETUP_AW, nrf24l01_SETUP_AW_3BYTES);
     rf_spi_send();
-    /*Disable retry sending*/
-    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_SETUP_RETR, nrf24l01_SETUP_RETR_ARC_0);
-    rf_spi_send();
+//    /*Disable retry sending*/
+//    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_SETUP_RETR, nrf24l01_SETUP_RETR_ARC_0);
+//    rf_spi_send();
     /*Set the RF channel*/
-    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_RF_CH, 100);//nrf24l01_RF_CH_DEFAULT_VAL);
+    static uint8_t ch_i = 0;
+    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_RF_CH, 100);
     rf_spi_send();
     /*Set RF properties*/
-    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_RF_SETUP, 0b00001110); //250Kbps
+    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_RF_SETUP, 0b00100110);//0b0010100); //250Kbps
     rf_spi_send();
     /*Set RX addresses*/
     RF_SEND_4(nrf24l01_W_REGISTER | nrf24l01_RX_ADDR_P0, 0xB0, 0x0B, system_state.system_id); //direct command
     rf_spi_send();
     /*Set RX addresses*/
-    RF_SEND_4(nrf24l01_W_REGISTER | nrf24l01_RX_ADDR_P1, 0x12, 0x34, 0x01); //MOTOR COMMANDS 1
+    RF_SEND_4(nrf24l01_W_REGISTER | nrf24l01_RX_ADDR_P1, 0x12, 0x34, 0x01); //kill switch stuff
     rf_spi_send();
     /*Set RX addresses*/
     RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_RX_ADDR_P2, 0x02); //
@@ -236,8 +237,10 @@ return_value_t nrf24l01_init(void) {
     RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_FEATURE, 0b00000001);
     rf_spi_send();
 
+    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_SETUP_RETR, 0b00100000);
+    rf_spi_send();
     /*power up the RF*/
-    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_CONFIG, nrf24l01_CONFIG_EN_CRC | nrf24l01_CONFIG_PWR_UP);
+    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_CONFIG,  nrf24l01_CONFIG_PWR_UP |nrf24l01_CONFIG_EN_CRC);
     rf_spi_send();
     /*Clear TX and RX and MAX_RT bits in status register*/
     RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_STATUS, nrf24l01_STATUS_MAX_RT | nrf24l01_STATUS_TX_DS | nrf24l01_STATUS_RX_DR);
@@ -249,7 +252,7 @@ return_value_t nrf24l01_init(void) {
     };
 
     /*Set PRIM_RX high*/
-    RF_SEND_2( nrf24l01_W_REGISTER | nrf24l01_CONFIG, nrf24l01_CONFIG_PWR_UP | nrf24l01_CONFIG_PRIM_RX | nrf24l01_CONFIG_EN_CRC );
+    RF_SEND_2( nrf24l01_W_REGISTER | nrf24l01_CONFIG, nrf24l01_CONFIG_PWR_UP | nrf24l01_CONFIG_PRIM_RX |  nrf24l01_CONFIG_EN_CRC );
     /*Transmit everything in the SPI buffer*/
     rf_spi_send();
     RF_SEND_2( nrf24l01_CONFIG,0xFF); //read config reg
@@ -265,8 +268,8 @@ return_value_t nrf24l01_init(void) {
     RF_SEND_2( nrf24l01_CONFIG,0xFF); //read config reg
     rf_spi_send();
     if((nrf24l01_state.spi_rf_buffer_rec[1]&nrf24l01_CONFIG_PRIM_RX)&&
-            (nrf24l01_state.spi_rf_buffer_rec[1]&nrf24l01_CONFIG_PWR_UP)&&
-            (nrf24l01_state.spi_rf_buffer_rec[1]&nrf24l01_CONFIG_EN_CRC)){
+            (nrf24l01_state.spi_rf_buffer_rec[1]&nrf24l01_CONFIG_PWR_UP)){//&&
+            //(nrf24l01_state.spi_rf_buffer_rec[1]&nrf24l01_CONFIG_EN_CRC)){
             //all good
         RF_CE = 1; //start in RX mode
         nrf24l01_state.init_return = RET_OK;
@@ -292,6 +295,7 @@ void rf_init_data()
     nrf24l01_state.rx_packets_end = 0;
     nrf24l01_state.tx_packets_start = 0;
     nrf24l01_state.tx_packets_end = 0;
+    nrf24l01_state.rf_killswitch_state = 0; 
 }
 
 //void rf_spi_send_test(){
@@ -383,29 +387,49 @@ void nrf24l01_handle_rx(){
     uint8_t rx_pipe;
     nrf24l01_tx_packet* tx_pkt;
     uint16_t i;
-    
+
+//    RF_SEND_2( 0x09, 0xFF);
+//        rf_spi_send();
+
+//        if(nrf24l01_state.spi_rf_buffer_rec[1]&0b1){
+//            LED_STATUS = 0;
+//        }
+
+
     //check whether there's new data in SPI RX
     if (!RF_IRQ) {
         RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_STATUS, nrf24l01_state.RF_status | nrf24l01_STATUS_RX_DR);
         rf_spi_send();
+
+//            LED_STATUS = OFF; //toggle status LED
+//            LED_G = 1;
+//            LED_B = 0;
         //get result
         if (nrf24l01_state.RF_status & nrf24l01_STATUS_RX_DR) {
-            RF_SEND_33(nrf24l01_R_RX_PAYLOAD, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP);
+            rx_pipe = (nrf24l01_state.RF_status & nrf24l01_STATUS_RX_P_NO) >> 1;
+      
+            if(rx_pipe==1){
+                nrf24l01_state.rx_buffer->data_length = 1; //TODO: read actual data length
+                RF_SEND_2(nrf24l01_R_RX_PAYLOAD, 0xFF);
+            } else {
+                nrf24l01_state.rx_buffer->data_length = 32; //TODO: read actual data length
+                RF_SEND_33(nrf24l01_R_RX_PAYLOAD, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP);
+            }
             rf_spi_send();
-            RF_CE = 0;
-            Delay_us(15); //TODO: do we need this?
-            RF_CE = 1;
+            
+//            RF_CE = 0;
+//            Delay_us(15); //TODO: do we need this?
+//            RF_CE = 1;
 
             LED_STATUS = OFF; //toggle status LED
             //get the pipe number
-            rx_pipe = (nrf24l01_state.RF_status & nrf24l01_STATUS_RX_P_NO) >> 1;
+            
 
             //store data
             nrf24l01_state.rx_buffer->pipe = rx_pipe;
-            for(i=0;i<32;++i){
+            for(i=0;i<nrf24l01_state.rx_buffer->data_length;++i){
                 nrf24l01_state.rx_buffer->data[i] = nrf24l01_state.spi_rf_buffer_rec[i+1];
             }
-            nrf24l01_state.rx_buffer->data_length = 32; //TODO: read actual data length
 
             //prepare for next packet
             if(nrf24l01_state.rx_packets_end==RF_RX_PACKET_BUFF_LEN-1){
@@ -418,6 +442,7 @@ void nrf24l01_handle_rx(){
     } else if (nrf24l01_state.tx_packets_start!=nrf24l01_state.tx_packets_end) {
         //a packet needs to be sent
         RF_CE = 0;
+
         tx_pkt = &nrf24l01_state.tx_packets[nrf24l01_state.tx_packets_start];
 
         ++nrf24l01_state.tx_packets_start;
@@ -425,18 +450,31 @@ void nrf24l01_handle_rx(){
             nrf24l01_state.tx_packets_start = 0;
         }
 
-        //send RF message
-        RF_SEND_VAR_CMD(nrf24l01_W_REGISTER | nrf24l01_TX_ADDR, tx_pkt->address, tx_pkt->address_length);
-        //RF_SEND_4(nrf24l01_W_REGISTER | nrf24l01_TX_ADDR, 0xC2, 0xC2, 0xC2);
-        RF_SEND_VAR_CMD(nrf24l01_W_TX_PAYLOAD_NOACK, tx_pkt->data, tx_pkt->data_length);
-        rf_spi_send();
+        
         //Delay_us(20);
         //go to TX mode
         RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_CONFIG, nrf24l01_CONFIG_PWR_UP | nrf24l01_CONFIG_EN_CRC);
         rf_spi_send();
-
+        
+        
         Delay_us(1);//TODO: needed?
+
+//        RF_SEND_2(nrf24l01_FIFO_STATUS, 0xFF);
+//        rf_spi_send();
+//        RF_CE = 0;
+        //send RF message
+        RF_SEND_VAR_CMD(nrf24l01_W_REGISTER | nrf24l01_TX_ADDR, tx_pkt->address, tx_pkt->address_length);
+//        rf_spi_send();
+        //RF_SEND_4(nrf24l01_W_REGISTER | nrf24l01_TX_ADDR, 0xC2, 0xC2, 0xC2);
+        RF_SEND_VAR_CMD(nrf24l01_W_TX_PAYLOAD_NOACK, tx_pkt->data, tx_pkt->data_length);
+        rf_spi_send();
+
+//        RF_SEND_VAR_CMD(nrf24l01_TX_ADDR, tx_pkt->address, tx_pkt->address_length);
+//        rf_spi_send();
+
         RF_CE = 1;
+//        Delay_us(20);//TODO: needed?
+//        RF_CE = 0;
 
         nrf24l01_state.rf_state = RF_STATE_START_TX; //waits for IRQ and goes back to RX mode
     }
@@ -468,11 +506,29 @@ void nrf24l01_handle_wait_tx() {
 void nrf24l01_handle_start_tx() {
     //wait for irq
     if (!RF_IRQ) {
+        //get status
+//        RF_SEND_2(nrf24l01_FIFO_STATUS, 0xFF);
+//        rf_spi_send();
+//        if(nrf24l01_state.RF_status&nrf24l01_STATUS_TX_DS){
+//
+//            LED_STATUS = OFF;
+//        }
+//
+//        if(nrf24l01_state.RF_status&nrf24l01_STATUS_MAX_RT){
+//            LED_R = 0;
+//        }
+//
+//        if(nrf24l01_state.RF_status&nrf24l01_STATUS_TX_FULL){
+//            LED_R = 0;
+//        }
+
         //IRQ received, reset it and prepare for next transmit
         RF_CE = 0;
         //Delay_us(100);
         //acknowledge
-        RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_STATUS, nrf24l01_STATUS_TX_DS); 
+        RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_STATUS, nrf24l01_STATUS_TX_DS);
+//        rf_spi_send();
+
         //back to RX mode
         RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_CONFIG, nrf24l01_CONFIG_PWR_UP |
                 nrf24l01_CONFIG_PRIM_RX | nrf24l01_CONFIG_EN_CRC);
@@ -482,7 +538,6 @@ void nrf24l01_handle_start_tx() {
         
         RF_CE = 1;
 
-        LED_STATUS = OFF;
     }
 }
 
@@ -518,6 +573,34 @@ void nrf24l01_rx_packet_consumed()
     }
     else {
         ++nrf24l01_state.rx_packets_start;
+    }
+}
+
+void nrf24l01_check_killswitch()
+{
+    if (nrf24l01_rx_cur_packet()) {
+        LED_STATUS = 0;
+        nrf24l01_rx_packet* rf_rx_pkt = nrf24l01_rx_cur_packet();
+        switch (rf_rx_pkt->pipe) {
+            case 0:
+                //default broadcast 32 byte pipe
+                break;
+            case 1:
+                //kill switch pipe
+                if (rf_rx_pkt->data[0] & KILL_ALL_MASK) {
+                    //simple killswitch command
+                    if ((rf_rx_pkt->data[0] & KILL_ALL_ON)) {
+                        nrf24l01_state.rf_killswitch_state = 1;
+                        //TODO: start timer?
+                    } else {
+                        nrf24l01_state.rf_killswitch_state = 0;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        nrf24l01_rx_packet_consumed();
     }
 }
 

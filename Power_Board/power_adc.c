@@ -132,14 +132,14 @@ void adc_update() {
         VBAT_5V5_EN = ON;
         EN_BACKUP_5V5 = OFF;
         EN_VBAT_5V5 = ON;
-        //Enable Motor Output
-        KILLSWITCH_uC = ON;
+//        //Enable Motor Output
+//        KILLSWITCH_uC = ON;
     } else {
         EN_BACKUP_5V5 = ON;
         EN_VBAT_5V5 = OFF;
         VBAT_5V5_EN = OFF;
-        //Diables Motor Output
-        KILLSWITCH_uC = OFF;
+//        //Diables Motor Output
+//        KILLSWITCH_uC = OFF;
     }
 }
 

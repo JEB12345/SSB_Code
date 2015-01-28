@@ -45,6 +45,20 @@ nrf24l01_rx_packet* nrf24l01_rx_cur_packet();
 void nrf24l01_rx_packet_consumed();
 
 /**
+ * Call this function to update the RF kill switch status.
+ */
+void nrf24l01_check_killswitch();
+
+/**
+ *
+ * Killswitch stuff
+ *
+ */
+#define KILL_ALL_ON     1
+#define KILL_ALL_OFF    0
+#define KILL_ALL_MASK   0b10 
+
+/**
  * The following ugly macros can be used to send data to the NRF24L01
  * Note that nrf24l01_state.spi_rf_buffer_ind array is not updated automatically.
  */

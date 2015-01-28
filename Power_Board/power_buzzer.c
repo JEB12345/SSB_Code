@@ -50,7 +50,7 @@ void buzzer_update() {
         //error: both power sources active
         //Fast beep
         if (timer_state.systime % 200 == 0) {
-            LED_R = !LED_R;
+//            LED_R = !LED_R;
         }
         if (timer_state.systime % 500 == 0) {
             buzzer_set_frequency(TONE_A_6);
@@ -61,13 +61,13 @@ void buzzer_update() {
         //Slow beep when the main battery goes down
         if (timer_state.systime % 3000 == 0) {
             buzzer_set_frequency(TONE_A_5);
-            LED_R = 0;
+//            LED_R = 0;
         } else if (timer_state.systime % 3000 == 150) {
             buzzer_set_frequency(0);
-            LED_R = 1;
+//            LED_R = 1;
         }
     } else {
-        LED_R = 1;
+//        LED_R = 1;
     }
 }
 

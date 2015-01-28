@@ -37,10 +37,13 @@ extern timer_data timer_state;
 extern analog_data adc_values;
 extern can_data can_state;
 extern system_data system_state;
+extern nrf24l01_data nrf24l01_state;
 
 /*
  * 
  */
+//#define IS_KILLSWITCH
+#ifndef IS_KILLSWITCH
 int main (int argc, char** argv)
 {
   state_init();
@@ -94,8 +97,6 @@ int main (int argc, char** argv)
 
   LED_STATUS = ON;
 
-  VBACKUP_CHARGER_ENABLE;
-
   //TODO: make sure the modulo operations don't hurt performance
   for (;;){
       if (timer_state.systime != timer_state.prev_systime)
@@ -115,6 +116,7 @@ int main (int argc, char** argv)
           buzzer_update();
 
           nrf24l01_update();
+          nrf24l01_check_killswitch();
 
           uart_update();
 
@@ -123,28 +125,7 @@ int main (int argc, char** argv)
            */
           can_update();
 
-#ifdef TRANSMITTER
-          uint16_t i;
-          if(timer_state.systime%1000==500){
-              nrf24l01_tx_packet* tx_pkt;
-              tx_pkt = nrf24l01_tx_cur_packet();
-              for(i=0;i<32;++i){
-                tx_pkt->data[i] = i;
-              }
-              tx_pkt->data_length = 32;
-              tx_pkt->address_length = 3;
-              tx_pkt->address[0] = 0x12;
-              tx_pkt->address[1] = 0x34;
-              tx_pkt->address[2] = 1;
-
-              nrf24l01_tx_update_index();
-
-          }
-#else
-          if(nrf24l01_rx_cur_packet()){
-              buzzer_set_frequency(TONE_C_7);
-          }
-#endif
+          
            
         }
       else { //Everything else that needs to run faster than 1ms goes in the else statement
@@ -165,7 +146,184 @@ int main (int argc, char** argv)
           //			if (adc_values.AN8 < 0x0800) {
           //				VBAT_5V5_EN = OFF;
           //			}
+
+          /*****************************************************************
+           *
+           * Battery charger
+           *
+           *****************************************************************/
+          if(EN_BACKUP_5V5){
+              VBACKUP_CHARGER_DISABLE;
+          } else {
+              VBACKUP_CHARGER_ENABLE;
+          }
+
+          //Motor power
+          if(((adc_values.AN7) > 0x0960) && nrf24l01_state.rf_killswitch_state){
+              KILLSWITCH_uC = ON;
+          } else {
+              KILLSWITCH_uC = OFF;
+          }
+
+          //LEDs
+          if(VMOTOR_EN){
+              LED_R = 1;
+              LED_G = 0;
+            } else {
+              LED_R = 0;
+              LED_G = 1;
+            }
+          if(EN_BACKUP_5V5) {
+              LED_B = 0;
+          } else {
+              LED_B = 1;
+          }
+      }
+
+    }
+
+}
+#else
+
+
+int main (int argc, char** argv)
+{
+  state_init();
+  system_state.system_id = 0x0;
+
+  // Init Function Calls
+  clock_init ();
+  pin_init ();
+  enable_pins_init ();
+  timers_init ();
+  buzzer_init();
+  init_adc ();
+  led_init ();
+  nrf24l01_init();
+
+  // Parameter Initalziations for timer, UART
+  timer_state.prev_systime = 0;
+  timer_state.systime = 0;
+
+  EN_OUT_1 = 1;
+  EN_OUT_2 = 1;
+  EN_OUT_3 = 1;
+  EN_OUT_4 = 1;
+
+  LED_STATUS = ON;
+
+  LED_R = 0;
+  LED_G = 1;
+  LED_B = 1;
+
+  uint16_t kill_state = KILL_ALL_OFF;
+
+  //TODO: make sure the modulo operations don't hurt performance
+  for (;;){
+      if (timer_state.systime != timer_state.prev_systime)
+        {
+          timer_state.prev_systime = timer_state.systime;
+
+          //reset status led
+          if(timer_state.systime%100==0){
+              LED_STATUS = ON;
+          } else if(timer_state.systime%100==50){
+              LED_STATUS = OFF;
+          }
+
+
+          nrf24l01_update();
+
+          uint16_t i;
+          if(timer_state.systime%100==50){
+              nrf24l01_tx_packet* tx_pkt;
+              tx_pkt = nrf24l01_tx_cur_packet();
+              for(i=0;i<32;++i){
+                tx_pkt->data[i] = 0;
+              }
+              if(kill_state==KILL_ALL_ON){
+                  tx_pkt->data[0] = 0b11;
+              } else {
+                  tx_pkt->data[0] = 0b10;
+              }
+              tx_pkt->data_length = 1;
+              tx_pkt->address_length = 3;
+              tx_pkt->address[0] = 0x12;
+              tx_pkt->address[1] = 0x34;
+              tx_pkt->address[2] = 1;
+
+              nrf24l01_tx_update_index();
+
+          }
+
+          if(timer_state.systime%1000==999){
+             // nrf24l01_init();
+          }
+
+          if(timer_state.systime%100==0){
+              nrf24l01_tx_packet* tx_pkt;
+              tx_pkt = nrf24l01_tx_cur_packet();
+              for(i=0;i<32;++i){
+                tx_pkt->data[i] = i;
+              }
+              tx_pkt->data_length = 32;
+              tx_pkt->address_length = 3;
+              tx_pkt->address[0] = 0xB0;
+              tx_pkt->address[1] = 0x0B;
+              tx_pkt->address[2] = 3;
+
+              nrf24l01_tx_update_index();
+
+          }
+
+          switch(kill_state) {
+                case KILL_ALL_OFF:
+                    if (timer_state.systime % 500 == 0) {
+                        buzzer_set_frequency(TONE_A_6);
+                    } else if (timer_state.systime % 500 == 250) {
+                        buzzer_set_frequency(0);
+                    }
+                    break;
+                case KILL_ALL_ON:
+//                    if (timer_state.systime % 10000 == 0) {
+//                        buzzer_set_frequency(TONE_C_4);
+//                    } else if (timer_state.systime % 10000 == 100) {
+//                        buzzer_set_frequency(0);
+//                    }
+                    if (timer_state.systime % 10 == 0){
+                        buzzer_set_frequency(0);
+                    }
+                  break;
+              default:
+                  break;
+          };
+
+        }
+      else { //Everything else that needs to run faster than 1ms goes in the else statement
+
+          /*******************************************************************
+           * Software controlled switching between VBAT_5V5 and VBACKUP_5V5
+           *
+           ******************************************************************/
+          //adc_update();
+          KILLSWITCH_uC = 1;
+          if(EN_BACKUP_5V5){
+              VBACKUP_CHARGER_DISABLE;
+          } else {
+              VBACKUP_CHARGER_ENABLE;
+          }
+          if(VMOTOR_EN){
+              LED_G = 0;
+              LED_R = 1;
+              kill_state = KILL_ALL_ON;
+          } else {
+              LED_G = 1;
+              LED_R = 0;
+              kill_state = KILL_ALL_OFF;
+          }
+
         }
     }
 
 }
+#endif
