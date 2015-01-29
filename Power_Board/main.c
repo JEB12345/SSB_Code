@@ -21,6 +21,8 @@
 //#include "nRF24L01/src/nrf24l01.h"
 #include "power_nrf24l01.h"
 #include "power_buzzer.h"
+#include "power_i2c.h"
+#include "power_temperature.h"
 #include <p33Exxxx.h>
 
 /*******************************************
@@ -62,6 +64,9 @@ int main (int argc, char** argv)
   buzzer_set_frequency(TONE_A_6);
   nrf24l01_init();
   buzzer_set_frequency(TONE_A_5);
+  i2c_1_init();
+  temperature_init();
+  buzzer_set_frequency(TONE_D_5);
 
   // Parameter Initalziations for timer, UART
   timer_state.prev_systime = 0;
@@ -99,12 +104,6 @@ int main (int argc, char** argv)
         {
           timer_state.prev_systime = timer_state.systime;
 
-//          //reset status led
-//          if(timer_state.systime%100==0){
-//              LED_STATUS = ON;
-//          }
-          
-
           //buzzer stuff
           if(timer_state.systime==250 && buzzer_init){
               buzzer_set_frequency(0);//turn buzzer off
@@ -115,7 +114,11 @@ int main (int argc, char** argv)
           nrf24l01_update();
           nrf24l01_check_killswitch();
 
-          uart_update();
+          uart_update(); //this can be removed
+
+          if(timer_state.systime%123==0){
+              temperature_update();
+          }
 
           /**
            * This loop processes all CAN and CANFestival code

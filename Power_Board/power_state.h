@@ -178,6 +178,11 @@ typedef struct {
         uint16_t            frequency;
     } buzzer_data;
 
+    typedef struct {
+        int8_t  temperature;
+        return_value_t state;
+    } temperature_data;
+
     return_value_t state_init();
     
     /*
