@@ -60,30 +60,30 @@ uint8_t can_process() {
         canDispatch(&Power_Board_Data, &rec_m); //send packet to CanFestival
         res = 1;
     }
-    if (getState(&Power_Board_Data) != Operational) {
-        LED_G = 1;
-        LED_B = 1;
-    }
-
-    switch (getState(&Power_Board_Data)) {
-        case Initialisation:
-            LED_G = 0;
-            LED_B = 0;
-            break;
-        case Pre_operational:
-            LED_G = 0;
-            LED_B = 1;
-            break;
-        case Operational:
-            LED_G = 1;
-            LED_B = 0;
-            break;
-        default:
-            LED_G = 1;
-            LED_B = 1;
-            break;
-
-    };
+//    if (getState(&Power_Board_Data) != Operational) {
+//        LED_G = 1;
+//        LED_B = 1;
+//    }
+//
+//    switch (getState(&Power_Board_Data)) {
+//        case Initialisation:
+//            LED_G = 0;
+//            LED_B = 0;
+//            break;
+//        case Pre_operational:
+//            LED_G = 0;
+//            LED_B = 1;
+//            break;
+//        case Operational:
+//            LED_G = 1;
+//            LED_B = 0;
+//            break;
+//        default:
+//            LED_G = 1;
+//            LED_B = 1;
+//            break;
+//
+//    };
 
     return res;
 }

@@ -36,7 +36,8 @@ typedef struct {
     return_value_t          init_return;
     unsigned int volatile   systime;        //updated by timer 1
     unsigned int            prev_systime;   //updated in main loop
-    unsigned int volatile   fasttime;      //updated by timer 4
+    uint32_t volatile       fasttime;      //updated by timer 5: 1tick/2uS (500KHz) synced over RF
+    uint32_t volatile       fasttime_irq;   
     unsigned int            prev_fasttime;  //updated in main loop
 } timer_data;
 
@@ -126,16 +127,16 @@ typedef struct {
     } system_data;
 
     typedef struct {
-        uint8_t address[5];
+        uint16_t address[5]; //use 16 bit fields as the SPI code assumes this
         uint8_t address_length;
-        uint16_t data[32];
+        uint16_t data[32];//use 16 bit fields as the SPI code assumes this
         uint8_t data_length;
     } nrf24l01_tx_packet;
 
     typedef struct {
-        uint8_t pipe;
+        uint16_t pipe;
         uint16_t data[32];
-        uint8_t data_length; //TODO: NOT YET IMPLEMENTED
+        uint16_t data_length; //TODO: NOT YET IMPLEMENTED
     } nrf24l01_rx_packet;
 
 #define RF_RX_PACKET_BUFF_LEN 5
@@ -168,7 +169,19 @@ typedef struct {
         uint16_t            rx_packets_end;
         nrf24l01_rx_packet  rx_packets[RF_RX_PACKET_BUFF_LEN];
         nrf24l01_rx_packet* rx_buffer;
+
+        //RF killswitch status
+        uint8_t             rf_killswitch_state; //1 == ON, 0 == OFF
     } nrf24l01_data;
+
+    typedef struct {
+        uint16_t            frequency;
+    } buzzer_data;
+
+    typedef struct {
+        int8_t  temperature;
+        return_value_t state;
+    } temperature_data;
 
     return_value_t state_init();
     

@@ -45,8 +45,24 @@ nrf24l01_rx_packet* nrf24l01_rx_cur_packet();
 void nrf24l01_rx_packet_consumed();
 
 /**
+ * Call this function to update the RF kill switch status.
+ */
+void nrf24l01_check_killswitch();
+
+/**
+ *
+ * Killswitch stuff
+ *
+ */
+#define KILL_ALL_ON     1
+#define KILL_ALL_OFF    0
+#define KILL_ALL_MASK   0b10
+#define KILL_SYNC       0b100
+
+/**
  * The following ugly macros can be used to send data to the NRF24L01
  * Note that nrf24l01_state.spi_rf_buffer_ind array is not updated automatically.
+ * NOTE: THESE MACROS ONLY ACCEPT 16 BIT VARIABLES (only the lower 8 bits are used)!!!
  */
 #define _RF_SEND_10(_X1,_X2,_X3,_X4,_X5,_X6,_X7,_X8,_X9,_X10) nrf24l01_state.spi_rf_buffer[nrf24l01_state.spi_rf_buffer_i++] = (_X1);nrf24l01_state.spi_rf_buffer[nrf24l01_state.spi_rf_buffer_i++] = (_X2);nrf24l01_state.spi_rf_buffer[nrf24l01_state.spi_rf_buffer_i++] = (_X3);nrf24l01_state.spi_rf_buffer[nrf24l01_state.spi_rf_buffer_i++] = (_X4);nrf24l01_state.spi_rf_buffer[nrf24l01_state.spi_rf_buffer_i++] = (_X5);nrf24l01_state.spi_rf_buffer[nrf24l01_state.spi_rf_buffer_i++] = (_X6);nrf24l01_state.spi_rf_buffer[nrf24l01_state.spi_rf_buffer_i++] = (_X7);nrf24l01_state.spi_rf_buffer[nrf24l01_state.spi_rf_buffer_i++] = (_X8);nrf24l01_state.spi_rf_buffer[nrf24l01_state.spi_rf_buffer_i++] = (_X9);nrf24l01_state.spi_rf_buffer[nrf24l01_state.spi_rf_buffer_i++] = (_X10)
 #define _RF_SEND_20(_X1,_X2,_X3,_X4,_X5,_X6,_X7,_X8,_X9,_X10,_X11,_X12,_X13,_X14,_X15,_X16,_X17,_X18,_X19,_X20)  _RF_SEND_10((_X1),(_X2),(_X3),(_X4),(_X5),(_X6),(_X7),(_X8),(_X9),(_X10));_RF_SEND_10((_X11),(_X12),(_X13),(_X14),(_X15),(_X16),(_X17),(_X18),(_X19),(_X20))

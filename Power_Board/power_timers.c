@@ -53,7 +53,6 @@ return_value_t timers_init()
 	PR4 = 0xFFFF; //Fp / (TCKPS*PR4) = LoopTime => 70000000/(8xPR4)=100000Hz
 	IFS1bits.T4IF = 0; //Clear Timer 4 Interrupt Flag
 	IEC1bits.T4IE = 1; //enable/disable Timer 4 Interrupt
-	timer_state.fasttime = 0; //Init counter for timer
 	/****************************************/
 
 
@@ -83,6 +82,7 @@ return_value_t timers_init()
 	T5CONbits.TON = 1; //Start Timer 5
 	/****************************************/
 
+        timer_state.fasttime = 0; //Init counter for high speed, synced timer
 	timer_state.init_return = RET_OK;
 	return timer_state.init_return;
 }
@@ -95,11 +95,12 @@ void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void)
 
 void __attribute__((__interrupt__, no_auto_psv)) _T4Interrupt(void)
 {
-	++timer_state.fasttime;
 	IFS1bits.T4IF = 0; // Clear Timer 4 Interrupt Flag
 }
 
 void __attribute__((__interrupt__, auto_psv)) _T5Interrupt(void)
 {
+        //timer 5 is a continuously running timmer with a 
+	++timer_state.fasttime;
 	IFS1bits.T5IF = 0; // Clear Timer 5 Interrupt Flag
 }

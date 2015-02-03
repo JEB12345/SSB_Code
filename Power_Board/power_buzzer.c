@@ -4,6 +4,7 @@
 #include "power_pindef.h"
 
 extern timer_data timer_state;
+buzzer_data buzzer_state;
 
 return_value_t buzzer_init() {
     BUZZER = 0;
@@ -19,6 +20,9 @@ return_value_t buzzer_init() {
     //OC4TMR = 1000;
     //OC4R = 1000;
     OC4CON1bits.OCM = 3; //toggle mode
+
+
+    buzzer_state.frequency = 0;
     return RET_OK;
 }
 
@@ -27,11 +31,13 @@ return_value_t buzzer_set_frequency(uint16_t freq) { //in Hz
     if (freq < 70) { //if freq < 70, we cannot find a valid (16bit) timer setting
         T4CONbits.TON = 0;
         TMR4 = 0x0;
-    } else {
+
+        buzzer_state.frequency = 0;
+    } else if(freq!=buzzer_state.frequency){
         //freq = 70000000/(8*PR4)/2
         //PR4 = 70000000/(8xfreq)
         //PR4 = 8750000/freq/2
-        //PR4 =
+        //PR4 = 4375000/freq
         tmr_temp = 4375000;
         tmr_temp /= freq;
 
@@ -41,6 +47,7 @@ return_value_t buzzer_set_frequency(uint16_t freq) { //in Hz
         OC4R = PR4;
         OC4TMR = 0;
         T4CONbits.TON = 1;
+        buzzer_state.frequency = freq;
     }
     return RET_OK;
 }
@@ -50,7 +57,7 @@ void buzzer_update() {
         //error: both power sources active
         //Fast beep
         if (timer_state.systime % 200 == 0) {
-            LED_R = !LED_R;
+//            LED_R = !LED_R;
         }
         if (timer_state.systime % 500 == 0) {
             buzzer_set_frequency(TONE_A_6);
@@ -61,13 +68,13 @@ void buzzer_update() {
         //Slow beep when the main battery goes down
         if (timer_state.systime % 3000 == 0) {
             buzzer_set_frequency(TONE_A_5);
-            LED_R = 0;
+//            LED_R = 0;
         } else if (timer_state.systime % 3000 == 150) {
             buzzer_set_frequency(0);
-            LED_R = 1;
+//            LED_R = 1;
         }
     } else {
-        LED_R = 1;
+//        LED_R = 1;
     }
 }
 

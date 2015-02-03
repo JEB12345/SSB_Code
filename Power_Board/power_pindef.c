@@ -53,6 +53,8 @@ return_value_t pin_init() {
     TRISCbits.TRISC6 = 0;   //EN_OUT_2
     TRISCbits.TRISC13 = 0;  //EN_OUT_3
     TRISBbits.TRISB8 = 0;   //EN_OUT_4
+    TRISBbits.TRISB4 = 0;   //uC_KS_1
+    TRISEbits.TRISE14 = 0;  //uC_KS_2
 
     //ANALOG PINS
     ANSELCbits.ANSC0 = 1;
@@ -81,11 +83,14 @@ return_value_t pin_init() {
     RF_CSN = 1; // default value
     RF_CE = 0;
     PTCONbits.PTEN = 0;
-
+    RPINR0bits.INT1R = 121;     //INT1 connected to RF_IRQ
 
     //Buzzer 0.0
     TRISGbits.TRISG8 = 0;	// BUZZER
     _RP120R = 0b010011;         // OC4
+
+    //Backup bMCP73832attery charger
+    VBACKUP_CHARGER_DISABLE;
 
     return RET_OK;
 }

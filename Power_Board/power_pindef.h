@@ -27,12 +27,17 @@ return_value_t pin_init();
 #define VBAT_5V5_EN         LATAbits.LATA10 //Enables the Buck IC
 #define KILLSWITCH_uC       LATAbits.LATA8
 #define EN_MOTOR_CURRENT    LATEbits.LATE15
+#define uC_KS_1             LATBbits.LATB4
+#define uC_KS_2             LATEbits.LATE14
+#define KILLSWITCH_nFAULT   PORTBbits.RB7
 
 //RF Pins
 #define RF_GND_EN           LATBbits.LATB13
 
 #ifdef OLD_BOARD
 #define VMOTOR_EN           LATDbits.LATD8
+#else
+#define VMOTOR_EN           PORTDbits.RD8
 #endif
 
 //5V5 Output Control Pins
@@ -54,6 +59,12 @@ return_value_t pin_init();
 
 //BUZZER
 #define BUZZER              LATGbits.LATG8
+
+//BATTERY CHARGER
+#define VBACKUP_CHARGE_EN   LATBbits.LATB15
+#define VBACKUP_STAT        PORTBbits.RB1
+#define VBACKUP_CHARGER_ENABLE TRISBbits.TRISB15 = 0; VBACKUP_CHARGE_EN = 0
+#define VBACKUP_CHARGER_DISABLE TRISBbits.TRISB15 = 1
 
 #endif	/* POWER_PINDEF_H */
 
