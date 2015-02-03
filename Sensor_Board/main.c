@@ -87,7 +87,7 @@ main (int argc, char** argv)
   loadcell_init ();
   loadcell_start ();
 
-  //  IMU_Init (400000, 70000000);
+  IMU_Init (400000, 70000000);
 
   led_rgb_off ();
   led_rgb_set (50, 0, 100);
@@ -253,19 +253,19 @@ main (int argc, char** argv)
            */
           if (timer_state.systime % 10 == 0)
             {
-              //				uint8_t numChar;
-              //				uint8_t uart2Data[100];
-              //				uart_tx_packet = uart_tx_cur_packet();
-              //				//				numChar = sprintf(uart2Data, "%f, %f, %f, %f, %f, %f, %f, %f, %f\n",
-              //				//					imuData.accelX, imuData.accelY, imuData.accelZ, imuData.gyroX, imuData.gyroY, imuData.gyroZ, imuData.magX, imuData.magY, imuData.magZ);
-              //				//				numChar = sprintf(uart2Data, "%f,%f,%f\n",
-              //				//					ypr[0], ypr[1], ypr[2]);
-              //				//				numChar = sprintf(uart2Data, "%f,%f,%f,%f\n",
-              //				//					quaterion[0], quaterion[1], quaterion[2], quaterion[3]);
-              //				IMU_QuaternionToString(quaterion, uart2Data);
-              //
-              //				Uart2WriteData(uart2Data, numChar);
-              //				Uart2WriteData(uart2Data, 37);
+              uint8_t numChar;
+              uint8_t uart2Data[100];
+              uart_tx_packet = uart_tx_cur_packet ();
+              //				numChar = sprintf(uart2Data, "%f, %f, %f, %f, %f, %f, %f, %f, %f\n",
+              //					imuData.accelX, imuData.accelY, imuData.accelZ, imuData.gyroX, imuData.gyroY, imuData.gyroZ, imuData.magX, imuData.magY, imuData.magZ);
+              //				numChar = sprintf(uart2Data, "%f,%f,%f\n",
+              //					ypr[0], ypr[1], ypr[2]);
+              //				numChar = sprintf(uart2Data, "%f,%f,%f,%f\n",
+              //					quaterion[0], quaterion[1], quaterion[2], quaterion[3]);
+              QuaternionToString (quaterion, uart2Data);
+
+              Uart2WriteData (uart2Data, numChar);
+              Uart2WriteData (uart2Data, 37);
               //
               uart_tx_packet = uart_tx_cur_packet ();
               uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
@@ -322,30 +322,27 @@ hex2char (char halfhex)
     {
       return (halfhex + '0');
     }// Otherwise check for upper-case A-F
-  else if ((rv = halfhex - 10) <= 5 && rv >= 0)
-    {
-      return rv + 'A';
-    } // Finally check for lower-case a-f
-  // Otherwise return -1 as an error
-  return -1;
+	else if ((rv = halfhex - 10) <= 5 && rv >= 0) {
+		return rv + 'A';
+	} // Finally check for lower-case a-f
+	// Otherwise return -1 as an error
+	return -1;
 }
 
 /**
  * This is the interrupt function for the INT pin on the MPU6000
  */
-void __attribute__ ((__interrupt__, no_auto_psv))
-_CNInterrupt (void)
+void __attribute__((__interrupt__, no_auto_psv))
+_CNInterrupt(void)
 {
-  if (mpuData.startData == 1)
-    {
-      if (PORTFbits.RF0 == 1)
-        {
-          // Gets the IMU data after the INT pin has been triggered
-          IMU_GetData (&mpuData, &magData);
+	if (mpuData.startData == 1) {
+		if (PORTFbits.RF0 == 1) {
+			// Gets the IMU data after the INT pin has been triggered
+			IMU_GetData(&mpuData, &magData);
 
-          // Data normilization
-          IMU_normalizeData (mpuData, magData, &imuData);
-        }
-    }
-  IFS1bits.CNIF = 0; // Clear the interrupt flag
+			// Data normilization
+			IMU_normalizeData(mpuData, magData, &imuData);
+		}
+	}
+	IFS1bits.CNIF = 0; // Clear the interrupt flag
 }
