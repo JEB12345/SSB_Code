@@ -1,3 +1,6 @@
 [submodule "Sensor_Board/MPU60xx"]
 	path = Sensor_Board/MPU60xx
 	url = git@github.com:Susurrus/MPU60xx.git
+[submodule "Motor_Driver/PMSM"]
+	path = Motor_Driver/PMSM
+	url = git@github.com:FrauBluher/PMSM
