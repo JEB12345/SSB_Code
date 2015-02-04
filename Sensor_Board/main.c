@@ -175,7 +175,7 @@ main (int argc, char** argv)
                   //                      Target_position = 0;
                   //                    }
                   //                  i = !i;
-                  Target_position = 3000;
+//                  Target_position = 3000;
                 }
 
               /**

@@ -55,6 +55,11 @@ int main (int argc, char** argv)
   clock_init ();
   pin_init ();
   enable_pins_init ();
+  //5V5 Output Control Pins (make sure the BBB doesn't reboot)
+  EN_OUT_1 = 1;
+  EN_OUT_2 = 1;
+  EN_OUT_3 = 0;
+  EN_OUT_4 = 0;
   timers_init ();
   buzzer_init();
   buzzer_set_frequency(TONE_A_7);
@@ -76,12 +81,6 @@ int main (int argc, char** argv)
   unsigned char testRXpayload[1];
 
   uint16_t buzzer_init = 1; //used to turn the buzzer off after initialization
-
-  //5V5 Output Control Pins
-  EN_OUT_1 = 1;
-  EN_OUT_2 = 1;
-  EN_OUT_3 = 0;
-  EN_OUT_4 = 0;
 
   //Enable Motor Current Sensing
   EN_MOTOR_CURRENT = 1;
@@ -110,6 +109,15 @@ int main (int argc, char** argv)
               buzzer_init = 0;
           }
           buzzer_update();
+          if(!KILLSWITCH_nFAULT){
+            //fault detected (overcurrent) by the mosfet driver!
+            //what do we do now?
+              if(timer_state.systime%500==0){
+                buzzer_set_frequency(TONE_A_7);
+              } else if(timer_state.systime%500==250){
+                  buzzer_set_frequency(0);
+              }
+          }
 
           nrf24l01_update();
           nrf24l01_check_killswitch();
@@ -127,6 +135,7 @@ int main (int argc, char** argv)
 
           //kill switch PIC watchdog
           uC_KS_1 = !uC_KS_1;
+         // uC_KS_2 = !uC_KS_2;//REMOVE
         }
 
       else { //Everything else that needs to run faster than 1ms goes in the else statement
@@ -165,13 +174,9 @@ int main (int argc, char** argv)
           if(nrf24l01_state.rf_killswitch_state){
               KILLSWITCH_uC = ON;
           } else {
-              KILLSWITCH_uC = OFF;
+              KILLSWITCH_uC = OFF; //REMOVE
           }
-          if(!KILLSWITCH_nFAULT){
-            //fault detected (overcurrent) by the mosfet driver!
-            //what do we do now?
-              buzzer_set_frequency(TONE_A_7);
-          }
+          
 
           //LEDs
           if(VMOTOR_EN){

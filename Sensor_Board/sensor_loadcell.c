@@ -149,7 +149,7 @@ return_value_t loadcell_init()
     //write the CONFIGURATION register
     config_byte_1 = 0b00000100; // Chop disabled / REFIN1 ref. / Pseudo enabled
     config_byte_2 = 0b00001111;// Enabled AIN1-4 / Disabled AIN5-8
-    config_byte_3 = 0b01010100; // no burn / Ref. Detect enabled / Buffer enabled / bipolar / GAIN 16
+    config_byte_3 = 0b01010011; //gain 8 //0b01010100; // no burn / Ref. Detect enabled / Buffer enabled / bipolar / GAIN 16
     loadcell_state.spi_state = SPI_VARIOUS;
     SPI1BUF = config_byte_1;
     spi_wait();
@@ -226,6 +226,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
                 //ready bit is not set, so data is available
 //                if((loadcell_state.sg_status&0b00001111))
 //                {
+                if(!loadcell_state.error){
                     //one of the correct channels was converted, store the result
                     loadcell_state.values[loadcell_state.sg_status&0b00000111] =
                             (((uint32_t)(loadcell_state.sg_data_1&0xFF))<<16)
@@ -234,6 +235,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
                     loadcell_state.num_measurements[loadcell_state.sg_status&0b00000111]++;
 //
 //                }
+                }
             }
 //            if(loadcell_state.sg_status ||loadcell_state.sg_data_1 || loadcell_state.sg_data_2 || loadcell_state.sg_data_3 ) {
 //                loadcell_state.error = 1;

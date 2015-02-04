@@ -147,9 +147,9 @@ return_value_t nrf24l01_init(void) {
     SPI1CON1bits.CKP = 0; // Idle state for clock is a low level;
     // active state is a high level
     SPI1CON1bits.MSTEN = 1; // Master mode enabled
-    SPI1CON1bits.PPRE = 0b10; // Primary prescale bit for SPI clock; 0b11 = 1:1; 0b10 = 4:1; 0b01 = 16:1; 0b00 = 64:1
-    SPI1CON1bits.SPRE = 0b101; // Secondary prescale bit for SPI clock; 0b111 = 1:1; 0b110 = 1:2 ... 0b000 = 1:8
-    //5.83Mhz
+//    SPI1CON1bits.PPRE = 0b10; // Primary prescale bit for SPI clock; 0b11 = 1:1; 0b10 = 4:1; 0b01 = 16:1; 0b00 = 64:1
+//    SPI1CON1bits.SPRE = 0b101; // Secondary prescale bit for SPI clock; 0b111 = 1:1; 0b110 = 1:2 ... 0b000 = 1:8
+//    //5.83Mhz
     SPI1CON1bits.SSEN = 0; // Slave select pin disabled
 
     SPI1CON2bits.FRMEN = 0; // Frame mode disabled
