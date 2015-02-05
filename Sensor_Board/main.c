@@ -143,6 +143,7 @@ main (int argc, char** argv)
               if (timer_state.systime % 1000 == 0)
                 {
                   LED_4 = !LED_4;
+                  Target_position = 100;
                   //                  Target_position = i;
                   //                  if (!flag)
                   //                    {
