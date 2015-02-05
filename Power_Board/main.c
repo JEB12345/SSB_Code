@@ -170,8 +170,8 @@ int main (int argc, char** argv)
 
           //Motor power
           //TODO: enable/disable over CAN
-          //if(((adc_values.AN7) > 0x0960) && nrf24l01_state.rf_killswitch_state){
-          if(nrf24l01_state.rf_killswitch_state){
+          if(((adc_values.AN7) > 0x0960) && nrf24l01_state.rf_killswitch_state){
+          //if(nrf24l01_state.rf_killswitch_state){
               KILLSWITCH_uC = ON;
           } else {
               KILLSWITCH_uC = OFF; //REMOVE
