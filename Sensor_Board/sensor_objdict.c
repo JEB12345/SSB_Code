@@ -24,11 +24,11 @@ UNS32 Strain_Gauge4 = 0x0;		/* Mapped at index 0x2004, subindex 0x00 */
 UNS32 Target_Tension = 0x0;		/* Mapped at index 0x3000, subindex 0x00 */
 REAL32 Actual_Position = 0.000000;		/* Mapped at index 0x3001, subindex 0x00 */
 REAL32 Actual_Velocity = 0.000000;		/* Mapped at index 0x3002, subindex 0x00 */
+UNS32 Target_Position = 0x0;		/* Mapped at index 0x3003, subindex 0x00 */
 UNS8 Voltage_24V = 0x0;		/* Mapped at index 0x4000, subindex 0x00 */
 INTEGER32 Position_actual_value = 0x0;		/* Mapped at index 0x6064, subindex 0x00 */
 INTEGER32 Velocity_actual_value = 0x0;		/* Mapped at index 0x606C, subindex 0x00 */
 INTEGER16 Current_actual_value = 0x0;		/* Mapped at index 0x6078, subindex 0x00 */
-INTEGER32 Target_position = 0x0;		/* Mapped at index 0x607A, subindex 0x00 */
 INTEGER32 Target_velocity = 0x0;		/* Mapped at index 0x60FF, subindex 0x00 */
 UNS16 Motor_data_Continous_current_limit = 0x0;		/* Mapped at index 0x6410, subindex 0x01 */
 UNS16 Motor_data_Output_current_limit = 0x0;		/* Mapped at index 0x6410, subindex 0x02 */
@@ -524,7 +524,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_highestSubIndex_obj1A02 = 2; /* number of subindex - 1*/
                     UNS32 Sensor_Board_obj1A02[] = 
                     {
-                      0x607A0020,	/* 1618608160 */
+                      0x0,	/* 0 */
                       0x60FF0020	/* 1627324448 */
                     };
                     subindex Sensor_Board_Index1A02[] = 
@@ -623,6 +623,12 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, real32, sizeof (REAL32), (void*)&Actual_Velocity }
                      };
 
+/* index 0x3003 :   Mapped variable Target_Position */
+                    subindex Sensor_Board_Index3003[] = 
+                     {
+                       { RW, uint32, sizeof (UNS32), (void*)&Target_Position }
+                     };
+
 /* index 0x4000 :   Mapped variable Voltage_24V */
                     subindex Sensor_Board_Index4000[] = 
                      {
@@ -645,12 +651,6 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     subindex Sensor_Board_Index6078[] = 
                      {
                        { RO, int16, sizeof (INTEGER16), (void*)&Current_actual_value }
-                     };
-
-/* index 0x607A :   Mapped variable Target position */
-                    subindex Sensor_Board_Index607A[] = 
-                     {
-                       { RW, int32, sizeof (INTEGER32), (void*)&Target_position }
                      };
 
 /* index 0x60FF :   Mapped variable Target velocity */
@@ -718,11 +718,11 @@ const indextable Sensor_Board_objdict[] =
   { (subindex*)Sensor_Board_Index3000,sizeof(Sensor_Board_Index3000)/sizeof(Sensor_Board_Index3000[0]), 0x3000},
   { (subindex*)Sensor_Board_Index3001,sizeof(Sensor_Board_Index3001)/sizeof(Sensor_Board_Index3001[0]), 0x3001},
   { (subindex*)Sensor_Board_Index3002,sizeof(Sensor_Board_Index3002)/sizeof(Sensor_Board_Index3002[0]), 0x3002},
+  { (subindex*)Sensor_Board_Index3003,sizeof(Sensor_Board_Index3003)/sizeof(Sensor_Board_Index3003[0]), 0x3003},
   { (subindex*)Sensor_Board_Index4000,sizeof(Sensor_Board_Index4000)/sizeof(Sensor_Board_Index4000[0]), 0x4000},
   { (subindex*)Sensor_Board_Index6064,sizeof(Sensor_Board_Index6064)/sizeof(Sensor_Board_Index6064[0]), 0x6064},
   { (subindex*)Sensor_Board_Index606C,sizeof(Sensor_Board_Index606C)/sizeof(Sensor_Board_Index606C[0]), 0x606C},
   { (subindex*)Sensor_Board_Index6078,sizeof(Sensor_Board_Index6078)/sizeof(Sensor_Board_Index6078[0]), 0x6078},
-  { (subindex*)Sensor_Board_Index607A,sizeof(Sensor_Board_Index607A)/sizeof(Sensor_Board_Index607A[0]), 0x607A},
   { (subindex*)Sensor_Board_Index60FF,sizeof(Sensor_Board_Index60FF)/sizeof(Sensor_Board_Index60FF[0]), 0x60FF},
   { (subindex*)Sensor_Board_Index6410,sizeof(Sensor_Board_Index6410)/sizeof(Sensor_Board_Index6410[0]), 0x6410},
   { (subindex*)Sensor_Board_Index6502,sizeof(Sensor_Board_Index6502)/sizeof(Sensor_Board_Index6502[0]), 0x6502},
@@ -768,11 +768,11 @@ const indextable * Sensor_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, OD
 		case 0x3000: i = 32;break;
 		case 0x3001: i = 33;break;
 		case 0x3002: i = 34;break;
-		case 0x4000: i = 35;break;
-		case 0x6064: i = 36;break;
-		case 0x606C: i = 37;break;
-		case 0x6078: i = 38;break;
-		case 0x607A: i = 39;break;
+		case 0x3003: i = 35;break;
+		case 0x4000: i = 36;break;
+		case 0x6064: i = 37;break;
+		case 0x606C: i = 38;break;
+		case 0x6078: i = 39;break;
 		case 0x60FF: i = 40;break;
 		case 0x6410: i = 41;break;
 		case 0x6502: i = 42;break;
