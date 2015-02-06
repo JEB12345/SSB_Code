@@ -6,17 +6,6 @@
 /**************************************************************************/
 /* Declaration of mapped variables                                        */
 /**************************************************************************/
-INTEGER16 IMU_Data[] =		/* Mapped at index 0x2000, subindex 0x01 - 0x08 */
-  {
-    0x0,	/* 0 */
-    0x0,	/* 0 */
-    0x0,	/* 0 */
-    0x0,	/* 0 */
-    0x0,	/* 0 */
-    0x0,	/* 0 */
-    0x0,	/* 0 */
-    0x0	/* 0 */
-  };
 UNS32 Strain_Gauge1 = 0x0;		/* Mapped at index 0x2001, subindex 0x00 */
 UNS32 Strain_Gauge2 = 0x0;		/* Mapped at index 0x2002, subindex 0x00 */
 UNS32 Strain_Gauge3 = 0x0;		/* Mapped at index 0x2003, subindex 0x00 */
@@ -552,10 +541,10 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_highestSubIndex_obj1A04 = 4; /* number of subindex - 1*/
                     UNS32 Sensor_Board_obj1A04[] = 
                     {
-                      0x20000108,	/* 536871176 */
-                      0x20000208,	/* 536871432 */
-                      0x20000308,	/* 536871688 */
-                      0x20000408	/* 536871944 */
+                      0x0,	/* 0 */
+                      0x0,	/* 0 */
+                      0x0,	/* 0 */
+                      0x0	/* 0 */
                     };
                     subindex Sensor_Board_Index1A04[] = 
                      {
@@ -564,21 +553,6 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A04[1] },
                        { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A04[2] },
                        { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A04[3] }
-                     };
-
-/* index 0x2000 :   Mapped variable IMU_Data */
-                    UNS8 Sensor_Board_highestSubIndex_obj2000 = 8; /* number of subindex - 1*/
-                    subindex Sensor_Board_Index2000[] = 
-                     {
-                       { RO, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj2000 },
-                       { RW, int16, sizeof (INTEGER16), (void*)&IMU_Data[0] },
-                       { RW, int16, sizeof (INTEGER16), (void*)&IMU_Data[1] },
-                       { RW, int16, sizeof (INTEGER16), (void*)&IMU_Data[2] },
-                       { RW, int16, sizeof (INTEGER16), (void*)&IMU_Data[3] },
-                       { RW, int16, sizeof (INTEGER16), (void*)&IMU_Data[4] },
-                       { RW, int16, sizeof (INTEGER16), (void*)&IMU_Data[5] },
-                       { RW, int16, sizeof (INTEGER16), (void*)&IMU_Data[6] },
-                       { RW, int16, sizeof (INTEGER16), (void*)&IMU_Data[7] }
                      };
 
 /* index 0x2001 :   Mapped variable Strain_Gauge1 */
@@ -710,7 +684,6 @@ const indextable Sensor_Board_objdict[] =
   { (subindex*)Sensor_Board_Index1A02,sizeof(Sensor_Board_Index1A02)/sizeof(Sensor_Board_Index1A02[0]), 0x1A02},
   { (subindex*)Sensor_Board_Index1A03,sizeof(Sensor_Board_Index1A03)/sizeof(Sensor_Board_Index1A03[0]), 0x1A03},
   { (subindex*)Sensor_Board_Index1A04,sizeof(Sensor_Board_Index1A04)/sizeof(Sensor_Board_Index1A04[0]), 0x1A04},
-  { (subindex*)Sensor_Board_Index2000,sizeof(Sensor_Board_Index2000)/sizeof(Sensor_Board_Index2000[0]), 0x2000},
   { (subindex*)Sensor_Board_Index2001,sizeof(Sensor_Board_Index2001)/sizeof(Sensor_Board_Index2001[0]), 0x2001},
   { (subindex*)Sensor_Board_Index2002,sizeof(Sensor_Board_Index2002)/sizeof(Sensor_Board_Index2002[0]), 0x2002},
   { (subindex*)Sensor_Board_Index2003,sizeof(Sensor_Board_Index2003)/sizeof(Sensor_Board_Index2003[0]), 0x2003},
@@ -760,22 +733,21 @@ const indextable * Sensor_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, OD
 		case 0x1A02: i = 24;break;
 		case 0x1A03: i = 25;break;
 		case 0x1A04: i = 26;break;
-		case 0x2000: i = 27;break;
-		case 0x2001: i = 28;break;
-		case 0x2002: i = 29;break;
-		case 0x2003: i = 30;break;
-		case 0x2004: i = 31;break;
-		case 0x3000: i = 32;break;
-		case 0x3001: i = 33;break;
-		case 0x3002: i = 34;break;
-		case 0x3003: i = 35;break;
-		case 0x4000: i = 36;break;
-		case 0x6064: i = 37;break;
-		case 0x606C: i = 38;break;
-		case 0x6078: i = 39;break;
-		case 0x60FF: i = 40;break;
-		case 0x6410: i = 41;break;
-		case 0x6502: i = 42;break;
+		case 0x2001: i = 27;break;
+		case 0x2002: i = 28;break;
+		case 0x2003: i = 29;break;
+		case 0x2004: i = 30;break;
+		case 0x3000: i = 31;break;
+		case 0x3001: i = 32;break;
+		case 0x3002: i = 33;break;
+		case 0x3003: i = 34;break;
+		case 0x4000: i = 35;break;
+		case 0x6064: i = 36;break;
+		case 0x606C: i = 37;break;
+		case 0x6078: i = 38;break;
+		case 0x60FF: i = 39;break;
+		case 0x6410: i = 40;break;
+		case 0x6502: i = 41;break;
 		default:
 			*errorCode = OD_NO_SUCH_OBJECT;
 			return NULL;
