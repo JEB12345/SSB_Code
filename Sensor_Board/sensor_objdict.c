@@ -510,17 +510,15 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      };
 
 /* index 0x1A02 :   Transmit PDO 3 Mapping. */
-                    UNS8 Sensor_Board_highestSubIndex_obj1A02 = 2; /* number of subindex - 1*/
+                    UNS8 Sensor_Board_highestSubIndex_obj1A02 = 1; /* number of subindex - 1*/
                     UNS32 Sensor_Board_obj1A02[] = 
                     {
-                      0x0,	/* 0 */
-                      0x60FF0020	/* 1627324448 */
+                      0x30030020	/* 805503008 */
                     };
                     subindex Sensor_Board_Index1A02[] = 
                      {
                        { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj1A02 },
-                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A02[0] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A02[1] }
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A02[0] }
                      };
 
 /* index 0x1A03 :   Transmit PDO 4 Mapping. */

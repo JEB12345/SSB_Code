@@ -214,6 +214,6 @@ void can_push_state()
 {
 	Strain_Gauge1 = loadcell_state.values[0];
 	Strain_Gauge2 = loadcell_state.values[1];
-	Strain_Gauge2 = loadcell_state.values[2];
-	Strain_Gauge2 = loadcell_state.values[3];
+	Strain_Gauge3 = loadcell_state.values[2];
+	Strain_Gauge4 = loadcell_state.values[3];
 }

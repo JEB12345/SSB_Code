@@ -87,7 +87,7 @@ main (int argc, char** argv)
   loadcell_init ();
   loadcell_start ();
 
-  IMU_Init (400000, 70000000);
+//  IMU_Init (400000, 70000000);
 
   led_rgb_off ();
   led_rgb_set (50, 0, 100);
@@ -143,7 +143,7 @@ main (int argc, char** argv)
               if (timer_state.systime % 1000 == 0)
                 {
                   LED_4 = !LED_4;
-                  Target_Position = 100;
+                  Target_Position = 500;
                   //                  Target_position = i;
                   //                  if (!flag)
                   //                    {
@@ -245,7 +245,7 @@ main (int argc, char** argv)
            */
           if (timer_state.systime % 1 == 0)
             {
-              Target_Tension = impedance_controller (Position_actual_value, Velocity_actual_value);
+//              Target_Tension = impedance_controller (Position_actual_value, Velocity_actual_value);
             }
 
           /**
@@ -253,23 +253,22 @@ main (int argc, char** argv)
            */
           if (timer_state.systime % 10 == 0)
             {
-              uint8_t numChar;
-              uint8_t uart2Data[100];
-              uart_tx_packet = uart_tx_cur_packet ();
-              //				numChar = sprintf(uart2Data, "%f, %f, %f, %f, %f, %f, %f, %f, %f\n",
-              //					imuData.accelX, imuData.accelY, imuData.accelZ, imuData.gyroX, imuData.gyroY, imuData.gyroZ, imuData.magX, imuData.magY, imuData.magZ);
-              //				numChar = sprintf(uart2Data, "%f,%f,%f\n",
-              //					ypr[0], ypr[1], ypr[2]);
-              //				numChar = sprintf(uart2Data, "%f,%f,%f,%f\n",
-              //					quaterion[0], quaterion[1], quaterion[2], quaterion[3]);
-              QuaternionToString (quaterion, uart2Data);
-
-              Uart2WriteData (uart2Data, numChar);
-              Uart2WriteData (uart2Data, 37);
+//              uint8_t numChar;
+//              uint8_t uart2Data[100];
+//              uart_tx_packet = uart_tx_cur_packet ();
+//              //				numChar = sprintf(uart2Data, "%f, %f, %f, %f, %f, %f, %f, %f, %f\n",
+//              //					imuData.accelX, imuData.accelY, imuData.accelZ, imuData.gyroX, imuData.gyroY, imuData.gyroZ, imuData.magX, imuData.magY, imuData.magZ);
+//              //				numChar = sprintf(uart2Data, "%f,%f,%f\n",
+//              //					ypr[0], ypr[1], ypr[2]);
+//              //				numChar = sprintf(uart2Data, "%f,%f,%f,%f\n",
+//              //					quaterion[0], quaterion[1], quaterion[2], quaterion[3]);
+//              QuaternionToString (quaterion, uart2Data);
+//
+//              Uart2WriteData (uart2Data, numChar);
+//              Uart2WriteData (uart2Data, 37);
               //
 
-	      uint32_t tempLoadcellData = loadcell_state.values[0];
-
+		  int32_t torque = loadcell_bit_to_torque(loadcell_state.values[0],0);
               uart_tx_packet = uart_tx_cur_packet ();
               uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
               uart_tx_packet[1] = 0xFF; //CMD
@@ -277,19 +276,21 @@ main (int argc, char** argv)
 //              uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
 //              uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
 //              uart_tx_packet[5] = (loadcell_state.values[0]) & 0xFF;
-	      uart_tx_packet[3] = (tempLoadcellData >> 16)&0xFF;
-              uart_tx_packet[4] = (tempLoadcellData >> 8)&0xFF;
-              uart_tx_packet[5] = (tempLoadcellData) & 0xFF;
-              uart_tx_packet[6] = 0x01;
-              uart_tx_packet[7] = 0x89; // same as " "
-              //uart_tx_packet[8] = (loadcell_state.values[1]>>16)&0xFF;
-              uart_tx_packet[8] = 0xFF;
-              //uart_tx_packet[9] = (loadcell_state.values[1]>>8)&0xFF;
-              uart_tx_packet[9] = 0xFF;
-              //uart_tx_packet[10] = loadcell_state.values[1]&0xFF;
-              uart_tx_packet[10] = 0xFF;
-              uart_tx_packet[11] = 0x02;
-              uart_tx_packet[12] = 0x8b; // same as "\n"
+	      uart_rx_packet[3] = (loadcell_state.values[0]>>24)&0xFF;
+	      uart_tx_packet[4] = (torque >> 16)&0xFF;
+              uart_tx_packet[5] = (torque >> 8)&0xFF;
+              uart_tx_packet[6] = (torque) & 0xFF;
+              uart_tx_packet[7] = 0x01;
+//              uart_tx_packet[7] = 0x89; // same as " "
+	      uart_tx_packet[8] = (loadcell_state.values[0]>>24)&0xFF;
+              uart_tx_packet[9] = (loadcell_state.values[0]>>16)&0xFF;
+//              uart_tx_packet[8] = 0xFF;
+              uart_tx_packet[10] = (loadcell_state.values[0]>>8)&0xFF;
+//              uart_tx_packet[9] = 0xFF;
+              uart_tx_packet[11] = loadcell_state.values[0]&0xFF;
+//              uart_tx_packet[10] = 0xFF;
+              uart_tx_packet[12] = 0x02;
+              uart_tx_packet[13] = 0x8b; // same as "\n"
               uart_tx_compute_cks (uart_tx_packet);
               uart_tx_update_index ();
               uart_tx_start_transmit ();
