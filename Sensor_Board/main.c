@@ -82,7 +82,7 @@ main (int argc, char** argv)
     {
       brg = floor (brg);
     }
-  Uart2Init (brg); // Init UART 2 as 115200 baud/s
+//  Uart2Init (brg); // Init UART 2 as 115200 baud/s
 
   loadcell_init ();
   loadcell_start ();
@@ -276,7 +276,7 @@ main (int argc, char** argv)
 //              uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
 //              uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
 //              uart_tx_packet[5] = (loadcell_state.values[0]) & 0xFF;
-	      uart_rx_packet[3] = (loadcell_state.values[0]>>24)&0xFF;
+	      uart_tx_packet[3] = (torque >> 24)&0xFF;
 	      uart_tx_packet[4] = (torque >> 16)&0xFF;
               uart_tx_packet[5] = (torque >> 8)&0xFF;
               uart_tx_packet[6] = (torque) & 0xFF;

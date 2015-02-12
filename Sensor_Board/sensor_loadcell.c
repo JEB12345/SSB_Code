@@ -2,6 +2,9 @@
 #include "sensor_loadcell.h"
 #include "sensor_pindefs.h"
 #include "sensor_state.h"
+#include <limits.h>
+#include <float.h>
+#include <math.h>
 #include <dma.h>
 
 //Defined in the AD7193 ADC datasheet
@@ -208,11 +211,12 @@ return_value_t loadcell_init()
 int32_t loadcell_bit_to_torque(uint32_t sgBits, uint8_t linear)
 {
 	// Gains for linear equation
-	double linearGain[] = {3.30607751e-06, -2.73121125e+01};
+	double linearGain[] = {3.30607751e-03, -2.73121125e+04};
 
 	
 	//Gains for the quadratic equation
-	double quadGain[] = {-2.93677358e-06, 3.55929855e-13, -6.69475064e-13};
+	// Gains are ordered [linear, quadratic, bias]
+	double quadGain[] = {-2.93677358e-03, 3.55929855e-10, -6.69475064e-10};
 
 	double tempTorque;
 	double sgFloat = (double)sgBits;
@@ -223,13 +227,8 @@ int32_t loadcell_bit_to_torque(uint32_t sgBits, uint8_t linear)
 		return (int32_t)tempTorque;
 	}
 	else {
-		tempTorque = ((quadGain[0]*sgFloat) + quadGain[1])*sgFloat + quadGain[2];
-//		tempTorque = ((quadGain[0]*sgFloat) + quadGain[1]) + quadGain[2];
-		tempTorque*=1000.;
+		tempTorque = ((quadGain[1]*sgFloat) + quadGain[0])*sgFloat + quadGain[2];
 		result = (int32_t)tempTorque;
-		//memcpy(&result,&tempTorque,4);
-		//result *= 1000;
-		//result = tempTorque;
 		return result;//(tempTorque*1000);
 	}
 }
