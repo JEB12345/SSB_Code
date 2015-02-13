@@ -229,7 +229,7 @@ int32_t loadcell_bit_to_torque(uint32_t sgBits, uint8_t linear)
 	else {
 		tempTorque = ((quadGain[1]*sgFloat) + quadGain[0])*sgFloat + quadGain[2];
 		result = (int32_t)tempTorque;
-		return result;//(tempTorque*1000);
+		return -1 * result;
 	}
 }
 

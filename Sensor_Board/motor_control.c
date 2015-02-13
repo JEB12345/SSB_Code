@@ -7,14 +7,16 @@
 
 #include "motor_control.h"
 
-INTEGER16 impedance_controller(INTEGER16 length, INTEGER16 velocity)
+extern loadcell_data loadcell_state;
+
+int32_t impedance_controller(int16_t length, int16_t velocity)
 {
 	/**
 	 * This controller uses the basic impedance equation of
 	 * T = To + K(l-lo) + B(v-vo)
          * @param length
          * @param velocity
-         * @return uint32_t setTension
+         * @return int32_t T
          */
 
 	INTEGER16 To = 1;	// Tension Offset
@@ -25,5 +27,26 @@ INTEGER16 impedance_controller(INTEGER16 length, INTEGER16 velocity)
 
 	INTEGER16 T = 0;	// Calculated Tension
 
-	T = To + K*(length - lo) + B*(velocity - vo);
+	T = (int32_t)(To + K*(length - lo) + B*(velocity - vo));
+	return T;
+}
+
+int32_t force_controller(int32_t desiredTension)
+{
+	/**
+	 * This controller uses a basic P controller
+         * @param desiredTension
+         * @return int32_t setPosition
+         */
+	
+	int16_t K = 1;
+	
+	int32_t sgTension;
+	int32_t setVelocity;
+
+	sgTension = (loadcell_bit_to_torque(loadcell_state.values[0], 0)) / 15; // Hard coded spool radius in mm
+
+	setVelocity = K * (sgTension - desiredTension);
+
+	return setVelocity;
 }

@@ -143,7 +143,7 @@ main (int argc, char** argv)
               if (timer_state.systime % 1000 == 0)
                 {
                   LED_4 = !LED_4;
-                  Target_Position = 500;
+//                  Target_Position = 500;
                   //                  Target_position = i;
                   //                  if (!flag)
                   //                    {
@@ -243,9 +243,11 @@ main (int argc, char** argv)
           /**
            * Tension Controller Loop
            */
-          if (timer_state.systime % 1 == 0)
+          if (timer_state.systime % 10 == 0)
             {
+		  uint32_t desiredTorque = 1500;
 //              Target_Tension = impedance_controller (Position_actual_value, Velocity_actual_value);
+		  Target_Position = (desiredTorque - loadcell_bit_to_torque(loadcell_state.values[0],0));
             }
 
           /**
