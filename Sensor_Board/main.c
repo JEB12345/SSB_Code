@@ -47,6 +47,8 @@ IMU_Data imuData;
 float quaterion[4] = {0, 0, 0, 0};
 float ypr[3] = {0, 0, 0};
 
+uint16_t count = 0;
+
 char hex2char (char halfhex);
 
 /*
@@ -63,7 +65,7 @@ main (int argc, char** argv)
   uint8_t* uart_tx_packet = 0;
   uint8_t* uart_rx_packet;
   uint32_t old_loadcell_data;
-  uint16_t timeStep = 50;
+  uint16_t timeStep = 1;
 
   clock_init ();
   pin_init ();
@@ -184,7 +186,9 @@ main (int argc, char** argv)
                */
               if (timer_state.systime % timeStep == 0)
                 {
-                  can_push_state ();
+			can_push_state ();
+			// Call resonablly fast, too fast might bork the Beagle Bone Black
+			can_time_dispatch ();
                 }
 
               /**
@@ -228,7 +232,6 @@ main (int argc, char** argv)
                       txreq_bitarray = txreq_bitarray & 0b10111111;
                     }
                 }
-              can_time_dispatch ();
             }
 
           /**
