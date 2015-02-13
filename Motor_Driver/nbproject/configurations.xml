@@ -48,6 +48,7 @@
       <itemPath>PMSM/Motor Driver Code/PMSMx/PMSM_Sinusoidal_Drive_private.h</itemPath>
       <itemPath>PMSM/Motor Driver Code/PMSMx/PMSM_Sinusoidal_Drive_types.h</itemPath>
       <itemPath>PMSM/Motor Driver Code/PMSMx/TrigData.h</itemPath>
+      <itemPath>PMSM/SystemID Matlab Support/PRBSData.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -110,6 +111,7 @@
     <Elem>PMSM/Motor Driver Code/CAN Testing/canFiles</Elem>
     <Elem>PMSM/Motor Driver Code/PMSMx</Elem>
     <Elem>../../dspic33e-bootloader/dspic_bootloader</Elem>
+    <Elem>PMSM/SystemID Matlab Support</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -121,7 +123,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.24</languageToolchainVersion>
+        <languageToolchainVersion>1.20</languageToolchainVersion>
         <platform>2</platform>
       </toolsSet>
       <compileType>
@@ -146,20 +148,6 @@
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
-      <item path="../../dspic33e-bootloader/dspic_bootloader/linker_motorboard_application.gld"
-            ex="false"
-            overriding="false">
-        <C30>
-        </C30>
-        <C30-AR>
-        </C30-AR>
-        <C30-AS>
-        </C30-AS>
-        <C30-LD>
-        </C30-LD>
-        <C30Global>
-        </C30Global>
-      </item>
       <C30>
         <property key="code-model" value="large-code"/>
         <property key="const-model" value="default"/>
@@ -205,8 +193,10 @@
       <C30-AS>
         <property key="assembler-symbols" value=""/>
         <property key="expand-macros" value="false"/>
-        <property key="extra-include-directories-for-assembler" value=""/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
+        <property key="extra-include-directories-for-assembler"
+                  value="PMSM/SystemID Matlab Support"/>
+        <property key="extra-include-directories-for-preprocessor"
+                  value="PMSM/SystemID Matlab Support"/>
         <property key="false-conditionals" value="false"/>
         <property key="keep-locals" value="false"/>
         <property key="list-assembly" value="false"/>
@@ -344,37 +334,29 @@
         <property key="UART 3" value="true"/>
         <property key="UART 4" value="true"/>
         <property key="USB" value="true"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="true"/>
         <property key="memories.configurationmemory" value="true"/>
-        <property key="memories.configurationmemory2" value="true"/>
         <property key="memories.dataflash" value="true"/>
         <property key="memories.eeprom" value="true"/>
         <property key="memories.flashdata" value="true"/>
         <property key="memories.id" value="true"/>
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.end" value="0x2abff"/>
-        <property key="memories.programmemory.partition2" value="true"/>
-        <property key="memories.programmemory.partition2.end"
-                  value="${memories.programmemory.partition2.end.value}"/>
-        <property key="memories.programmemory.partition2.start"
-                  value="${memories.programmemory.partition2.start.value}"/>
         <property key="memories.programmemory.start" value="0x0"/>
+        <property key="memories.userotp" value="false"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="programmertogo.imagename" value=""/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.pgmspeed" value="2"/>
-        <property key="programoptions.preservedataflash" value="false"/>
         <property key="programoptions.preserveeeprom" value="false"/>
         <property key="programoptions.preserveprogramrange" value="false"/>
         <property key="programoptions.preserveprogramrange.end" value="0x2abff"/>
         <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="programoptions.preserveuserid" value="false"/>
         <property key="programoptions.programcalmem" value="false"/>
-        <property key="programoptions.programuserotp" value="false"/>
         <property key="programoptions.testmodeentrymethod" value="VPPFirst"/>
         <property key="programoptions.usehighvoltageonmclr" value="false"/>
         <property key="programoptions.uselvpprogramming" value="false"/>
