@@ -24,7 +24,12 @@ typedef enum {
             I2C_REGISTER_ADDRESS_READ_READ_STATE,
             I2C_BYTE_READ_READ_STATE,
             I2C_STOP_READ_STATE,
-            I2C_NEXT_BYTE_READ_STATE
+            I2C_NEXT_BYTE_READ_STATE,
+
+            I2C_WAIT_START_WRITE_STATE,
+            I2C_ADDRESS_WRITE_STATE,
+            I2C_BYTE_WRITE_STATE,
+            I2C_STOP_WRITE_STATE
 } i2c_internal_state;
 
 #define I2C_OPS_MAX 5
@@ -60,15 +65,7 @@ i2c_interrupt_start:
             break;
         case I2C_WAIT_START_READ_STATE:
             if (!I2C1STATbits.S) {
-                //error
-                I2C1CONbits.PEN = 1; //stop bit
-                *(i2c_state.operations[i2c_state.ops_start].status_out) = RET_ERROR;
-                i2c_state.ops_start++;
-                if(i2c_state.ops_start>=I2C_OPS_MAX){
-                    i2c_state.ops_start = 0;
-                }
-                i2c_state.state = I2C_NEXT_PACKET;
-                goto i2c_interrupt_start;
+                goto i2c_error;
             } else {
                 //send address
                 I2C1TRN = i2c_state.operations[i2c_state.ops_start].address<<1;
@@ -77,15 +74,7 @@ i2c_interrupt_start:
             break;
         case I2C_ADDRESS_READ_STATE:
             if (I2C1STATbits.ACKSTAT) {
-                //error
-                I2C1CONbits.PEN = 1; //stop bit
-                *(i2c_state.operations[i2c_state.ops_start].status_out) = RET_ERROR;
-                i2c_state.ops_start++;
-                if(i2c_state.ops_start>=I2C_OPS_MAX){
-                    i2c_state.ops_start = 0;
-                }
-                i2c_state.state = I2C_NEXT_PACKET;
-                goto i2c_interrupt_start;
+                goto i2c_error;
             } else {
                 //ACK RECEIVED
                 //send command
@@ -95,15 +84,7 @@ i2c_interrupt_start:
             break;
         case I2C_REGISTER_ADDRESS_READ_STATE:
             if (I2C1STATbits.ACKSTAT) {
-                //error
-                I2C1CONbits.PEN = 1; //stop bit
-                *(i2c_state.operations[i2c_state.ops_start].status_out) = RET_ERROR;
-                i2c_state.ops_start++;
-                if(i2c_state.ops_start>=I2C_OPS_MAX){
-                    i2c_state.ops_start = 0;
-                }
-                i2c_state.state = I2C_NEXT_PACKET;
-                goto i2c_interrupt_start;
+                goto i2c_error;
             } else {
                 //ACK RECEIVED
                 //send a repeated start bit
@@ -118,15 +99,7 @@ i2c_interrupt_start:
             break;
         case I2C_REGISTER_ADDRESS_READ_READ_STATE:
             if (I2C1STATbits.ACKSTAT) {
-                //error
-                I2C1CONbits.PEN = 1; //stop bit
-                *(i2c_state.operations[i2c_state.ops_start].status_out) = RET_ERROR;
-                i2c_state.ops_start++;
-                if(i2c_state.ops_start>=I2C_OPS_MAX){
-                    i2c_state.ops_start = 0;
-                }
-                i2c_state.state = I2C_NEXT_PACKET;
-                goto i2c_interrupt_start;
+                goto i2c_error;
             } else {
                 //ACK RECEIVED
                 //we can now start reading registers
@@ -137,15 +110,7 @@ i2c_interrupt_start:
             break;
         case I2C_BYTE_READ_READ_STATE:
             if (!I2C1STATbits.RBF) {
-                //error
-                I2C1CONbits.PEN = 1; //stop bit
-                *(i2c_state.operations[i2c_state.ops_start].status_out) = RET_ERROR;
-                i2c_state.ops_start++;
-                if(i2c_state.ops_start>=I2C_OPS_MAX){
-                    i2c_state.ops_start = 0;
-                }
-                i2c_state.state = I2C_NEXT_PACKET;
-                goto i2c_interrupt_start;
+                goto i2c_error;
             } else {
                 //data received
                 //copy data to output buffer
@@ -166,15 +131,7 @@ i2c_interrupt_start:
             break;
         case I2C_NEXT_BYTE_READ_STATE:
             if (I2C1CONbits.ACKEN) {
-                //error
-                I2C1CONbits.PEN = 1; //stop bit
-                *(i2c_state.operations[i2c_state.ops_start].status_out) = RET_ERROR;
-                i2c_state.ops_start++;
-                if(i2c_state.ops_start>=I2C_OPS_MAX){
-                    i2c_state.ops_start = 0;
-                }
-                i2c_state.state = I2C_NEXT_PACKET;
-                goto i2c_interrupt_start;
+                goto i2c_error;
             } else {
                 i2c_state.state = I2C_BYTE_READ_READ_STATE;
                 I2C1CONbits.RCEN = 1; //get next byte
@@ -182,15 +139,55 @@ i2c_interrupt_start:
             break;
         case I2C_STOP_READ_STATE:
             if (I2C1CONbits.ACKEN) {
-                //error
+                goto i2c_error;
+            } else {
                 I2C1CONbits.PEN = 1; //stop bit
-                *(i2c_state.operations[i2c_state.ops_start].status_out) = RET_ERROR;
+                *(i2c_state.operations[i2c_state.ops_start].status_out) = RET_OK;
                 i2c_state.ops_start++;
                 if(i2c_state.ops_start>=I2C_OPS_MAX){
                     i2c_state.ops_start = 0;
                 }
                 i2c_state.state = I2C_NEXT_PACKET;
-                goto i2c_interrupt_start;
+            }
+            break;
+        case I2C_WAIT_START_WRITE_STATE:
+            if (!I2C1STATbits.S) {
+                goto i2c_error;
+            } else {
+                //send address
+                i2c_state.state = I2C_ADDRESS_WRITE_STATE;
+                I2C1TRN = i2c_state.operations[i2c_state.ops_start].address;
+            }
+            break;
+        case I2C_ADDRESS_WRITE_STATE:
+            if (I2C1STATbits.ACKSTAT) {
+                goto i2c_error;
+            } else {
+                //ACK RECEIVED
+                //send register address
+                i2c_state.state = I2C_BYTE_WRITE_STATE;
+                i2c_state.byte_cnt = 0;
+                I2C1TRN = i2c_state.operations[i2c_state.ops_start].command;
+            }
+            break;
+        case I2C_BYTE_WRITE_STATE:
+            if (I2C1STATbits.ACKSTAT) {
+                goto i2c_error;
+            } else {
+                //ACK RECEIVED
+                //send data byte
+                if (++i2c_state.byte_cnt >= i2c_state.operations[i2c_state.ops_start].num_bytes) {
+                    i2c_state.state = I2C_STOP_WRITE_STATE;
+                } else {
+                    i2c_state.state = I2C_BYTE_WRITE_STATE;
+                }
+                I2C1TRN = 
+                        i2c_state.operations[i2c_state.ops_start].output[i2c_state.byte_cnt-1];
+            }
+            break;
+        case I2C_STOP_WRITE_STATE:
+            if (I2C1CONbits.ACKEN) {
+                goto i2c_error;
             } else {
                 I2C1CONbits.PEN = 1; //stop bit
                 *(i2c_state.operations[i2c_state.ops_start].status_out) = RET_OK;
@@ -205,6 +202,19 @@ i2c_interrupt_start:
             //WHAT??? we shouldn't be here :)
             break;
     };
+
+    return;
+
+i2c_error:
+    //error
+    I2C1CONbits.PEN = 1; //stop bit
+    *(i2c_state.operations[i2c_state.ops_start].status_out) = RET_ERROR;
+    i2c_state.ops_start++;
+    if (i2c_state.ops_start >= I2C_OPS_MAX) {
+        i2c_state.ops_start = 0;
+    }
+    i2c_state.state = I2C_NEXT_PACKET;
+    goto i2c_interrupt_start;
 }
 
 /**

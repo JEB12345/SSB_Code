@@ -121,8 +121,11 @@ int main (int argc, char** argv)
 
           nrf24l01_update();
           nrf24l01_check_killswitch();
+          if(nrf24l01_state.init_return != RET_OK){
+              buzzer_set_frequency(TONE_B_8);
+          }
 
-          uart_update(); //this can be removed
+//          uart_update(); //this can be removed
 
           if(timer_state.systime%123==0){
               temperature_update();
@@ -135,7 +138,6 @@ int main (int argc, char** argv)
 
           //kill switch PIC watchdog
           uC_KS_1 = !uC_KS_1;
-         // uC_KS_2 = !uC_KS_2;//REMOVE
         }
 
       else { //Everything else that needs to run faster than 1ms goes in the else statement
