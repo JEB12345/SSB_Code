@@ -75,6 +75,7 @@ void buzzer_update() {
         }
     } else {
 //        LED_R = 1;
+        buzzer_set_frequency(0);
     }
 }
 
