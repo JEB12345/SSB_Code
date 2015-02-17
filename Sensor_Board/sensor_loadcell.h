@@ -17,6 +17,14 @@ extern "C" {
     return_value_t loadcell_init();
     void loadcell_start();
 
+    /**
+     * @brief Converts the raw bit values from the ADC to N-mm
+     * @param sgBits Full 24 ADC value
+     * @param linear Set this bit to use the linear equation, default will be quadratic
+     * @return This will return the torqe value in Newtons per Milli-meters
+     */
+    int32_t loadcell_bit_to_torque(uint32_t sgBits, uint8_t linear);
+
 #define SG_SELECT       SS=0
 #define SG_DESELECT     SS=1
 

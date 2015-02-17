@@ -8,6 +8,7 @@
 #include "sensor_pindefs.h"
 #include "sensor_objdict.h"
 #include "sensor_uart.h"
+#include "sensor_loadcell.h"
 
 
 can_data can_state;
@@ -204,16 +205,16 @@ static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time)
 
 void can_time_dispatch()
 {
-    if(can_state.timer_flag){
-        can_state.timer_flag = 0;
+//    if(can_state.timer_flag){
+//        can_state.timer_flag = 0;
         TimeDispatch();
-    }
+//    }
 }
 
 void can_push_state()
 {
-	Strain_Gauge1 = loadcell_state.values[0];
+	Strain_Gauge1 = loadcell_bit_to_torque(loadcell_state.values[0],0);
 	Strain_Gauge2 = loadcell_state.values[1];
-	Strain_Gauge2 = loadcell_state.values[2];
-	Strain_Gauge2 = loadcell_state.values[3];
+	Strain_Gauge3 = loadcell_state.values[2];
+	Strain_Gauge4 = loadcell_state.values[3];
 }

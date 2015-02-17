@@ -9,6 +9,7 @@
 #define	MOTOR_CONTROL_H
 
 #include "sensor_can.h"
+#include "sensor_loadcell.h"
 
 #ifdef	__cplusplus
 extern "C" {
@@ -20,9 +21,17 @@ extern "C" {
  * 
  * @param length
  * @param velocity
- * @return uint32_t setTension
+ * @return int32_t Tension
  */
-INTEGER16 impedance_controller(INTEGER16 length, INTEGER16 velocity);
+int32_t impedance_controller(int16_t length, int16_t velocity);
+
+/**
+ * This is a basic controller for setting the given tension from the impedance controller
+ * Proportional
+ * @param desiredTension The tension setpoint in Newtons
+ * @return int32_t setPosition
+ */
+int32_t force_controller(int32_t desiredTension);
 
 
 #ifdef	__cplusplus
