@@ -145,39 +145,6 @@ main (int argc, char** argv)
               if (timer_state.systime % 1000 == 0)
                 {
                   LED_4 = !LED_4;
-//                  Target_Position = 500;
-                  //                  Target_position = i;
-                  //                  if (!flag)
-                  //                    {
-                  //                      if (i >= 3000)
-                  //                        {
-                  //                          flag = 1;
-                  //                        }
-                  //                      else
-                  //                        {
-                  //                          i += 100;
-                  //                        }
-                  //                    }
-                  //                  else
-                  //                    {
-                  //                      if (i <= 100)
-                  //                        {
-                  //                          flag = 0;
-                  //                        }
-                  //                      else
-                  //                        {
-                  //                          i -= 100;
-                  //                        }
-                  //                    }
-                  //                  if (i)
-                  //                    {
-                  //                      Target_position = 1000;
-                  //                    }
-                  //                  else
-                  //                    {
-                  //                      Target_position = 0;
-                  //                    }
-                  //                  i = !i;
                 }
 
               /**
@@ -250,7 +217,7 @@ main (int argc, char** argv)
             {
 		  uint32_t desiredTorque = 1500;
 //              Target_Tension = impedance_controller (Position_actual_value, Velocity_actual_value);
-		  Target_Position = (desiredTorque - loadcell_bit_to_torque(loadcell_state.values[0],0));
+//		  Target_Position = (desiredTorque - loadcell_bit_to_torque(loadcell_state.values[0],0));
             }
 
           /**
