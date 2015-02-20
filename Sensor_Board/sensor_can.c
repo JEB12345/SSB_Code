@@ -47,18 +47,25 @@ return_value_t can_init()
     //reset callback
     Sensor_Board_Data.NMT_Slave_Node_Reset_Callback = can_reset;
 
+#ifdef CONF71
+    setNodeId(&Sensor_Board_Data, 0x71);
+#else
     setNodeId(&Sensor_Board_Data, 0x01);
+#endif
     can_state.is_master = 1;
     setState(&Sensor_Board_Data, Initialisation);	// Init the state
     setState(&Sensor_Board_Data, Operational);
 
+#ifdef CONF71
+    can_enable_slave_heartbeat(0x73,100);
+    can_enable_slave_heartbeat(0x72,100);
+    can_enable_heartbeat(100);
+#else
     can_enable_slave_heartbeat(0x04,100);
     can_enable_slave_heartbeat(0x03,100);
     can_enable_slave_heartbeat(0x02,100);
     can_enable_heartbeat(100);
-    can_start_node(0x04);
-    can_start_node(0x03);
-    can_start_node(0x02);
+#endif
 
     PDOInit(&Sensor_Board_Data);
 
@@ -72,12 +79,14 @@ uint8_t can_process()
         return 0;
     } 
     while(canReceive(&rec_m)){
+/***********This code will start any board which sends out a
+	    pre-operational CANOpen code
         if(rec_m.cob_id&0x0F){
             if(rec_m.data[0] == 0x7F){
                 can_enable_slave_heartbeat((UNS16)rec_m.cob_id&0x0FF,100);
                 can_start_node(rec_m.cob_id&0x0FF);
             }
-        }
+        }*/
         canDispatch(&Sensor_Board_Data, &rec_m); //send packet to CanFestival
         res = 1;
     }
