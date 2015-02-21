@@ -10,12 +10,17 @@
 #include "power_pindef.h"
 #include "power_state.h"
 #include "us_delay.h"
+#ifdef ID_3
+#include "power_objdict_3.h"
+#else
+#include "power_objdict_73.h"
+#endif
 
 //__eds__ uint16_t BufferA[8] __attribute__((eds,aligned(64)));
 //__eds__ uint16_t BufferB[8] __attribute__((eds,aligned(64)));
 
-__eds__ unsigned int BufferA[32] __attribute__((eds,aligned(64)));
-__eds__ unsigned int BufferB[32] __attribute__((eds,aligned(64)));
+__eds__ unsigned int BufferA[48] __attribute__((eds,aligned(64)));
+__eds__ unsigned int BufferB[48] __attribute__((eds,aligned(64)));
 
 analog_data adc_values;
 extern timer_data timer_state;
@@ -33,13 +38,15 @@ return_value_t init_adc()
     ANSELCbits.ANSC1 = 1;       //AN7
     ANSELCbits.ANSC2 = 1;       //AN8
     ANSELCbits.ANSC11 = 1;      //AN11
+    ANSELEbits.ANSE12 = 1;      //AN12
+    ANSELEbits.ANSE13 = 1;      //AN13
 
     AD1CON1bits.ADON = 0;       //Turn off Module
     //AD1CON1 Settings
     AD1CON1bits.ADSIDL = 0;     //Continues module operation in Idle mode
     AD1CON1bits.ADDMABM = 0;    //Don't Care ignored by DMA
     AD1CON1bits.AD12B = 1;      //12-bit, 1-CH operation
-    AD1CON1bits.FORM = 0b00;    //Unsignd Integer output
+    AD1CON1bits.FORM = 0b00;    //Unsigned Integer output
     AD1CON1bits.SSRC = 0b100;   //Timer5 compare ends sampling and starts conversion
     AD1CON1bits.SSRCG = 0;      //Default no external triggering?
     AD1CON1bits.SIMSAM = 0;     //Has to be off for 12-bit mode
@@ -49,7 +56,7 @@ return_value_t init_adc()
     AD1CON2bits.VCFG = 0b000;   //Vrefh = AVdd, Vrefl = AVss
     AD1CON2bits.CSCNA = 1;      //Scans inputs for CH0+ during Sample
     AD1CON2bits.CHPS = 0b00;    //Converts CH0
-    AD1CON2bits.SMPI = 0b0011;  //Increments the DMA address after completion of every 2 sample/conversion operation
+    AD1CON2bits.SMPI = 5;  //Increments the DMA address after completion of every 6th sample/conversion operation
     AD1CON2bits.BUFM = 0;       //Always starts filling the buffer from the start address
     AD1CON2bits.ALTS = 0;       //Always use channel input selects for Sample MUXA
 
@@ -72,6 +79,9 @@ return_value_t init_adc()
     AD1CSSLbits.CSS7 = 1;
     AD1CSSLbits.CSS8 = 1;
     AD1CSSLbits.CSS11 = 1;
+    AD1CSSLbits.CSS12 = 1;
+    AD1CSSLbits.CSS13 = 1;
+
 
     //Flags and Interrupts
     IFS0bits.AD1IF = 0;         //Clear ADC Interrupt flag bit
@@ -105,7 +115,7 @@ return_value_t init_adc()
 //    OpenDMA2(config,irq,__builtin_dmaoffset(&BufferA),stb_address,pad_address,count);
 
     DMA2PAD = (volatile unsigned int)&ADC1BUF0; //Points DMA to ADC buffer
-    DMA2CNT = 31;               //32 DMA request (4 buffers, each with 8 words)
+    DMA2CNT = 47;               //32 DMA request (6 buffers, each with 8 words) -1
     DMA2REQ = 13;               //Select ADC1 as DMA source
 
     DMA2STBL = __builtin_dmaoffset(BufferA);
@@ -128,7 +138,29 @@ return_value_t init_adc()
 }
 
 void adc_update() {
-    if ((adc_values.AN7) > 0x0960) {
+    //compute voltages, currents and power
+    adc_values.mV_5V5_out = ((((uint32_t)adc_values.AN6)*6600))>>12;
+    adc_values.mV_vbackup_battery = ((((uint32_t)adc_values.AN8)*6600))>>12;
+    adc_values.mV_main_battery = ((((uint32_t)adc_values.AN7)*36300))>>12;
+    adc_values.mV_motor_voltage = ((((uint32_t)adc_values.AN12)*36300))>>12;
+
+    adc_values.mA_5V5_out = ((((uint32_t)adc_values.AN13)*3300))>>12;
+    adc_values.mA_motor_current = ((((int32_t)adc_values.AN11)-0x7B6)*30000)/4096; //110mv/A
+
+    adc_values.mW_5V5_out = (adc_values.mV_5V5_out*adc_values.mA_5V5_out)/1000;
+    adc_values.mW_motor_power = (adc_values.mA_motor_current*((int32_t)adc_values.mV_motor_voltage))/1000;
+
+    //copy to object dictionary
+    power3_adc_state_mV_5V5_out = adc_values.mV_5V5_out;
+    power3_adc_state_mA_5V5_out = adc_values.mA_5V5_out;
+    power3_adc_state_mW_5V5_out = adc_values.mW_5V5_out;
+    power3_adc_state_mV_vbackup_battery = adc_values.mV_vbackup_battery;
+    power3_adc_state_mV_main_battery = adc_values.mV_main_battery;
+    power3_adc_state_mA_motor_current = adc_values.mA_motor_current;
+    power3_adc_state_mW_motor_power = adc_values.mW_motor_power;
+    power3_adc_state_mV_motor_voltage = adc_values.mV_motor_voltage;
+
+    if ((adc_values.AN7) > 0x0960) { //TODO use above value
         VBAT_5V5_EN = ON;
         EN_BACKUP_5V5 = OFF;
         EN_VBAT_5V5 = ON;
@@ -164,6 +196,14 @@ void __attribute__((interrupt, no_auto_psv)) _DMA2Interrupt(void)
                 // break;
             case 3:
                 adc_values.AN11 = BufferA[ADC_State];
+                ADC_State++;
+                break;
+            case 4:
+                adc_values.AN12 = BufferA[ADC_State];
+                ADC_State++;
+                break;
+            case 5:
+                adc_values.AN13 = BufferA[ADC_State];
                 ADC_State = 0;
                 break;
             default:
@@ -186,6 +226,14 @@ void __attribute__((interrupt, no_auto_psv)) _DMA2Interrupt(void)
                 //break;
             case 3:
                 adc_values.AN11 = BufferB[ADC_State];
+                ADC_State++;
+                break;
+            case 4:
+                adc_values.AN12 = BufferB[ADC_State];
+                ADC_State++;
+                break;
+            case 5:
+                adc_values.AN13 = BufferB[ADC_State];
                 ADC_State = 0;
                 break;
             default:

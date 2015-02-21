@@ -1,7 +1,11 @@
 
 #include "power_uart.h"
 #include "power_state.h"
-#include "power_objdict.h"
+#ifdef ID_3
+#include "power_objdict_3.h"
+#else
+#include "power_objdict_73.h"
+#endif
 #include "p33Exxxx.h"
 #include <stdint.h>
 

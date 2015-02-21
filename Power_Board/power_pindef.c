@@ -61,6 +61,8 @@ return_value_t pin_init() {
     ANSELCbits.ANSC1 = 1;
     ANSELCbits.ANSC2 = 1;
     ANSELCbits.ANSC11 = 1;
+    ANSELEbits.ANSE12 = 1;
+    ANSELEbits.ANSE13 = 1;
 
     //UART 1
     _RP37R = 0b000001;              //U1TX to pin RP37/RB5 = EX_6

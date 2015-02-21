@@ -13,11 +13,14 @@
 #include "power_enable_pins.h"
 #include "power_timers.h"
 #include "power_adc.h"
-#include "power_uart.h"
 #include "power_can.h"
 //#include "power_spi.h"
 //#include "superball_communication.h"
-#include "power_objdict.h"
+#ifdef ID_3
+#include "power_objdict_3.h"
+#else
+#include "power_objdict_73.h"
+#endif
 //#include "nRF24L01/src/nrf24l01.h"
 #include "power_nrf24l01.h"
 #include "power_buzzer.h"
@@ -49,7 +52,11 @@ extern nrf24l01_data nrf24l01_state;
 int main (int argc, char** argv)
 {
   state_init();
-  system_state.system_id = 0x03;//TODO: get this from the bootloader
+#ifdef ID_3
+  system_state.system_id = 0x03;//TODO: get this from the bootloader?
+#else
+  system_state.system_id = 0x73;
+#endif
   
   // Init Function Calls
   clock_init ();
@@ -64,7 +71,6 @@ int main (int argc, char** argv)
   buzzer_init();
   buzzer_set_frequency(TONE_A_7);
   init_adc ();
-  uart_init ();
   led_init ();
   buzzer_set_frequency(TONE_A_6);
   nrf24l01_init();
@@ -102,7 +108,8 @@ int main (int argc, char** argv)
       if (timer_state.systime != timer_state.prev_systime)
         {
           timer_state.prev_systime = timer_state.systime;
-
+          asm("CLRWDT");
+          
           //buzzer stuff
           if(timer_state.systime==250 && buzzer_init){
               buzzer_set_frequency(0);//turn buzzer off
@@ -124,8 +131,6 @@ int main (int argc, char** argv)
           if(nrf24l01_state.init_return != RET_OK){
               buzzer_set_frequency(TONE_B_8);
           }
-
-//          uart_update(); //this can be removed
 
           if(timer_state.systime%123==0){
               temperature_update();
@@ -333,7 +338,7 @@ int main (int argc, char** argv)
            * Software controlled switching between VBAT_5V5 and VBACKUP_5V5
            *
            ******************************************************************/
-          //adc_update();
+          adc_update();
           KILLSWITCH_uC = 1;
           if(EN_BACKUP_5V5){
               VBACKUP_CHARGER_DISABLE;
