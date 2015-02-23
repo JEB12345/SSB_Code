@@ -7,11 +7,11 @@
 #include "../libs/dspic_CanFestival/CanFestival-3/include/data.h"
 
 /* Prototypes of function provided by object dictionnary */
-UNS32 Power_Board_valueRangeTest (UNS8 typeValue, void * value);
-const indextable * Power_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks);
+UNS32 Sensor_Board_valueRangeTest (UNS8 typeValue, void * value);
+const indextable * Sensor_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks);
 
 /* Master node data struct */
-extern CO_Data Power_Board_Data;
+extern CO_Data Sensor_Board_Data;
 extern INTEGER32 sensor1_strain_gauge_processed_Strain_Gauge_1P;		/* Mapped at index 0x2010, subindex 0x01 */
 extern INTEGER32 sensor1_strain_gauge_processed_Strain_Gauge_2P;		/* Mapped at index 0x2010, subindex 0x02 */
 extern INTEGER32 sensor1_strain_gauge_processed_Strain_Gauge_3P;		/* Mapped at index 0x2010, subindex 0x03 */
