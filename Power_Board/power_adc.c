@@ -24,6 +24,7 @@ __eds__ unsigned int BufferB[48] __attribute__((eds,aligned(64)));
 
 analog_data adc_values;
 extern timer_data timer_state;
+extern nrf24l01_data nrf24l01_state;
 
 return_value_t init_adc()
 {
@@ -134,10 +135,27 @@ return_value_t init_adc()
     AD1CON1bits.ADON = 1;       //Turn on the ADC
     Delay_us(20);
 
+    adc_values.motor_current_offset = 0x7B6;
+
     return RET_OK;
 }
 
-void adc_update() {
+inline void adc_update_state()
+{
+    static uint16_t ctr = 0;
+    static uint32_t offset = 0;
+    if(ctr<256){
+        ctr++;
+        offset += adc_values.AN11;
+        //disable kill switch during initialization
+        nrf24l01_state.rf_killswitch_state = 0;
+    } else if(ctr==256) {
+        ctr++;
+        adc_values.motor_current_offset  = offset>>8;
+    }
+}
+
+void adc_update_output() {
     //compute voltages, currents and power
     adc_values.mV_5V5_out = ((((uint32_t)adc_values.AN6)*6600))>>12;
     adc_values.mV_vbackup_battery = ((((uint32_t)adc_values.AN8)*6600))>>12;
@@ -145,7 +163,7 @@ void adc_update() {
     adc_values.mV_motor_voltage = ((((uint32_t)adc_values.AN12)*36300))>>12;
 
     adc_values.mA_5V5_out = ((((uint32_t)adc_values.AN13)*3300))>>12;
-    adc_values.mA_motor_current = ((((int32_t)adc_values.AN11)-0x7B6)*30000)/4096; //110mv/A
+    adc_values.mA_motor_current = ((((int32_t)adc_values.AN11)-adc_values.motor_current_offset)*30000)/4096; //110mv/A
 
     adc_values.mW_5V5_out = (adc_values.mV_5V5_out*adc_values.mA_5V5_out)/1000;
     adc_values.mW_motor_power = (adc_values.mA_motor_current*((int32_t)adc_values.mV_motor_voltage))/1000;
@@ -160,18 +178,24 @@ void adc_update() {
     power3_adc_state_mW_motor_power = adc_values.mW_motor_power;
     power3_adc_state_mV_motor_voltage = adc_values.mV_motor_voltage;
 
-    if ((adc_values.AN7) > 0x0960) { //TODO use above value
+    if ((adc_values.mV_main_battery) > 21000) { 
         VBAT_5V5_EN = ON;
         EN_BACKUP_5V5 = OFF;
         EN_VBAT_5V5 = ON;
-//        //Enable Motor Output
-//        KILLSWITCH_uC = ON;
     } else {
         EN_BACKUP_5V5 = ON;
         EN_VBAT_5V5 = OFF;
         VBAT_5V5_EN = OFF;
-//        //Diables Motor Output
-//        KILLSWITCH_uC = OFF;
+    }
+
+    //Motor power
+    //TODO: enable/disable over CAN
+    //if(((adc_values.AN7) > 0x0960)  && nrf24l01_state.rf_killswitch_state){
+    if(((adc_values.mV_main_battery) > 21000) &&
+        nrf24l01_state.rf_killswitch_state){
+        KILLSWITCH_uC = ON;
+    } else {
+        KILLSWITCH_uC = OFF; //REMOVE
     }
 }
 

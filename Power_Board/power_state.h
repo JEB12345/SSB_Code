@@ -50,6 +50,8 @@ typedef struct {
     uint16_t                AN12;   //actual motor voltage
     uint16_t                AN13;   //5V5 current
 
+    //filtered values (copied to CANOpen object dictionary)
+    //TODO: implement filtering
     uint32_t                mV_5V5_out;
     uint32_t                mA_5V5_out;
     uint32_t                mW_5V5_out;
@@ -59,6 +61,9 @@ typedef struct {
     uint32_t                mV_motor_voltage;
     int32_t                 mW_motor_power;
 
+    //internal variables
+    uint32_t                motor_current_offset;  //offset for bipolar mA_motor_current value
+    
     uint8_t                 timer_trip;
 }analog_data;
 
