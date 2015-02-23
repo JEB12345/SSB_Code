@@ -43,10 +43,27 @@ typedef struct {
 
 // ADC data Struct for buffer
 typedef struct {
-    uint16_t                AN6;
-    uint16_t                AN7;
-    uint16_t                AN8;
-    uint16_t                AN11;
+    uint16_t                AN6;    //5V5 line
+    uint16_t                AN7;    //main battery voltage
+    uint16_t                AN8;    //backup battery voltage
+    uint16_t                AN11;   //motor current
+    uint16_t                AN12;   //actual motor voltage
+    uint16_t                AN13;   //5V5 current
+
+    //filtered values (copied to CANOpen object dictionary)
+    //TODO: implement filtering
+    uint32_t                mV_5V5_out;
+    uint32_t                mA_5V5_out;
+    uint32_t                mW_5V5_out;
+    uint32_t                mV_main_battery;
+    uint32_t                mV_vbackup_battery;
+    int32_t                 mA_motor_current;
+    uint32_t                mV_motor_voltage;
+    int32_t                 mW_motor_power;
+
+    //internal variables
+    uint32_t                motor_current_offset;  //offset for bipolar mA_motor_current value
+    
     uint8_t                 timer_trip;
 }analog_data;
 

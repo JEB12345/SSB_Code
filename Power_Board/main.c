@@ -5,7 +5,6 @@
  * Created on March 20, 2014, 1:20 PM
  */
 
-//#include "clock.h"
 #include "power_clock.h"
 #include "power_pindef.h"
 #include "power_led.h"
@@ -13,27 +12,17 @@
 #include "power_enable_pins.h"
 #include "power_timers.h"
 #include "power_adc.h"
-#include "power_uart.h"
 #include "power_can.h"
-//#include "power_spi.h"
-//#include "superball_communication.h"
-#include "power_objdict.h"
-//#include "nRF24L01/src/nrf24l01.h"
+#ifdef ID_3
+#include "power_objdict_3.h"
+#else
+#include "power_objdict_73.h"
+#endif
 #include "power_nrf24l01.h"
 #include "power_buzzer.h"
 #include "power_i2c.h"
 #include "power_temperature.h"
 #include <p33Exxxx.h>
-
-/*******************************************
- * This switches the board between receiver(default) or transmitter
- * for the nRF device: #define TRANSMITTER
- ******************************************/
-//DEFINED IN CONFIGURATION
-
-//TODO:
-//  temperature sensor
-//  current sensor
 
 extern timer_data timer_state;
 extern analog_data adc_values;
@@ -41,22 +30,22 @@ extern can_data can_state;
 extern system_data system_state;
 extern nrf24l01_data nrf24l01_state;
 
-/*
- * 
- */
-//#define IS_KILLSWITCH
 #ifndef IS_KILLSWITCH
 int main (int argc, char** argv)
 {
   state_init();
-  system_state.system_id = 0x03;//TODO: get this from the bootloader
+#ifdef ID_3
+  system_state.system_id = 0x03;
+#else
+  system_state.system_id = 0x73;
+#endif
   
   // Init Function Calls
   clock_init ();
   pin_init ();
   enable_pins_init ();
   //5V5 Output Control Pins (make sure the BBB doesn't reboot)
-  EN_OUT_1 = 1;
+  EN_OUT_1 = 1; //Default outputs
   EN_OUT_2 = 1;
   EN_OUT_3 = 0;
   EN_OUT_4 = 0;
@@ -64,7 +53,6 @@ int main (int argc, char** argv)
   buzzer_init();
   buzzer_set_frequency(TONE_A_7);
   init_adc ();
-  uart_init ();
   led_init ();
   buzzer_set_frequency(TONE_A_6);
   nrf24l01_init();
@@ -76,9 +64,6 @@ int main (int argc, char** argv)
   // Parameter Initalziations for timer, UART
   timer_state.prev_systime = 0;
   timer_state.systime = 0;
-  
-  unsigned char testTXpayload[1];
-  unsigned char testRXpayload[1];
 
   uint16_t buzzer_init = 1; //used to turn the buzzer off after initialization
 
@@ -89,9 +74,10 @@ int main (int argc, char** argv)
   // This prevents the while loop in the can_init() from stalling.
 
   can_state.init_return = RET_UNKNOWN;
-  if (can_init ())
-    {
-      while (1);
+  if (can_init()) {
+        while (1) {
+            buzzer_set_frequency(TONE_A_8);
+        }
     }
   buzzer_set_frequency(TONE_A_4);
 
@@ -102,7 +88,8 @@ int main (int argc, char** argv)
       if (timer_state.systime != timer_state.prev_systime)
         {
           timer_state.prev_systime = timer_state.systime;
-
+          asm("CLRWDT"); //clear watchdog timer
+          
           //buzzer stuff
           if(timer_state.systime==250 && buzzer_init){
               buzzer_set_frequency(0);//turn buzzer off
@@ -125,8 +112,6 @@ int main (int argc, char** argv)
               buzzer_set_frequency(TONE_B_8);
           }
 
-//          uart_update(); //this can be removed
-
           if(timer_state.systime%123==0){
               temperature_update();
           }
@@ -135,6 +120,8 @@ int main (int argc, char** argv)
            * This loop processes all CAN and CANFestival code
            */
           can_update();
+
+          adc_update_state();
 
           //kill switch PIC watchdog
           uC_KS_1 = !uC_KS_1;
@@ -146,18 +133,7 @@ int main (int argc, char** argv)
            * Software controlled switching between VBAT_5V5 and VBACKUP_5V5
            *
            ******************************************************************/
-          adc_update();         
-
-          /*******************************************************************
-           * Software controlled Killswitch for power switch
-           *
-           * why? -> Because the PMOS does not turn off VBAT_5V5 when the main
-           * power switch is flipped off. This is not ideal and will not always
-           * cut power to board when VBAT_5V5 is main power source.
-           ******************************************************************/
-          //			if (adc_values.AN8 < 0x0800) {
-          //				VBAT_5V5_EN = OFF;
-          //			}
+          adc_update_output();
 
           /*****************************************************************
            *
@@ -169,17 +145,7 @@ int main (int argc, char** argv)
           } else {
               VBACKUP_CHARGER_ENABLE;
           }
-
-          //Motor power
-          //TODO: enable/disable over CAN
-          if(((adc_values.AN7) > 0x0960) && nrf24l01_state.rf_killswitch_state){
-          //if(nrf24l01_state.rf_killswitch_state){
-              KILLSWITCH_uC = ON;
-          } else {
-              KILLSWITCH_uC = OFF; //REMOVE
-          }
           
-
           //LEDs
           if(VMOTOR_EN){
               LED_R = 1;
@@ -313,11 +279,6 @@ int main (int argc, char** argv)
                     }
                     break;
                 case KILL_ALL_ON:
-//                    if (timer_state.systime % 10000 == 0) {
-//                        buzzer_set_frequency(TONE_C_4);
-//                    } else if (timer_state.systime % 10000 == 100) {
-//                        buzzer_set_frequency(0);
-//                    }
                     if (timer_state.systime % 10 == 0){
                         buzzer_set_frequency(0);
                     }
@@ -326,6 +287,8 @@ int main (int argc, char** argv)
                   break;
           };
 
+          adc_update_state();
+
         }
       else { //Everything else that needs to run faster than 1ms goes in the else statement
 
@@ -333,7 +296,7 @@ int main (int argc, char** argv)
            * Software controlled switching between VBAT_5V5 and VBACKUP_5V5
            *
            ******************************************************************/
-          //adc_update();
+          adc_update_output();
           KILLSWITCH_uC = 1;
           if(EN_BACKUP_5V5){
               VBACKUP_CHARGER_DISABLE;
