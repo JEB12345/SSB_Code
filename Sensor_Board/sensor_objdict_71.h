@@ -4,7 +4,7 @@
 #ifndef SENSOR_OBJDICT_71_H
 #define SENSOR_OBJDICT_71_H
 
-#include "data.h"
+#include "../libs/dspic_CanFestival/CanFestival-3/include/data.h"
 
 /* Prototypes of function provided by object dictionnary */
 UNS32 Sensor_Board_valueRangeTest (UNS8 typeValue, void * value);
