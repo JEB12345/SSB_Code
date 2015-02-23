@@ -15,6 +15,11 @@ INTEGER32 power73_adc_state_mA_motor_current = 0x0;		/* Mapped at index 0x2030, 
 UNS32 power73_adc_state_mV_motor_voltage = 0x0;		/* Mapped at index 0x2030, subindex 0x07 */
 INTEGER32 power73_adc_state_mW_motor_power = 0x0;		/* Mapped at index 0x2030, subindex 0x08 */
 INTEGER8 power73_adc_state_C_temp = 0x0;		/* Mapped at index 0x2030, subindex 0x09 */
+UNS8 power73_power_switches_24_killswitch = 0x0;		/* Mapped at index 0x2031, subindex 0x01 */
+UNS8 power73_power_switches_5V5_Out_1 = 0x0;		/* Mapped at index 0x2031, subindex 0x02 */
+UNS8 power73_power_switches_5V5_Out_2 = 0x0;		/* Mapped at index 0x2031, subindex 0x03 */
+UNS8 power73_power_switches_5V5_Out_3 = 0x0;		/* Mapped at index 0x2031, subindex 0x04 */
+UNS8 power73_power_switches_5V5_Out_4 = 0x0;		/* Mapped at index 0x2031, subindex 0x05 */
 
 /**************************************************************************/
 /* Declaration of value range types                                       */
@@ -399,7 +404,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x1800 :   Transmit PDO 1 Parameter. */
                     UNS8 Power_Board_highestSubIndex_obj1800 = 6; /* number of subindex - 1*/
-                    UNS32 Power_Board_obj1800_COB_ID_used_by_PDO = 0x201;	/* 513 */
+                    UNS32 Power_Board_obj1800_COB_ID_used_by_PDO = 0x301;	/* 769 */
                     UNS8 Power_Board_obj1800_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Power_Board_obj1800_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Power_Board_obj1800_Compatibility_Entry = 0x0;	/* 0 */
@@ -428,11 +433,11 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x1801 :   Transmit PDO 2 Parameter. */
                     UNS8 Power_Board_highestSubIndex_obj1801 = 6; /* number of subindex - 1*/
-                    UNS32 Power_Board_obj1801_COB_ID_used_by_PDO = 0x202;	/* 514 */
+                    UNS32 Power_Board_obj1801_COB_ID_used_by_PDO = 0x302;	/* 770 */
                     UNS8 Power_Board_obj1801_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Power_Board_obj1801_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Power_Board_obj1801_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Power_Board_obj1801_Event_Timer = 0x3E8;	/* 1000 */
+                    UNS16 Power_Board_obj1801_Event_Timer = 0x64;	/* 100 */
                     UNS8 Power_Board_obj1801_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Power_Board_Index1801_callbacks[] = 
                      {
@@ -457,11 +462,11 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x1802 :   Transmit PDO 3 Parameter. */
                     UNS8 Power_Board_highestSubIndex_obj1802 = 6; /* number of subindex - 1*/
-                    UNS32 Power_Board_obj1802_COB_ID_used_by_PDO = 0x203;	/* 515 */
-                    UNS8 Power_Board_obj1802_Transmission_Type = 0x0;	/* 0 */
+                    UNS32 Power_Board_obj1802_COB_ID_used_by_PDO = 0x303;	/* 771 */
+                    UNS8 Power_Board_obj1802_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Power_Board_obj1802_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Power_Board_obj1802_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Power_Board_obj1802_Event_Timer = 0x0;	/* 0 */
+                    UNS16 Power_Board_obj1802_Event_Timer = 0x3E8;	/* 1000 */
                     UNS8 Power_Board_obj1802_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Power_Board_Index1802_callbacks[] = 
                      {
@@ -486,11 +491,11 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x1803 :   Transmit PDO 4 Parameter. */
                     UNS8 Power_Board_highestSubIndex_obj1803 = 6; /* number of subindex - 1*/
-                    UNS32 Power_Board_obj1803_COB_ID_used_by_PDO = 0x480;	/* 1152 */
-                    UNS8 Power_Board_obj1803_Transmission_Type = 0x0;	/* 0 */
+                    UNS32 Power_Board_obj1803_COB_ID_used_by_PDO = 0x304;	/* 772 */
+                    UNS8 Power_Board_obj1803_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Power_Board_obj1803_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Power_Board_obj1803_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Power_Board_obj1803_Event_Timer = 0x0;	/* 0 */
+                    UNS16 Power_Board_obj1803_Event_Timer = 0x3E8;	/* 1000 */
                     UNS8 Power_Board_obj1803_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Power_Board_Index1803_callbacks[] = 
                      {
@@ -554,17 +559,14 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      };
 
 /* index 0x1A03 :   Transmit PDO 4 Mapping. */
-                    UNS8 Power_Board_highestSubIndex_obj1A03 = 8; /* number of subindex - 1*/
+                    UNS8 Power_Board_highestSubIndex_obj1A03 = 5; /* number of subindex - 1*/
                     UNS32 Power_Board_obj1A03[] = 
                     {
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0,	/* 0 */
-                      0x0	/* 0 */
+                      0x20310108,	/* 540082440 */
+                      0x20310208,	/* 540082696 */
+                      0x20310308,	/* 540082952 */
+                      0x20310408,	/* 540083208 */
+                      0x20310508	/* 540083464 */
                     };
                     subindex Power_Board_Index1A03[] = 
                      {
@@ -573,10 +575,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1A03[1] },
                        { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1A03[2] },
                        { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1A03[3] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1A03[4] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1A03[5] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1A03[6] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1A03[7] }
+                       { RW, uint32, sizeof (UNS32), (void*)&Power_Board_obj1A03[4] }
                      };
 
 /* index 0x2030 :   Mapped variable power73_adc_state */
@@ -593,6 +592,18 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, uint32, sizeof (UNS32), (void*)&power73_adc_state_mV_motor_voltage },
                        { RW, int32, sizeof (INTEGER32), (void*)&power73_adc_state_mW_motor_power },
                        { RW, int8, sizeof (INTEGER8), (void*)&power73_adc_state_C_temp }
+                     };
+
+/* index 0x2031 :   Mapped variable power73_power_switches */
+                    UNS8 Power_Board_highestSubIndex_obj2031 = 5; /* number of subindex - 1*/
+                    subindex Power_Board_Index2031[] = 
+                     {
+                       { RO, uint8, sizeof (UNS8), (void*)&Power_Board_highestSubIndex_obj2031 },
+                       { RW, uint8, sizeof (UNS8), (void*)&power73_power_switches_24_killswitch },
+                       { RW, uint8, sizeof (UNS8), (void*)&power73_power_switches_5V5_Out_1 },
+                       { RW, uint8, sizeof (UNS8), (void*)&power73_power_switches_5V5_Out_2 },
+                       { RW, uint8, sizeof (UNS8), (void*)&power73_power_switches_5V5_Out_3 },
+                       { RW, uint8, sizeof (UNS8), (void*)&power73_power_switches_5V5_Out_4 }
                      };
 
 /**************************************************************************/
@@ -630,6 +641,7 @@ const indextable Power_Board_objdict[] =
   { (subindex*)Power_Board_Index1A02,sizeof(Power_Board_Index1A02)/sizeof(Power_Board_Index1A02[0]), 0x1A02},
   { (subindex*)Power_Board_Index1A03,sizeof(Power_Board_Index1A03)/sizeof(Power_Board_Index1A03[0]), 0x1A03},
   { (subindex*)Power_Board_Index2030,sizeof(Power_Board_Index2030)/sizeof(Power_Board_Index2030[0]), 0x2030},
+  { (subindex*)Power_Board_Index2031,sizeof(Power_Board_Index2031)/sizeof(Power_Board_Index2031[0]), 0x2031},
 };
 
 const indextable * Power_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks)
@@ -666,6 +678,7 @@ const indextable * Power_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODC
 		case 0x1A02: i = 26;break;
 		case 0x1A03: i = 27;break;
 		case 0x2030: i = 28;break;
+		case 0x2031: i = 29;break;
 		default:
 			*errorCode = OD_NO_SUCH_OBJECT;
 			return NULL;
