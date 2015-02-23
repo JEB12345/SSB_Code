@@ -46,13 +46,13 @@ extern REAL32 sensor1_gyro_gyro_x_norm;		/* Mapped at index 0x2015, subindex 0x0
 extern REAL32 sensor1_gyro_gyro_y_norm;		/* Mapped at index 0x2015, subindex 0x02 */
 extern REAL32 sensor1_gyro_gyro_z_norm;		/* Mapped at index 0x2015, subindex 0x03 */
 extern UNS16 sensor1_gyro_gyro_x_raw;		/* Mapped at index 0x2015, subindex 0x04 */
-extern UNS16 sensor1_gyro_accel_y_raw;		/* Mapped at index 0x2015, subindex 0x05 */
-extern UNS16 sensor1_gyro_accel_z_raw;		/* Mapped at index 0x2015, subindex 0x06 */
+extern UNS16 sensor1_gyro_gyro_y_raw;		/* Mapped at index 0x2015, subindex 0x05 */
+extern UNS16 sensor1_gyro_gyro_z_raw;		/* Mapped at index 0x2015, subindex 0x06 */
 extern REAL32 sensor1_mag_mag_x_norm;		/* Mapped at index 0x2016, subindex 0x01 */
 extern REAL32 sensor1_mag_mag_y_norm;		/* Mapped at index 0x2016, subindex 0x02 */
 extern REAL32 sensor1_mag_mag_z_norm;		/* Mapped at index 0x2016, subindex 0x03 */
 extern UNS16 sensor1_mag_mag_x_raw;		/* Mapped at index 0x2016, subindex 0x04 */
-extern UNS16 sensor1_mag_mag_x_raw;		/* Mapped at index 0x2016, subindex 0x05 */
-extern UNS16 sensor1_mag_mag_x_raw;		/* Mapped at index 0x2016, subindex 0x06 */
+extern UNS16 sensor1_mag_mag_y_raw;		/* Mapped at index 0x2016, subindex 0x05 */
+extern UNS16 sensor1_mag_mag_z_raw;		/* Mapped at index 0x2016, subindex 0x06 */
 
 #endif // SENSOR_OBJDICT_1_H
