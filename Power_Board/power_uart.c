@@ -205,10 +205,7 @@ void uart_update() {
     volatile uint8_t* uart_rx_packet = 0;
     if (timer_state.systime % 100 == 0) {
         uart_tx_packet = uart_tx_cur_packet();
-        uart_tx_packet[3] = (Strain_Gauge1 >> 24)&0xFF;
-        uart_tx_packet[4] = (Strain_Gauge1 >> 16)&0xFF;
-        uart_tx_packet[5] = (Strain_Gauge1 >> 8)&0xFF;
-        uart_tx_packet[6] = (Strain_Gauge1)&0xFF;
+        
 
         uart_tx_packet[7] = 0x89;
 

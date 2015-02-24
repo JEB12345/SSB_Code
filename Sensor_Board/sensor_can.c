@@ -222,8 +222,8 @@ void can_time_dispatch()
 
 void can_push_state()
 {
-	Strain_Gauge1 = loadcell_bit_to_torque(loadcell_state.values[0],0);
-	Strain_Gauge2 = loadcell_state.values[1];
-	Strain_Gauge3 = loadcell_state.values[2];
-	Strain_Gauge4 = loadcell_state.values[3];
+	sensor1_strain_gauge_processed_Strain_Gauge_1P = loadcell_bit_to_torque(loadcell_state.values[0],0);
+	sensor1_strain_gauge_raw_Strain_Gauge_1R = loadcell_state.values[0];
+	sensor1_strain_gauge_raw_Strain_Gauge_2R = loadcell_state.values[1];
+	sensor1_strain_gauge_raw_Strain_Gauge_3R = loadcell_state.values[2];
 }
