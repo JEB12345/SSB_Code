@@ -1,12 +1,14 @@
 #include "clock.h"
 #include "p33Exxxx.h"
 
-//_FOSCSEL(FNOSC_FRC & IESO_OFF); //PWMLOCK_OFF needed to configure PWM on MC variant
-////_FOSCSEL( */
-//_FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_NONE);
-//_FWDT(FWDTEN_OFF);
-///* Disable JTAG */
-//_FICD(JTAGEN_OFF & ICS_PGD2);
+#ifdef NO_BOOTLOADER
+_FOSCSEL(FNOSC_FRC & IESO_OFF); //PWMLOCK_OFF needed to configure PWM on MC variant
+//_FOSCSEL( */
+_FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_NONE);
+_FWDT(FWDTEN_OFF);
+/* Disable JTAG */
+_FICD(JTAGEN_OFF & ICS_PGD2);
+#endif
 
 clock_data clock_state;
 

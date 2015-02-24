@@ -13,13 +13,9 @@
 #include "sensor_loadcell.h"
 #include "sensor_pindefs.h"
 #include "sensor_state.h"
-#include "sensor_memdebug.h"
 #include "sensor_uart.h"
-#include "Uart2.h"
 #include "sensor_timers.h"
-#include "sensor_memdebug.h"
 #include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
-#include "motor_control.h"
 #include "packing.h"
 
 /**
@@ -37,12 +33,13 @@
 extern system_data system_state;
 extern timer_data timer_state;
 extern loadcell_data loadcell_state;
-extern imu_data imu_state;
+//extern imu_data imu_state;
 extern can_data can_state;
 extern uint8_t txreq_bitarray;
 
 MPU6050_Data mpuData;
 MAG3110_Data magData;
+//imu_data imu_state;
 IMU_Data imuData;
 float quaterion[4] = {0, 0, 0, 0};
 float ypr[3] = {0, 0, 0};
@@ -89,7 +86,6 @@ main (int argc, char** argv)
   loadcell_init ();
   loadcell_start ();
 
-//  IMU_Init (400000, 70000000);
 
   led_rgb_off ();
   led_rgb_set (50, 0, 100);
@@ -104,7 +100,15 @@ main (int argc, char** argv)
   timer_state.systime = 0;
 
   // Start Reading the int pin on IMU
-  mpuData.startData = 1;
+ // imu_state.init_return = RET_UNKNOWN;
+  mpuData.startData = 0;
+
+    if (IMU_Init(400000, 70000000) == 0) {
+       // imu_state.init_return = RET_OK;
+        mpuData.startData = 1;
+    } else {
+        //imu_state.init_return = RET_ERROR;
+    }
 
   for (;;)
     {
@@ -116,7 +120,6 @@ main (int argc, char** argv)
           //useful for checking state consistency, synchronization, watchdog...
 
           led_update ();
-
           if (timer_state.systime % 10 == 1)
             {
               IMU_GetQuaternion (quaterion);
@@ -125,11 +128,15 @@ main (int argc, char** argv)
 
           if (timer_state.systime % 5 == 1)
             {
+              IMU_normalizeData(mpuData, magData, &imuData);
               // Run AHRS algorithm
-              IMU_UpdateAHRS (&imuData);
+              //IMU_UpdateAHRS (&imuData);
 
-              //				// Run IMU algorithm (does not use MAG data)
-              //				IMU_UpdateIMU(&imuData);
+              // Run IMU algorithm (does not use MAG data)
+              IMU_UpdateIMU(&imuData);
+
+              //copy state to CAN dictionary
+              IMU_CopyOutput(&imuData, &mpuData, &magData);
             }
 
           /**
@@ -138,14 +145,6 @@ main (int argc, char** argv)
           if (can_state.init_return == RET_OK)
             {
               can_process ();
-
-              /**
-               * Motor Position Testing Loop
-               */
-              if (timer_state.systime % 1000 == 0)
-                {
-                  LED_4 = !LED_4;
-                }
 
               /**
                * Sets CANFestival shared variables
@@ -206,73 +205,21 @@ main (int argc, char** argv)
            */
           if (timer_state.systime % 25 == 0)
             {
-              //				LED_4 = !LED_4;
-              LED_1 = !LED_1;
+//              LED_1 = !LED_1;
             }
 
-          /**
-           * Tension Controller Loop
-           */
-          if (timer_state.systime % 10 == 0)
-            {
-		  uint32_t desiredTorque = 1500;
-//              Target_Tension = impedance_controller (Position_actual_value, Velocity_actual_value);
-//		  Target_Position = (desiredTorque - loadcell_bit_to_torque(loadcell_state.values[0],0));
-            }
 
-          /**
-           * UART Message Loop
-           */
-          if (timer_state.systime % 10 == 0)
-            {
-//              uint8_t numChar;
-//              uint8_t uart2Data[100];
-//              uart_tx_packet = uart_tx_cur_packet ();
-//              //				numChar = sprintf(uart2Data, "%f, %f, %f, %f, %f, %f, %f, %f, %f\n",
-//              //					imuData.accelX, imuData.accelY, imuData.accelZ, imuData.gyroX, imuData.gyroY, imuData.gyroZ, imuData.magX, imuData.magY, imuData.magZ);
-//              //				numChar = sprintf(uart2Data, "%f,%f,%f\n",
-//              //					ypr[0], ypr[1], ypr[2]);
-//              //				numChar = sprintf(uart2Data, "%f,%f,%f,%f\n",
-//              //					quaterion[0], quaterion[1], quaterion[2], quaterion[3]);
-//              QuaternionToString (quaterion, uart2Data);
-//
-//              Uart2WriteData (uart2Data, numChar);
-//              Uart2WriteData (uart2Data, 37);
-              //
-
-		  int32_t torque = loadcell_bit_to_torque(loadcell_state.values[0],0);
-              uart_tx_packet = uart_tx_cur_packet ();
-              uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
-              uart_tx_packet[1] = 0xFF; //CMD
-              uart_tx_packet[2] = 14;
-//              uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
-//              uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
-//              uart_tx_packet[5] = (loadcell_state.values[0]) & 0xFF;
-	      uart_tx_packet[3] = (torque >> 24)&0xFF;
-	      uart_tx_packet[4] = (torque >> 16)&0xFF;
-              uart_tx_packet[5] = (torque >> 8)&0xFF;
-              uart_tx_packet[6] = (torque) & 0xFF;
-              uart_tx_packet[7] = 0x01;
-//              uart_tx_packet[7] = 0x89; // same as " "
-	      uart_tx_packet[8] = (loadcell_state.values[0]>>24)&0xFF;
-              uart_tx_packet[9] = (loadcell_state.values[0]>>16)&0xFF;
-//              uart_tx_packet[8] = 0xFF;
-              uart_tx_packet[10] = (loadcell_state.values[0]>>8)&0xFF;
-//              uart_tx_packet[9] = 0xFF;
-              uart_tx_packet[11] = loadcell_state.values[0]&0xFF;
-//              uart_tx_packet[10] = 0xFF;
-              uart_tx_packet[12] = 0x02;
-              uart_tx_packet[13] = 0x8b; // same as "\n"
-              uart_tx_compute_cks (uart_tx_packet);
-              uart_tx_update_index ();
-              uart_tx_start_transmit ();
-            }
         }
       else
         {
           //untimed processes in main loop:
           //executed as fast as possible
           //these processes should NOT block the main loop
+          LED_4 = mpuData.accelX>0;
+                  LED_3 = mpuData.accelY>0;
+                  LED_1 = mpuData.accelZ>0;
+
+          IMU_CopyI2CData(&mpuData, &magData);
 
           if (!T1CONbits.TON)
             {
@@ -317,10 +264,10 @@ _CNInterrupt(void)
 	if (mpuData.startData == 1) {
 		if (PORTFbits.RF0 == 1) {
 			// Gets the IMU data after the INT pin has been triggered
-			IMU_GetData(&mpuData, &magData);
+			IMU_GetData();//(&mpuData, &magData);
 
-			// Data normilization
-			IMU_normalizeData(mpuData, magData, &imuData);
+			// Data normalization
+//			IMU_normalizeData(mpuData, magData, &imuData);
 		}
 	}
 	IFS1bits.CNIF = 0; // Clear the interrupt flag
