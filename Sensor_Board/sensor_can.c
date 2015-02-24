@@ -6,7 +6,11 @@
 
 #include "sensor_can.h"
 #include "sensor_pindefs.h"
-#include "sensor_objdict.h"
+#ifdef CONF71
+#include "sensor_objdict_71.h"
+#else
+#include "sensor_objdict_1.h"
+#endif
 #include "sensor_uart.h"
 #include "sensor_loadcell.h"
 
@@ -222,8 +226,8 @@ void can_time_dispatch()
 
 void can_push_state()
 {
-	Strain_Gauge1 = loadcell_bit_to_torque(loadcell_state.values[0],0);
-	Strain_Gauge2 = loadcell_state.values[1];
-	Strain_Gauge3 = loadcell_state.values[2];
-	Strain_Gauge4 = loadcell_state.values[3];
+	sensor1_strain_gauge_processed_Strain_Gauge_1P = loadcell_bit_to_torque(loadcell_state.values[0],0);
+	sensor1_strain_gauge_processed_Strain_Gauge_2P = loadcell_state.values[1];
+	sensor1_strain_gauge_processed_Strain_Gauge_3P = loadcell_state.values[2];
+	sensor1_strain_gauge_processed_Strain_Gauge_4P = loadcell_state.values[3];
 }

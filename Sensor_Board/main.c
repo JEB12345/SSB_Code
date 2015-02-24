@@ -13,13 +13,9 @@
 #include "sensor_loadcell.h"
 #include "sensor_pindefs.h"
 #include "sensor_state.h"
-#include "sensor_memdebug.h"
 #include "sensor_uart.h"
-#include "Uart2.h"
 #include "sensor_timers.h"
-#include "sensor_memdebug.h"
 #include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
-#include "motor_control.h"
 #include "packing.h"
 
 /**
@@ -37,12 +33,13 @@
 extern system_data system_state;
 extern timer_data timer_state;
 extern loadcell_data loadcell_state;
-extern imu_data imu_state;
+//extern imu_data imu_state;
 extern can_data can_state;
 extern uint8_t txreq_bitarray;
 
 MPU6050_Data mpuData;
 MAG3110_Data magData;
+//imu_data imu_state;
 IMU_Data imuData;
 float quaterion[4] = {0, 0, 0, 0};
 float ypr[3] = {0, 0, 0};
@@ -89,7 +86,6 @@ main (int argc, char** argv)
   loadcell_init ();
   loadcell_start ();
 
-//  IMU_Init (400000, 70000000);
 
   led_rgb_off ();
   led_rgb_set (50, 0, 100);
@@ -104,7 +100,15 @@ main (int argc, char** argv)
   timer_state.systime = 0;
 
   // Start Reading the int pin on IMU
-  mpuData.startData = 1;
+ // imu_state.init_return = RET_UNKNOWN;
+  mpuData.startData = 0;
+
+    if (IMU_Init(400000, 70000000) == 0) {
+       // imu_state.init_return = RET_OK;
+        mpuData.startData = 1;
+    } else {
+        //imu_state.init_return = RET_ERROR;
+    }
 
   for (;;)
     {
@@ -116,6 +120,7 @@ main (int argc, char** argv)
           //useful for checking state consistency, synchronization, watchdog...
 
           led_update ();
+//          IMU_GetData(&mpuData, &magData);
 
           if (timer_state.systime % 10 == 1)
             {
@@ -125,11 +130,12 @@ main (int argc, char** argv)
 
           if (timer_state.systime % 5 == 1)
             {
+              IMU_normalizeData(mpuData, magData, &imuData);
               // Run AHRS algorithm
-              IMU_UpdateAHRS (&imuData);
+              //IMU_UpdateAHRS (&imuData);
 
-              //				// Run IMU algorithm (does not use MAG data)
-              //				IMU_UpdateIMU(&imuData);
+              // Run IMU algorithm (does not use MAG data)
+              IMU_UpdateIMU(&imuData);
             }
 
           /**
@@ -319,8 +325,8 @@ _CNInterrupt(void)
 			// Gets the IMU data after the INT pin has been triggered
 			IMU_GetData(&mpuData, &magData);
 
-			// Data normilization
-			IMU_normalizeData(mpuData, magData, &imuData);
+			// Data normalization
+//			IMU_normalizeData(mpuData, magData, &imuData);
 		}
 	}
 	IFS1bits.CNIF = 0; // Clear the interrupt flag
