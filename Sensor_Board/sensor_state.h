@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include "superball_circularbuffer.h"
 
-//#define bool uint8_t
+#define bool uint8_t
 
     typedef enum
         {
