@@ -8,6 +8,14 @@
 #ifndef POWER_CAN_H
 #define	POWER_CAN_H
 #include "power_state.h"
+#ifdef CONF73
+#include "power_objdict_73.h"
+#define CO(_X) power73_ ## _X
+#else
+#include "power_objdict_3.h"
+#define CO(_X) power3_ ## _X
+#endif
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
