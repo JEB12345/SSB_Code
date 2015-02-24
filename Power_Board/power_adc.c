@@ -10,10 +10,10 @@
 #include "power_pindef.h"
 #include "power_state.h"
 #include "us_delay.h"
-#ifdef ID_3
-#include "power_objdict_3.h"
-#else
+#ifdef CONF73
 #include "power_objdict_73.h"
+#else
+#include "power_objdict_3.h"
 #endif
 
 //__eds__ uint16_t BufferA[8] __attribute__((eds,aligned(64)));

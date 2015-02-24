@@ -26,10 +26,10 @@ REAL32 sensor1_ahrs_quaternion_Quaternion_ahrs_1 = 0.000000;		/* Mapped at index
 REAL32 sensor1_ahrs_quaternion_Quaternion_ahrs_2 = 0.000000;		/* Mapped at index 0x2012, subindex 0x02 */
 REAL32 sensor1_ahrs_quaternion_Quaternion_ahrs_3 = 0.000000;		/* Mapped at index 0x2012, subindex 0x03 */
 REAL32 sensor1_ahrs_quaternion_Quaternion_ahrs_4 = 0.000000;		/* Mapped at index 0x2012, subindex 0x04 */
-UNS8 sensor1_imu_quaternion_Quaternion_imu_1 = 0x0;		/* Mapped at index 0x2013, subindex 0x01 */
-UNS8 sensor1_imu_quaternion_Quaternion_imu_2 = 0x0;		/* Mapped at index 0x2013, subindex 0x02 */
-UNS8 sensor1_imu_quaternion_Quaternion_imu_3 = 0x0;		/* Mapped at index 0x2013, subindex 0x03 */
-UNS8 sensor1_imu_quaternion_Quaternion_imu_4 = 0x0;		/* Mapped at index 0x2013, subindex 0x04 */
+REAL32 sensor1_imu_quaternion_Quaternion_imu_1 = 0.000000;		/* Mapped at index 0x2013, subindex 0x01 */
+REAL32 sensor1_imu_quaternion_Quaternion_imu_2 = 0.000000;		/* Mapped at index 0x2013, subindex 0x02 */
+REAL32 sensor1_imu_quaternion_Quaternion_imu_3 = 0.000000;		/* Mapped at index 0x2013, subindex 0x03 */
+REAL32 sensor1_imu_quaternion_Quaternion_imu_4 = 0.000000;		/* Mapped at index 0x2013, subindex 0x04 */
 REAL32 Sensor1_accel_accel_x_norm = 0.000000;		/* Mapped at index 0x2014, subindex 0x01 */
 REAL32 Sensor1_accel_accel_y_norm = 0.000000;		/* Mapped at index 0x2014, subindex 0x02 */
 REAL32 Sensor1_accel_accel_z_norm = 0.000000;		/* Mapped at index 0x2014, subindex 0x03 */
@@ -1066,10 +1066,10 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     subindex Sensor_Board_Index2013[] = 
                      {
                        { RO, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj2013 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor1_imu_quaternion_Quaternion_imu_1 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor1_imu_quaternion_Quaternion_imu_2 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor1_imu_quaternion_Quaternion_imu_3 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor1_imu_quaternion_Quaternion_imu_4 }
+                       { RW, real32, sizeof (REAL32), (void*)&sensor1_imu_quaternion_Quaternion_imu_1 },
+                       { RW, real32, sizeof (REAL32), (void*)&sensor1_imu_quaternion_Quaternion_imu_2 },
+                       { RW, real32, sizeof (REAL32), (void*)&sensor1_imu_quaternion_Quaternion_imu_3 },
+                       { RW, real32, sizeof (REAL32), (void*)&sensor1_imu_quaternion_Quaternion_imu_4 }
                      };
 
 /* index 0x2014 :   Mapped variable Sensor1_accel */
