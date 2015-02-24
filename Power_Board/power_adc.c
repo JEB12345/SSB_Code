@@ -10,11 +10,7 @@
 #include "power_pindef.h"
 #include "power_state.h"
 #include "us_delay.h"
-#ifdef CONF73
-#include "power_objdict_73.h"
-#else
-#include "power_objdict_3.h"
-#endif
+#include "power_can.h"
 
 //__eds__ uint16_t BufferA[8] __attribute__((eds,aligned(64)));
 //__eds__ uint16_t BufferB[8] __attribute__((eds,aligned(64)));
@@ -169,14 +165,14 @@ void adc_update_output() {
     adc_values.mW_motor_power = (adc_values.mA_motor_current*((int32_t)adc_values.mV_motor_voltage))/1000;
 
     //copy to object dictionary
-    power3_adc_state_mV_5V5_out = adc_values.mV_5V5_out;
-    power3_adc_state_mA_5V5_out = adc_values.mA_5V5_out;
-    power3_adc_state_mW_5V5_out = adc_values.mW_5V5_out;
-    power3_adc_state_mV_vbackup_battery = adc_values.mV_vbackup_battery;
-    power3_adc_state_mV_main_battery = adc_values.mV_main_battery;
-    power3_adc_state_mA_motor_current = adc_values.mA_motor_current;
-    power3_adc_state_mW_motor_power = adc_values.mW_motor_power;
-    power3_adc_state_mV_motor_voltage = adc_values.mV_motor_voltage;
+    CO(adc_state_mV_5V5_out) = adc_values.mV_5V5_out;
+    CO(adc_state_mA_5V5_out) = adc_values.mA_5V5_out;
+    CO(adc_state_mW_5V5_out) = adc_values.mW_5V5_out;
+    CO(adc_state_mV_vbackup_battery) = adc_values.mV_vbackup_battery;
+    CO(adc_state_mV_main_battery) = adc_values.mV_main_battery;
+    CO(adc_state_mA_motor_current) = adc_values.mA_motor_current;
+    CO(adc_state_mW_motor_power) = adc_values.mW_motor_power;
+    CO(adc_state_mV_motor_voltage) = adc_values.mV_motor_voltage;
 
     if ((adc_values.mV_main_battery) > 21000) { 
         VBAT_5V5_EN = ON;
