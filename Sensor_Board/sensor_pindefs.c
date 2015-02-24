@@ -73,11 +73,11 @@ pin_init ()
   CNPUEbits.CNPUE14 = 1; // XBEE_nATTN pull up
 
   //LEDs
-//  TRISGbits.TRISG6 = 0;
-//  _RP118R = 0;
-//  TRISGbits.TRISG8 = 0;
-//  _RP120R = 0;
-//  TRISAbits.TRISA0 = 0;
+  TRISGbits.TRISG6 = 0;
+  _RP118R = 0;
+  TRISGbits.TRISG8 = 0;
+  _RP120R = 0;
+  TRISAbits.TRISA0 = 0;
   TRISDbits.TRISD6 = 0;
   TRISDbits.TRISD5 = 0;
   TRISCbits.TRISC13 = 0;

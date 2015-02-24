@@ -226,8 +226,22 @@ void can_time_dispatch()
 
 void can_push_state()
 {
-	sensor1_strain_gauge_processed_Strain_Gauge_1P = loadcell_bit_to_torque(loadcell_state.values[0],0);
-	sensor1_strain_gauge_processed_Strain_Gauge_2P = loadcell_state.values[1];
-	sensor1_strain_gauge_processed_Strain_Gauge_3P = loadcell_state.values[2];
-	sensor1_strain_gauge_processed_Strain_Gauge_4P = loadcell_state.values[3];
+	CO(strain_gauge_processed_Strain_Gauge_1P) = loadcell_bit_to_torque(loadcell_state.values[0],0);
+	CO(strain_gauge_processed_Strain_Gauge_2P) = loadcell_state.values[1];
+	CO(strain_gauge_processed_Strain_Gauge_3P) = loadcell_state.values[2];
+	CO(strain_gauge_processed_Strain_Gauge_4P) = loadcell_state.values[3];
+        CO(strain_gauge_processed_Strain_Gauge_5P) = loadcell_state.values[4];
+	CO(strain_gauge_processed_Strain_Gauge_6P) = loadcell_state.values[5];
+	CO(strain_gauge_processed_Strain_Gauge_7P) = loadcell_state.values[6];
+        CO(strain_gauge_processed_Strain_Gauge_8P) = loadcell_state.values[7];
+
+	CO(strain_gauge_raw_Strain_Gauge_1R) = loadcell_state.values[0];
+	CO(strain_gauge_raw_Strain_Gauge_2R) = loadcell_state.values[1];
+	CO(strain_gauge_raw_Strain_Gauge_3R) = loadcell_state.values[2];
+        CO(strain_gauge_raw_Strain_Gauge_4R) = loadcell_state.values[3];
+	CO(strain_gauge_raw_Strain_Gauge_5R) = loadcell_state.values[4];
+	CO(strain_gauge_raw_Strain_Gauge_6R) = loadcell_state.values[5];
+        CO(strain_gauge_raw_Strain_Gauge_7R) = loadcell_state.values[6];
+	CO(strain_gauge_raw_Strain_Gauge_8R) = loadcell_state.values[7];
+
 }

@@ -30,12 +30,12 @@ REAL32 sensor71_imu_quaternion_Quaternion_imu_1 = 0.000000;		/* Mapped at index 
 REAL32 sensor71_imu_quaternion_Quaternion_imu_2 = 0.000000;		/* Mapped at index 0x2013, subindex 0x02 */
 REAL32 sensor71_imu_quaternion_Quaternion_imu_3 = 0.000000;		/* Mapped at index 0x2013, subindex 0x03 */
 REAL32 sensor71_imu_quaternion_Quaternion_imu_4 = 0.000000;		/* Mapped at index 0x2013, subindex 0x04 */
-REAL32 Sensor71_accel_accel_x_norm = 0.000000;		/* Mapped at index 0x2014, subindex 0x01 */
-REAL32 Sensor71_accel_accel_y_norm = 0.000000;		/* Mapped at index 0x2014, subindex 0x02 */
-REAL32 Sensor71_accel_accel_z_norm = 0.000000;		/* Mapped at index 0x2014, subindex 0x03 */
-UNS16 Sensor71_accel_accel_x_raw = 0x0;		/* Mapped at index 0x2014, subindex 0x04 */
-UNS16 Sensor71_accel_accel_y_raw = 0x0;		/* Mapped at index 0x2014, subindex 0x05 */
-UNS16 Sensor71_accel_accel_z_raw = 0x0;		/* Mapped at index 0x2014, subindex 0x06 */
+REAL32 sensor71_accel_accel_x_norm = 0.000000;		/* Mapped at index 0x2014, subindex 0x01 */
+REAL32 sensor71_accel_accel_y_norm = 0.000000;		/* Mapped at index 0x2014, subindex 0x02 */
+REAL32 sensor71_accel_accel_z_norm = 0.000000;		/* Mapped at index 0x2014, subindex 0x03 */
+UNS16 sensor71_accel_accel_x_raw = 0x0;		/* Mapped at index 0x2014, subindex 0x04 */
+UNS16 sensor71_accel_accel_y_raw = 0x0;		/* Mapped at index 0x2014, subindex 0x05 */
+UNS16 sensor71_accel_accel_z_raw = 0x0;		/* Mapped at index 0x2014, subindex 0x06 */
 REAL32 sensor71_gyro_gyro_x_norm = 0.000000;		/* Mapped at index 0x2015, subindex 0x01 */
 REAL32 sensor71_gyro_gyro_y_norm = 0.000000;		/* Mapped at index 0x2015, subindex 0x02 */
 REAL32 sensor71_gyro_gyro_z_norm = 0.000000;		/* Mapped at index 0x2015, subindex 0x03 */
@@ -1072,17 +1072,17 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, real32, sizeof (REAL32), (void*)&sensor71_imu_quaternion_Quaternion_imu_4 }
                      };
 
-/* index 0x2014 :   Mapped variable Sensor71_accel */
+/* index 0x2014 :   Mapped variable sensor71_accel */
                     UNS8 Sensor_Board_highestSubIndex_obj2014 = 6; /* number of subindex - 1*/
                     subindex Sensor_Board_Index2014[] = 
                      {
                        { RO, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj2014 },
-                       { RW, real32, sizeof (REAL32), (void*)&Sensor71_accel_accel_x_norm },
-                       { RW, real32, sizeof (REAL32), (void*)&Sensor71_accel_accel_y_norm },
-                       { RW, real32, sizeof (REAL32), (void*)&Sensor71_accel_accel_z_norm },
-                       { RW, uint16, sizeof (UNS16), (void*)&Sensor71_accel_accel_x_raw },
-                       { RW, uint16, sizeof (UNS16), (void*)&Sensor71_accel_accel_y_raw },
-                       { RW, uint16, sizeof (UNS16), (void*)&Sensor71_accel_accel_z_raw }
+                       { RW, real32, sizeof (REAL32), (void*)&sensor71_accel_accel_x_norm },
+                       { RW, real32, sizeof (REAL32), (void*)&sensor71_accel_accel_y_norm },
+                       { RW, real32, sizeof (REAL32), (void*)&sensor71_accel_accel_z_norm },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_accel_accel_x_raw },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_accel_accel_y_raw },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_accel_accel_z_raw }
                      };
 
 /* index 0x2015 :   Mapped variable sensor71_gyro */
