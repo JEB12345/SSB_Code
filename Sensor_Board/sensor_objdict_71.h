@@ -32,10 +32,10 @@ extern REAL32 sensor71_ahrs_quaternion_Quaternion_ahrs_1;		/* Mapped at index 0x
 extern REAL32 sensor71_ahrs_quaternion_Quaternion_ahrs_2;		/* Mapped at index 0x2012, subindex 0x02 */
 extern REAL32 sensor71_ahrs_quaternion_Quaternion_ahrs_3;		/* Mapped at index 0x2012, subindex 0x03 */
 extern REAL32 sensor71_ahrs_quaternion_Quaternion_ahrs_4;		/* Mapped at index 0x2012, subindex 0x04 */
-extern UNS8 sensor71_imu_quaternion_Quaternion_imu_1;		/* Mapped at index 0x2013, subindex 0x01 */
-extern UNS8 sensor71_imu_quaternion_Quaternion_imu_2;		/* Mapped at index 0x2013, subindex 0x02 */
-extern UNS8 sensor71_imu_quaternion_Quaternion_imu_3;		/* Mapped at index 0x2013, subindex 0x03 */
-extern UNS8 sensor71_imu_quaternion_Quaternion_imu_4;		/* Mapped at index 0x2013, subindex 0x04 */
+extern REAL32 sensor71_imu_quaternion_Quaternion_imu_1;		/* Mapped at index 0x2013, subindex 0x01 */
+extern REAL32 sensor71_imu_quaternion_Quaternion_imu_2;		/* Mapped at index 0x2013, subindex 0x02 */
+extern REAL32 sensor71_imu_quaternion_Quaternion_imu_3;		/* Mapped at index 0x2013, subindex 0x03 */
+extern REAL32 sensor71_imu_quaternion_Quaternion_imu_4;		/* Mapped at index 0x2013, subindex 0x04 */
 extern REAL32 Sensor71_accel_accel_x_norm;		/* Mapped at index 0x2014, subindex 0x01 */
 extern REAL32 Sensor71_accel_accel_y_norm;		/* Mapped at index 0x2014, subindex 0x02 */
 extern REAL32 Sensor71_accel_accel_z_norm;		/* Mapped at index 0x2014, subindex 0x03 */

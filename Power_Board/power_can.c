@@ -6,10 +6,10 @@
 
 #include "power_can.h"
 #include "power_pindef.h"
-#ifdef ID_3
-#include "power_objdict_3.h"
-#else
+#ifdef CONF73
 #include "power_objdict_73.h"
+#else
+#include "power_objdict_3.h"
 #endif
 
 can_data can_state;

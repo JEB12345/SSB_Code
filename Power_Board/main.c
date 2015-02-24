@@ -13,10 +13,10 @@
 #include "power_timers.h"
 #include "power_adc.h"
 #include "power_can.h"
-#ifdef ID_3
-#include "power_objdict_3.h"
-#else
+#ifdef CONF73
 #include "power_objdict_73.h"
+#else
+#include "power_objdict_3.h"
 #endif
 #include "power_nrf24l01.h"
 #include "power_buzzer.h"
@@ -34,10 +34,10 @@ extern nrf24l01_data nrf24l01_state;
 int main (int argc, char** argv)
 {
   state_init();
-#ifdef ID_3
-  system_state.system_id = 0x03;
-#else
+#ifdef CONF73
   system_state.system_id = 0x73;
+#else
+  system_state.system_id = 0x03;
 #endif
   
   // Init Function Calls
