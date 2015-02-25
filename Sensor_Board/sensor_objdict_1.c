@@ -33,21 +33,21 @@ REAL32 sensor1_imu_quaternion_Quaternion_imu_4 = 0.000000;		/* Mapped at index 0
 REAL32 sensor1_accel_accel_x_norm = 0.000000;		/* Mapped at index 0x2014, subindex 0x01 */
 REAL32 sensor1_accel_accel_y_norm = 0.000000;		/* Mapped at index 0x2014, subindex 0x02 */
 REAL32 sensor1_accel_accel_z_norm = 0.000000;		/* Mapped at index 0x2014, subindex 0x03 */
-UNS16 sensor1_accel_accel_x_raw = 0x0;		/* Mapped at index 0x2014, subindex 0x04 */
-UNS16 sensor1_accel_accel_y_raw = 0x0;		/* Mapped at index 0x2014, subindex 0x05 */
-UNS16 sensor1_accel_accel_z_raw = 0x0;		/* Mapped at index 0x2014, subindex 0x06 */
+INTEGER16 sensor1_accel_accel_x_raw = 0x0;		/* Mapped at index 0x2014, subindex 0x04 */
+INTEGER16 sensor1_accel_accel_y_raw = 0x0;		/* Mapped at index 0x2014, subindex 0x05 */
+INTEGER16 sensor1_accel_accel_z_raw = 0x0;		/* Mapped at index 0x2014, subindex 0x06 */
 REAL32 sensor1_gyro_gyro_x_norm = 0.000000;		/* Mapped at index 0x2015, subindex 0x01 */
 REAL32 sensor1_gyro_gyro_y_norm = 0.000000;		/* Mapped at index 0x2015, subindex 0x02 */
 REAL32 sensor1_gyro_gyro_z_norm = 0.000000;		/* Mapped at index 0x2015, subindex 0x03 */
-UNS16 sensor1_gyro_gyro_x_raw = 0x0;		/* Mapped at index 0x2015, subindex 0x04 */
-UNS16 sensor1_gyro_gyro_y_raw = 0x0;		/* Mapped at index 0x2015, subindex 0x05 */
-UNS16 sensor1_gyro_gyro_z_raw = 0x0;		/* Mapped at index 0x2015, subindex 0x06 */
+INTEGER16 sensor1_gyro_gyro_x_raw = 0x0;		/* Mapped at index 0x2015, subindex 0x04 */
+INTEGER16 sensor1_gyro_gyro_y_raw = 0x0;		/* Mapped at index 0x2015, subindex 0x05 */
+INTEGER16 sensor1_gyro_gyro_z_raw = 0x0;		/* Mapped at index 0x2015, subindex 0x06 */
 REAL32 sensor1_mag_mag_x_norm = 0.000000;		/* Mapped at index 0x2016, subindex 0x01 */
 REAL32 sensor1_mag_mag_y_norm = 0.000000;		/* Mapped at index 0x2016, subindex 0x02 */
 REAL32 sensor1_mag_mag_z_norm = 0.000000;		/* Mapped at index 0x2016, subindex 0x03 */
-UNS16 sensor1_mag_mag_x_raw = 0x0;		/* Mapped at index 0x2016, subindex 0x04 */
-UNS16 sensor1_mag_mag_y_raw = 0x0;		/* Mapped at index 0x2016, subindex 0x05 */
-UNS16 sensor1_mag_mag_z_raw = 0x0;		/* Mapped at index 0x2016, subindex 0x06 */
+INTEGER16 sensor1_mag_mag_x_raw = 0x0;		/* Mapped at index 0x2016, subindex 0x04 */
+INTEGER16 sensor1_mag_mag_y_raw = 0x0;		/* Mapped at index 0x2016, subindex 0x05 */
+INTEGER16 sensor1_mag_mag_z_raw = 0x0;		/* Mapped at index 0x2016, subindex 0x06 */
 
 /**************************************************************************/
 /* Declaration of value range types                                       */
@@ -511,7 +511,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1803_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1803_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1803_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1803_Event_Timer = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj1803_Event_Timer = 0x64;	/* 100 */
                     UNS8 Sensor_Board_obj1803_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1803_callbacks[] = 
                      {
@@ -540,7 +540,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1804_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1804_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1804_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1804_Event_Timer = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj1804_Event_Timer = 0x64;	/* 100 */
                     UNS8 Sensor_Board_obj1804_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1804_callbacks[] = 
                      {
@@ -569,7 +569,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1805_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1805_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1805_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1805_Event_Timer = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj1805_Event_Timer = 0x64;	/* 100 */
                     UNS8 Sensor_Board_obj1805_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1805_callbacks[] = 
                      {
@@ -598,7 +598,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1806_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1806_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1806_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1806_Event_Timer = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj1806_Event_Timer = 0x64;	/* 100 */
                     UNS8 Sensor_Board_obj1806_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1806_callbacks[] = 
                      {
@@ -627,7 +627,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1807_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1807_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1807_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1807_Event_Timer = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj1807_Event_Timer = 0x64;	/* 100 */
                     UNS8 Sensor_Board_obj1807_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1807_callbacks[] = 
                      {
@@ -656,7 +656,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1808_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1808_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1808_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1808_Event_Timer = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj1808_Event_Timer = 0x64;	/* 100 */
                     UNS8 Sensor_Board_obj1808_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1808_callbacks[] = 
                      {
@@ -1080,9 +1080,9 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, real32, sizeof (REAL32), (void*)&sensor1_accel_accel_x_norm },
                        { RW, real32, sizeof (REAL32), (void*)&sensor1_accel_accel_y_norm },
                        { RW, real32, sizeof (REAL32), (void*)&sensor1_accel_accel_z_norm },
-                       { RW, uint16, sizeof (UNS16), (void*)&sensor1_accel_accel_x_raw },
-                       { RW, uint16, sizeof (UNS16), (void*)&sensor1_accel_accel_y_raw },
-                       { RW, uint16, sizeof (UNS16), (void*)&sensor1_accel_accel_z_raw }
+                       { RW, int16, sizeof (INTEGER16), (void*)&sensor1_accel_accel_x_raw },
+                       { RW, int16, sizeof (INTEGER16), (void*)&sensor1_accel_accel_y_raw },
+                       { RW, int16, sizeof (INTEGER16), (void*)&sensor1_accel_accel_z_raw }
                      };
 
 /* index 0x2015 :   Mapped variable sensor1_gyro */
@@ -1093,9 +1093,9 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, real32, sizeof (REAL32), (void*)&sensor1_gyro_gyro_x_norm },
                        { RW, real32, sizeof (REAL32), (void*)&sensor1_gyro_gyro_y_norm },
                        { RW, real32, sizeof (REAL32), (void*)&sensor1_gyro_gyro_z_norm },
-                       { RW, uint16, sizeof (UNS16), (void*)&sensor1_gyro_gyro_x_raw },
-                       { RW, uint16, sizeof (UNS16), (void*)&sensor1_gyro_gyro_y_raw },
-                       { RW, uint16, sizeof (UNS16), (void*)&sensor1_gyro_gyro_z_raw }
+                       { RW, int16, sizeof (INTEGER16), (void*)&sensor1_gyro_gyro_x_raw },
+                       { RW, int16, sizeof (INTEGER16), (void*)&sensor1_gyro_gyro_y_raw },
+                       { RW, int16, sizeof (INTEGER16), (void*)&sensor1_gyro_gyro_z_raw }
                      };
 
 /* index 0x2016 :   Mapped variable sensor1_mag */
@@ -1106,9 +1106,9 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, real32, sizeof (REAL32), (void*)&sensor1_mag_mag_x_norm },
                        { RW, real32, sizeof (REAL32), (void*)&sensor1_mag_mag_y_norm },
                        { RW, real32, sizeof (REAL32), (void*)&sensor1_mag_mag_z_norm },
-                       { RW, uint16, sizeof (UNS16), (void*)&sensor1_mag_mag_x_raw },
-                       { RW, uint16, sizeof (UNS16), (void*)&sensor1_mag_mag_y_raw },
-                       { RW, uint16, sizeof (UNS16), (void*)&sensor1_mag_mag_z_raw }
+                       { RW, int16, sizeof (INTEGER16), (void*)&sensor1_mag_mag_x_raw },
+                       { RW, int16, sizeof (INTEGER16), (void*)&sensor1_mag_mag_y_raw },
+                       { RW, int16, sizeof (INTEGER16), (void*)&sensor1_mag_mag_z_raw }
                      };
 
 /**************************************************************************/
