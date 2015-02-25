@@ -102,7 +102,6 @@ main (int argc, char** argv)
   // Start Reading the int pin on IMU
  // imu_state.init_return = RET_UNKNOWN;
   mpuData.startData = 0;
-
     if (IMU_Init(400000, 70000000) == 0) {
        // imu_state.init_return = RET_OK;
         mpuData.startData = 1;
