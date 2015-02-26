@@ -159,7 +159,16 @@ void adc_update_output() {
     adc_values.mV_motor_voltage = ((((uint32_t)adc_values.AN12)*36300))>>12;
 
     adc_values.mA_5V5_out = ((((uint32_t)adc_values.AN13)*3300))>>12;
-    adc_values.mA_motor_current = ((((int32_t)adc_values.AN11)-adc_values.motor_current_offset)*30000)/4096; //110mv/A
+    if(adc_values.AN11>=adc_values.motor_current_offset){
+        adc_values.mA_motor_current = adc_values.AN11-adc_values.motor_current_offset;
+
+    } else {
+        adc_values.mA_motor_current = adc_values.motor_current_offset-adc_values.AN11;
+        adc_values.mA_motor_current = -adc_values.mA_motor_current;
+    }
+    adc_values.mA_motor_current *= 30000;
+    adc_values.mA_motor_current /= 4096;
+    //adc_values.mA_motor_current = ((((int32_t)adc_values.AN11)-adc_values.motor_current_offset)*30000)/4096; ;//((((int32_t)adc_values.AN11)-adc_values.motor_current_offset)*30000)/4096; //110mv/A
 
     adc_values.mW_5V5_out = (adc_values.mV_5V5_out*adc_values.mA_5V5_out)/1000;
     adc_values.mW_motor_power = (adc_values.mA_motor_current*((int32_t)adc_values.mV_motor_voltage))/1000;
@@ -167,7 +176,7 @@ void adc_update_output() {
     //copy to object dictionary
     CO(adc_state_mV_5V5_out) = adc_values.mV_5V5_out;
     CO(adc_state_mA_5V5_out) = adc_values.mA_5V5_out;
-    CO(adc_state_mW_5V5_out) = adc_values.mW_5V5_out;
+    CO(adc_state_mW_5V5_out) = 5000;//  adc_values.mW_5V5_out;
     CO(adc_state_mV_vbackup_battery) = adc_values.mV_vbackup_battery;
     CO(adc_state_mV_main_battery) = adc_values.mV_main_battery;
     CO(adc_state_mA_motor_current) = adc_values.mA_motor_current;
