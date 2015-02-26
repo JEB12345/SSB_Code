@@ -21,13 +21,6 @@ extern motor_cmd_data motor_cmd_state[2];
 extern loadcell_data loadcell_state;
 static Message rec_m;
 
-// Test Parameters for CANOpen
-UNS32 PDO1_COBID = 0x0181;
-UNS32 PDO2_COBID = 0x0281;
-UNS32 sizeU32 = sizeof(UNS32);
-UNS32 SINC_cicle=0;
-UNS8 data_type = 0;
-
 static void can_reset(CO_Data* d);
 static void can_enable_heartbeat(uint16_t time);
 static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time);
