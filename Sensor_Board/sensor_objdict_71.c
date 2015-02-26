@@ -158,7 +158,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      };
 
 /* index 0x1017 :   Producer Heartbeat Time. */
-                    UNS16 Sensor_Board_obj1017 = 0x3E8;	/* 1000 */
+                    UNS16 Sensor_Board_obj1017 = 0x1F4;	/* 500 */
                     ODCallback_t Sensor_Board_Index1017_callbacks[] = 
                      {
                        NULL,
@@ -1035,8 +1035,8 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_highestSubIndex_obj1A0C = 2; /* number of subindex - 1*/
                     UNS32 Sensor_Board_obj1A0C[] = 
                     {
-                      0x20120120,	/* 538050848 */
-                      0x20120220	/* 538051104 */
+                      0x20130120,	/* 538116384 */
+                      0x20130220	/* 538116640 */
                     };
                     subindex Sensor_Board_Index1A0C[] = 
                      {
@@ -1049,8 +1049,8 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_highestSubIndex_obj1A0D = 2; /* number of subindex - 1*/
                     UNS32 Sensor_Board_obj1A0D[] = 
                     {
-                      0x20120320,	/* 538051360 */
-                      0x20120420	/* 538051616 */
+                      0x20130320,	/* 538116896 */
+                      0x20130420	/* 538117152 */
                     };
                     subindex Sensor_Board_Index1A0D[] = 
                      {

@@ -120,7 +120,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      };
 
 /* index 0x1017 :   Producer Heartbeat Time. */
-                    UNS16 Power_Board_obj1017 = 0x64;	/* 100 */
+                    UNS16 Power_Board_obj1017 = 0x1F4;	/* 500 */
                     ODCallback_t Power_Board_Index1017_callbacks[] = 
                      {
                        NULL,
