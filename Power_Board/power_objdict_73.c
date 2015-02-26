@@ -408,7 +408,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Power_Board_obj1800_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Power_Board_obj1800_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Power_Board_obj1800_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Power_Board_obj1800_Event_Timer = 0x64;	/* 100 */
+                    UNS16 Power_Board_obj1800_Event_Timer = 0xA;	/* 10 */
                     UNS8 Power_Board_obj1800_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Power_Board_Index1800_callbacks[] = 
                      {
@@ -437,7 +437,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Power_Board_obj1801_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Power_Board_obj1801_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Power_Board_obj1801_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Power_Board_obj1801_Event_Timer = 0x64;	/* 100 */
+                    UNS16 Power_Board_obj1801_Event_Timer = 0xA;	/* 10 */
                     UNS8 Power_Board_obj1801_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Power_Board_Index1801_callbacks[] = 
                      {
@@ -495,7 +495,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Power_Board_obj1803_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Power_Board_obj1803_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Power_Board_obj1803_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Power_Board_obj1803_Event_Timer = 0x3E8;	/* 1000 */
+                    UNS16 Power_Board_obj1803_Event_Timer = 0x64;	/* 100 */
                     UNS8 Power_Board_obj1803_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Power_Board_Index1803_callbacks[] = 
                      {

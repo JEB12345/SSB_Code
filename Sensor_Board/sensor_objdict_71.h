@@ -54,5 +54,15 @@ extern REAL32 sensor71_mag_mag_z_norm;		/* Mapped at index 0x2016, subindex 0x03
 extern INTEGER16 sensor71_mag_mag_x_raw;		/* Mapped at index 0x2016, subindex 0x04 */
 extern INTEGER16 sensor71_mag_mag_y_raw;		/* Mapped at index 0x2016, subindex 0x05 */
 extern INTEGER16 sensor71_mag_mag_z_raw;		/* Mapped at index 0x2016, subindex 0x06 */
+extern INTEGER32 motor72_position_control_Commanded_Position;		/* Mapped at index 0x2022, subindex 0x01 */
+extern UNS16 motor72_position_control_P_Gain;		/* Mapped at index 0x2022, subindex 0x02 */
+extern UNS16 motor72_position_control_I_Gain;		/* Mapped at index 0x2022, subindex 0x03 */
+extern UNS16 motor72_position_control_D_Gain;		/* Mapped at index 0x2022, subindex 0x04 */
+extern REAL32 motor72_position_control_SS_Gain_1st_Order;		/* Mapped at index 0x2022, subindex 0x05 */
+extern REAL32 motor72_position_control_SS_Gain_2st_Order;		/* Mapped at index 0x2022, subindex 0x06 */
+extern REAL32 motor72_position_control_SS_Gain_3st_Order;		/* Mapped at index 0x2022, subindex 0x07 */
+extern REAL32 motor72_position_control_O_Gain_1st_Order;		/* Mapped at index 0x2022, subindex 0x08 */
+extern REAL32 motor72_position_control_O_Gain_2st_Order;		/* Mapped at index 0x2022, subindex 0x09 */
+extern REAL32 motor72_position_control_O_Gain_3st_Order;		/* Mapped at index 0x2022, subindex 0x0A */
 
 #endif // SENSOR_OBJDICT_71_H
