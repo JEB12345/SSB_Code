@@ -158,7 +158,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      };
 
 /* index 0x1017 :   Producer Heartbeat Time. */
-                    UNS16 Sensor_Board_obj1017 = 0x3E8;	/* 1000 */
+                    UNS16 Sensor_Board_obj1017 = 0x1F4;	/* 500 */
                     ODCallback_t Sensor_Board_Index1017_callbacks[] = 
                      {
                        NULL,
