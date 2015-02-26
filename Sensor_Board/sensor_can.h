@@ -10,10 +10,10 @@
 #include "sensor_state.h"
 #ifdef CONF71
 #include "sensor_objdict_71.h"
-#define CO(_CANOPENOBJECT) sensor71_ ## _CANOPENOBJECT
+#define CO(_X) sensor71_ ## _X
 #else
 #include "sensor_objdict_1.h"
-#define CO(_CANOPENOBJECT) sensor1_ ## _CANOPENOBJECT
+#define CO(_X) sensor1_ ## _X
 #endif
 #ifdef	__cplusplus
 extern "C" {
