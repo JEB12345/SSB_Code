@@ -276,6 +276,7 @@ return_value_t i2c_1_read(uint8_t address, uint8_t command, uint16_t num_bytes,
         op->command = command;
         op->num_bytes = num_bytes;
         op->output = output;
+        //op->status_out = status_out;
         *(op->status_out) = RET_UNKNOWN;
         //update internal state last
         i2c_state.ops_end = ops_next;
