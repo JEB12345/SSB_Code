@@ -84,13 +84,13 @@ uint8_t can_process()
     } 
     while(canReceive(&rec_m)){
 /***********This code will start any board which sends out a
-	    pre-operational CANOpen code
+	    pre-operational CANOpen code*/
         if(rec_m.cob_id&0x0F){
             if(rec_m.data[0] == 0x7F){
                 can_enable_slave_heartbeat((UNS16)rec_m.cob_id&0x0FF,100);
                 can_start_node(rec_m.cob_id&0x0FF);
             }
-        }*/
+        }
         canDispatch(&Sensor_Board_Data, &rec_m); //send packet to CanFestival
         res = 1;
     }
@@ -227,13 +227,13 @@ void can_time_dispatch()
 void can_push_state()
 {
 	CO(strain_gauge_processed_Strain_Gauge_1P) = loadcell_bit_to_torque(loadcell_state.values[0],0);
-	CO(strain_gauge_processed_Strain_Gauge_2P) = loadcell_state.values[1];
-	CO(strain_gauge_processed_Strain_Gauge_3P) = loadcell_state.values[2];
-	CO(strain_gauge_processed_Strain_Gauge_4P) = loadcell_state.values[3];
-        CO(strain_gauge_processed_Strain_Gauge_5P) = loadcell_state.values[4];
-	CO(strain_gauge_processed_Strain_Gauge_6P) = loadcell_state.values[5];
-	CO(strain_gauge_processed_Strain_Gauge_7P) = loadcell_state.values[6];
-        CO(strain_gauge_processed_Strain_Gauge_8P) = loadcell_state.values[7];
+//	CO(strain_gauge_processed_Strain_Gauge_2P) = loadcell_state.values[1];
+//	CO(strain_gauge_processed_Strain_Gauge_3P) = loadcell_state.values[2];
+//	CO(strain_gauge_processed_Strain_Gauge_4P) = loadcell_state.values[3];
+//        CO(strain_gauge_processed_Strain_Gauge_5P) = loadcell_state.values[4];
+//	CO(strain_gauge_processed_Strain_Gauge_6P) = loadcell_state.values[5];
+//	CO(strain_gauge_processed_Strain_Gauge_7P) = loadcell_state.values[6];
+//        CO(strain_gauge_processed_Strain_Gauge_8P) = loadcell_state.values[7];
 
 	CO(strain_gauge_raw_Strain_Gauge_1R) = loadcell_state.values[0];
 	CO(strain_gauge_raw_Strain_Gauge_2R) = loadcell_state.values[1];

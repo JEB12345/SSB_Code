@@ -127,7 +127,7 @@ main (int argc, char** argv)
 
           if (timer_state.systime % 5 == 1)
             {
-              IMU_normalizeData(mpuData, magData, &imuData);
+              IMU_normalizeData(&mpuData, &magData, &imuData);
               // Run AHRS algorithm
               //IMU_UpdateAHRS (&imuData);
 
