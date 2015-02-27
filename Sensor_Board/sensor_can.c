@@ -78,12 +78,12 @@ uint8_t can_process()
     while(canReceive(&rec_m)){
 /***********This code will start any board which sends out a
 	    pre-operational CANOpen code*/
-        if(rec_m.cob_id&0x0F){
-            if(rec_m.data[0] == 0x7F){
-                can_enable_slave_heartbeat((UNS16)rec_m.cob_id&0x0FF,100);
-                can_start_node(rec_m.cob_id&0x0FF);
-            }
-        }
+//        if(rec_m.cob_id&0x0F){
+//            if(rec_m.data[0] == 0x7F){
+//                can_enable_slave_heartbeat((UNS16)rec_m.cob_id&0x0FF,100);
+//                can_start_node(rec_m.cob_id&0x0FF);
+//            }
+//        }
         canDispatch(&Sensor_Board_Data, &rec_m); //send packet to CanFestival
         res = 1;
     }
