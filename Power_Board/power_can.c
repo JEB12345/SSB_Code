@@ -174,10 +174,10 @@ static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time) {
 }
 
 void can_time_dispatch() {
-//    if (can_state.timer_flag) {
-//        can_state.timer_flag = 0;
+    if (can_state.timer_flag) {
+        can_state.timer_flag = 0;
         TimeDispatch();
-//    }
+    }
 }
 
 void can_push_state() {
@@ -210,15 +210,15 @@ void can_update() {
     if (can_state.init_return == RET_OK) {
         can_process();
 
-//        if (can_state.is_master) {
-//            if (timer_state.systime == 2000) {
-//                //test reset slaves
-//                //can_reset_node(2);
-//            }
-//        }
-//        if (timer_state.systime % CAN_PUSH_UPDATE_TIME == 0) {
-//            can_push_state();
-//        }
+        if (can_state.is_master) {
+            if (timer_state.systime == 2000) {
+                //test reset slaves
+                //can_reset_node(2);
+            }
+        }
+        if (timer_state.systime % CAN_PUSH_UPDATE_TIME == 0) {
+            can_push_state();
+        }
         if (timer_state.systime % 1 == 0) {
             if (txreq_bitarray & 0b00000001 && !C1TR01CONbits.TXREQ0) {
                 C1TR01CONbits.TXREQ0 = 1;
