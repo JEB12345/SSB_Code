@@ -200,7 +200,9 @@ void adc_update_output() {
         nrf24l01_state.rf_killswitch_state){
         KILLSWITCH_uC = ON;
     } else {
+#ifndef NO_BOOTLOADER
         KILLSWITCH_uC = OFF; //REMOVE
+#endif
     }
 }
 

@@ -108,13 +108,20 @@ int main (int argc, char** argv)
 
           nrf24l01_update();
           nrf24l01_check_killswitch();
+#ifdef NO_BOOTLOADER
+          uC_KS_2 = !uC_KS_2;
+          KILLSWITCH_uC = ON;
+#endif
+
           if(nrf24l01_state.init_return != RET_OK){
               buzzer_set_frequency(TONE_B_8);
           }
 
+#ifdef TEMP_SENSOR
           if(timer_state.systime%123==0){
               temperature_update();
           }
+#endif
 
           /**
            * This loop processes all CAN and CANFestival code
