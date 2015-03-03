@@ -15,9 +15,9 @@ INTEGER32 power73_adc_state_mA_motor_current = 0x0;		/* Mapped at index 0x2030, 
 UNS32 power73_adc_state_mV_motor_voltage = 0x0;		/* Mapped at index 0x2030, subindex 0x07 */
 INTEGER32 power73_adc_state_mW_motor_power = 0x0;		/* Mapped at index 0x2030, subindex 0x08 */
 INTEGER8 power73_adc_state_C_temp = 0x0;		/* Mapped at index 0x2030, subindex 0x09 */
-UNS8 power73_power_switches_24_killswitch = 0x0;		/* Mapped at index 0x2031, subindex 0x01 */
-UNS8 power73_power_switches_5V5_Out_1 = 0x0;		/* Mapped at index 0x2031, subindex 0x02 */
-UNS8 power73_power_switches_5V5_Out_2 = 0x0;		/* Mapped at index 0x2031, subindex 0x03 */
+UNS8 power73_power_switches_24_killswitch = 0x1;		/* Mapped at index 0x2031, subindex 0x01 */
+UNS8 power73_power_switches_5V5_Out_1 = 0x1;		/* Mapped at index 0x2031, subindex 0x02 */
+UNS8 power73_power_switches_5V5_Out_2 = 0x1;		/* Mapped at index 0x2031, subindex 0x03 */
 UNS8 power73_power_switches_5V5_Out_3 = 0x0;		/* Mapped at index 0x2031, subindex 0x04 */
 UNS8 power73_power_switches_5V5_Out_4 = 0x0;		/* Mapped at index 0x2031, subindex 0x05 */
 
@@ -408,7 +408,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Power_Board_obj1800_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Power_Board_obj1800_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Power_Board_obj1800_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Power_Board_obj1800_Event_Timer = 0xA;	/* 10 */
+                    UNS16 Power_Board_obj1800_Event_Timer = 0x14;	/* 20 */
                     UNS8 Power_Board_obj1800_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Power_Board_Index1800_callbacks[] = 
                      {
@@ -437,7 +437,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Power_Board_obj1801_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Power_Board_obj1801_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Power_Board_obj1801_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Power_Board_obj1801_Event_Timer = 0xA;	/* 10 */
+                    UNS16 Power_Board_obj1801_Event_Timer = 0x14;	/* 20 */
                     UNS8 Power_Board_obj1801_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Power_Board_Index1801_callbacks[] = 
                      {
