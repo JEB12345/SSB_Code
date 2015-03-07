@@ -5,6 +5,7 @@
 
 extern timer_data timer_state;
 buzzer_data buzzer_state;
+extern analog_data adc_values;
 
 return_value_t buzzer_init() {
     BUZZER = 0;
@@ -57,7 +58,6 @@ void buzzer_update() {
         //error: both power sources active
         //Fast beep
         if (timer_state.systime % 200 == 0) {
-//            LED_R = !LED_R;
         }
         if (timer_state.systime % 500 == 0) {
             buzzer_set_frequency(TONE_A_6);
@@ -72,6 +72,13 @@ void buzzer_update() {
         } else if (timer_state.systime % 3000 == 150) {
             buzzer_set_frequency(0);
 //            LED_R = 1;
+        }
+    } else if(adc_values.mV_main_battery<23000){
+        //low voltage main battery
+        if (timer_state.systime % 5000 == 0) {
+            buzzer_set_frequency(TONE_C_5);
+        } else if (timer_state.systime % 5000 == 500) {
+            buzzer_set_frequency(0);
         }
     } else {
 //        LED_R = 1;

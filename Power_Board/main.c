@@ -22,6 +22,7 @@
 #include "power_buzzer.h"
 #include "power_i2c.h"
 #include "power_temperature.h"
+#include "power_killswitch.h"
 #include <p33Exxxx.h>
 
 extern timer_data timer_state;
@@ -29,6 +30,7 @@ extern analog_data adc_values;
 extern can_data can_state;
 extern system_data system_state;
 extern nrf24l01_data nrf24l01_state;
+extern killswitch_data killswitch_state;
 
 #ifndef IS_KILLSWITCH
 int main (int argc, char** argv)
@@ -45,10 +47,10 @@ int main (int argc, char** argv)
   pin_init ();
   enable_pins_init ();
   //5V5 Output Control Pins (make sure the BBB doesn't reboot)
-  EN_OUT_1 = 1; //Default outputs
-  EN_OUT_2 = 1;
-  EN_OUT_3 = 0;
-  EN_OUT_4 = 0;
+  EN_OUT_1 = CO(power_switches_5V5_Out_1); //Default outputs
+  EN_OUT_2 = CO(power_switches_5V5_Out_2);
+  EN_OUT_3 = CO(power_switches_5V5_Out_3);
+  EN_OUT_4 = CO(power_switches_5V5_Out_4);
   timers_init ();
   buzzer_init();
   buzzer_set_frequency(TONE_A_7);
@@ -60,6 +62,7 @@ int main (int argc, char** argv)
   i2c_1_init();
   temperature_init();
   buzzer_set_frequency(TONE_D_5);
+  killswitch_init();
 
   // Parameter Initalziations for timer, UART
   timer_state.prev_systime = 0;
@@ -114,7 +117,7 @@ int main (int argc, char** argv)
 #endif
 
           if(nrf24l01_state.init_return != RET_OK){
-              buzzer_set_frequency(TONE_B_8);
+              buzzer_set_frequency(TONE_B_6);
           }
 
 #ifdef TEMP_SENSOR
@@ -130,6 +133,8 @@ int main (int argc, char** argv)
 
           adc_update_state();
 
+          killswitch_update();
+
           //kill switch PIC watchdog
           uC_KS_1 = !uC_KS_1;
         }
@@ -137,10 +142,44 @@ int main (int argc, char** argv)
       else { //Everything else that needs to run faster than 1ms goes in the else statement
 
           /*******************************************************************
-           * Software controlled switching between VBAT_5V5 and VBACKUP_5V5
+           * ADC measurements
            *
            ******************************************************************/
           adc_update_output();
+
+          /******************************************************************
+           *
+           * Motor 24V output switch
+           *
+           *****************************************************************/
+            //Motor power
+//            if (((adc_values.mV_main_battery) > 21000) &&
+//                    nrf24l01_state.rf_killswitch_state &&
+//                    CO(power_switches_24_killswitch)) {
+//                KILLSWITCH_uC = ON;
+//            } else {
+//#ifndef NO_BOOTLOADER
+//                KILLSWITCH_uC = OFF; //REMOVE
+//#endif
+//            }
+
+           if (nrf24l01_state.rf_killswitch_state &&
+                    CO(power_switches_24_killswitch)
+                  && (killswitch_state.state==KS_ON)) {
+                KILLSWITCH_uC = ON;
+            } else {
+                KILLSWITCH_uC = OFF;
+            }
+
+          /*****************************************************************
+           *
+           * 5V output switches
+           *
+           *****************************************************************/
+            EN_OUT_1 = CO(power_switches_5V5_Out_1);
+            EN_OUT_2 = CO(power_switches_5V5_Out_2);
+            EN_OUT_3 = CO(power_switches_5V5_Out_3);
+            EN_OUT_4 = CO(power_switches_5V5_Out_4);
 
           /*****************************************************************
            *

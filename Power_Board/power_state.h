@@ -200,6 +200,17 @@ typedef struct {
         return_value_t state;
     } temperature_data;
 
+    typedef enum {
+        KS_ON = 1,
+        KS_OFF = 0
+    } killswitch_power_state;
+
+    typedef struct {
+        uint16_t power_good_ctr;
+        uint16_t power_bad_ctr;
+        killswitch_power_state state;
+    } killswitch_data;
+
     return_value_t state_init();
     
     /*

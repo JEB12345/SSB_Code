@@ -183,7 +183,7 @@ void adc_update_output() {
     CO(adc_state_mW_motor_power) = adc_values.mW_motor_power;
     CO(adc_state_mV_motor_voltage) = adc_values.mV_motor_voltage;
 
-    if ((adc_values.mV_main_battery) > 21000) { 
+    if ((adc_values.mV_main_battery) > 21000) {
         VBAT_5V5_EN = ON;
         EN_BACKUP_5V5 = OFF;
         EN_VBAT_5V5 = ON;
@@ -193,17 +193,6 @@ void adc_update_output() {
         VBAT_5V5_EN = OFF;
     }
 
-    //Motor power
-    //TODO: enable/disable over CAN
-    //if(((adc_values.AN7) > 0x0960)  && nrf24l01_state.rf_killswitch_state){
-    if(((adc_values.mV_main_battery) > 21000) &&
-        nrf24l01_state.rf_killswitch_state){
-        KILLSWITCH_uC = ON;
-    } else {
-#ifndef NO_BOOTLOADER
-        KILLSWITCH_uC = OFF; //REMOVE
-#endif
-    }
 }
 
 void __attribute__((interrupt, no_auto_psv)) _DMA2Interrupt(void)
