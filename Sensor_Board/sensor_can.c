@@ -54,14 +54,14 @@ return_value_t can_init()
     setState(&Sensor_Board_Data, Operational);
 
 #ifdef CONF71
-    can_enable_slave_heartbeat(0x73,100);
-    can_enable_slave_heartbeat(0x72,100);
-    can_enable_heartbeat(100);
+    can_enable_slave_heartbeat(0x73,200);
+    can_enable_slave_heartbeat(0x72,200);
+    can_enable_heartbeat(200);
 #else
-    can_enable_slave_heartbeat(0x04,100);
-    can_enable_slave_heartbeat(0x03,100);
-    can_enable_slave_heartbeat(0x02,100);
-    can_enable_heartbeat(100);
+    can_enable_slave_heartbeat(0x04,200);
+    can_enable_slave_heartbeat(0x03,200);
+    can_enable_slave_heartbeat(0x02,200);
+    can_enable_heartbeat(200);
 #endif
 
     PDOInit(&Sensor_Board_Data);
@@ -219,6 +219,12 @@ void can_time_dispatch()
 
 void can_push_state()
 {
+#ifdef CONF71
+    motor72_position_control_Commanded_Position = desired_motor_position_motor_72;
+#else
+    motor2_position_control_Commanded_Position = desired_motor_position_motor_2;
+#endif
+
 	CO(strain_gauge_processed_Strain_Gauge_1P) = loadcell_bit_to_torque(loadcell_state.values[0],0);
 //	CO(strain_gauge_processed_Strain_Gauge_2P) = loadcell_state.values[1];
 //	CO(strain_gauge_processed_Strain_Gauge_3P) = loadcell_state.values[2];

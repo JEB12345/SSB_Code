@@ -64,5 +64,7 @@ extern REAL32 motor72_position_control_SS_Gain_3st_Order;		/* Mapped at index 0x
 extern REAL32 motor72_position_control_O_Gain_1st_Order;		/* Mapped at index 0x2022, subindex 0x08 */
 extern REAL32 motor72_position_control_O_Gain_2st_Order;		/* Mapped at index 0x2022, subindex 0x09 */
 extern REAL32 motor72_position_control_O_Gain_3st_Order;		/* Mapped at index 0x2022, subindex 0x0A */
+extern INTEGER32 desired_motor_position_motor_2;		/* Mapped at index 0x2040, subindex 0x01 */
+extern INTEGER32 desired_motor_position_motor_72;		/* Mapped at index 0x2040, subindex 0x02 */
 
 #endif // SENSOR_OBJDICT_71_H

@@ -96,16 +96,17 @@ main(int argc, char** argv)
     timer_state.prev_systime = 0;
     timer_state.systime = 0;
 
+#ifdef CONF71
     // Start Reading the int pin on IMU
-    // imu_state.init_return = RET_UNKNOWN;
-//    mpuData.startData = 0;
-//    if (IMU_Init(100000, 70000000) == 0) {
-//        // imu_state.init_return = RET_OK;
-//        mpuData.startData = 1;
-//    }
-//    else {
-//        //imu_state.init_return = RET_ERROR;
-//    }
+    mpuData.startData = 0;
+    if (IMU_Init(400000, 70000000) == 0) {
+        // imu_state.init_return = RET_OK;
+        mpuData.startData = 1;
+    }
+    else {
+        //imu_state.init_return = RET_ERROR;
+    }
+#endif
 
     for (;;) {
         if (timer_state.systime != timer_state.prev_systime) {
@@ -185,7 +186,7 @@ main(int argc, char** argv)
              * Blinking LED Loop
              */
             if (timer_state.systime % 25 == 0) {
-                //              LED_1 = !LED_1;
+                              LED_1 = !LED_1;
             }
 
 
@@ -194,10 +195,11 @@ main(int argc, char** argv)
             //untimed processes in main loop:
             //executed as fast as possible
             //these processes should NOT block the main loop
-            LED_4 = mpuData.accelX > 0;
-            LED_3 = mpuData.accelY > 0;
-            LED_1 = mpuData.accelZ > 0;
+//            LED_4 = mpuData.accelX > 0;
+//            LED_3 = mpuData.accelY > 0;
+//            LED_1 = mpuData.accelZ > 0;
 
+//            IMU_GetData();
             IMU_CopyI2CData(&mpuData, &magData);
 
             if (!T1CONbits.TON) {
@@ -247,7 +249,7 @@ _CNInterrupt(void)
     if (mpuData.startData == 1) {
         if (PORTFbits.RF0 == 1) {
             // Gets the IMU data after the INT pin has been triggered
-            IMU_GetData(); //(&mpuData, &magData);
+            IMU_GetCount(); //(&mpuData, &magData);
 
             // Data normalization
             //			IMU_normalizeData(mpuData, magData, &imuData);
