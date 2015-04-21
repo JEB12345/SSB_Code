@@ -91,6 +91,10 @@ return_value_t pin_init() {
     TRISGbits.TRISG8 = 0;	// BUZZER
     _RP120R = 0b010011;         // OC4
 
+    //debug pins
+    _RP38R = 0;
+    TRISBbits.TRISB6 = 0;
+
     //Backup bMCP73832attery charger
     VBACKUP_CHARGER_DISABLE;
 

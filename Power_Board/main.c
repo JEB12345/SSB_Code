@@ -111,10 +111,6 @@ int main (int argc, char** argv)
 
           nrf24l01_update();
           nrf24l01_check_killswitch();
-#ifdef NO_BOOTLOADER
-          uC_KS_2 = !uC_KS_2;
-          KILLSWITCH_uC = ON;
-#endif
 
           if(nrf24l01_state.init_return != RET_OK){
               buzzer_set_frequency(TONE_B_6);
@@ -205,11 +201,14 @@ int main (int argc, char** argv)
           } else {
               LED_B = 1;
           }
-          if(timer_state.fasttime<5000){
+          if(timer_state.ext_time_100us<5000){
               LED_STATUS = ON;
           } else {
               LED_STATUS = OFF;
           }
+
+            //DEBUG STUFF
+            LATBbits.LATB6 = timer_state.ext_time_100us<5000;
       }
 
     }
@@ -219,8 +218,8 @@ int main (int argc, char** argv)
 
 #define KS_SEND_SWITCHSTATE_PERIOD  25  //send KS state every N ms
 #define KS_SEND_SWITCHSTATE_OFFSET  0   //offset in ms (try not to send two packets at almost the same time)
-#define KS_SEND_SYNC_EVERY          10   //set the sync bit in every Nth KS state packet
-#define KS_SEND_BROADCAST_PERIOD    200 //send broacast every N ms
+#define KS_SEND_SYNC_EVERY          2   //set the sync bit in every Nth KS state packet
+#define KS_SEND_BROADCAST_PERIOD    1 //send broacast every N ms
 #define KS_SEND_BROADCAST_OFFSET    13
 int main (int argc, char** argv)
 {
@@ -290,7 +289,12 @@ int main (int argc, char** argv)
               } else {
                   LED_STATUS = OFF;
               }
-              tx_pkt->data_length = 1;
+              tx_pkt->data[1] = timer_state.ext_time_seconds>>8;
+              tx_pkt->data[2] = timer_state.ext_time_seconds&0xFF;
+              tx_pkt->data[3] = timer_state.ext_time_100us>>8;
+              tx_pkt->data[4] = timer_state.ext_time_100us&0xFF;
+
+              tx_pkt->data_length = 5;
               tx_pkt->address_length = 3;
               tx_pkt->address[0] = 0x12;
               tx_pkt->address[1] = 0x34;
@@ -358,7 +362,8 @@ int main (int argc, char** argv)
               LED_R = 0;
               kill_state = KILL_ALL_OFF;
           }
-
+          //DEBUG STUFF
+            LATBbits.LATB6 = timer_state.ext_time_100us<5000;
         }
     }
 

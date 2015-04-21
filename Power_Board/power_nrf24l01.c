@@ -189,7 +189,7 @@ return_value_t nrf24l01_init(void) {
     RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_RX_PW_P0, 0b0100000); //32 bytes payload
     rf_spi_send();
     /*set number of bytes in RX1 pipe*/
-    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_RX_PW_P1, 0b1); //1 byte payload
+    RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_RX_PW_P1, 5); //5 byte payload
     rf_spi_send();
     /*set number of bytes in RX2 pipe*/
     RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_RX_PW_P2, 0b0100000); //32 bytes payload
@@ -385,8 +385,8 @@ void nrf24l01_handle_rx(){
             rx_pipe = (nrf24l01_state.RF_status & nrf24l01_STATUS_RX_P_NO) >> 1;
 
             if(rx_pipe==1){
-                nrf24l01_state.rx_buffer->data_length = 1; //TODO: read actual data length
-                RF_SEND_2(nrf24l01_R_RX_PAYLOAD, 0xFF);
+                nrf24l01_state.rx_buffer->data_length = 5; //TODO: read actual data length
+                RF_SEND_6(nrf24l01_R_RX_PAYLOAD, nrf24l01_NOP,nrf24l01_NOP,nrf24l01_NOP,nrf24l01_NOP,nrf24l01_NOP);
             } else {
                 nrf24l01_state.rx_buffer->data_length = 32; //TODO: read actual data length
                 RF_SEND_33(nrf24l01_R_RX_PAYLOAD, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP, nrf24l01_NOP);
@@ -406,7 +406,7 @@ void nrf24l01_handle_rx(){
                 ++nrf24l01_state.rx_packets_end;
             }
             nrf24l01_state.rx_buffer = &nrf24l01_state.rx_packets[nrf24l01_state.rx_packets_end];
-        }
+        } 
     } else if (nrf24l01_state.tx_packets_start!=nrf24l01_state.tx_packets_end) {
         //a packet needs to be sent
         RF_CE = 0;
@@ -422,6 +422,12 @@ void nrf24l01_handle_rx(){
         RF_SEND_2(nrf24l01_W_REGISTER | nrf24l01_CONFIG, nrf24l01_CONFIG_PWR_UP | nrf24l01_CONFIG_EN_CRC);
         rf_spi_send();
 
+#ifdef TRANSMITTER
+        tx_pkt->data[1] = timer_state.ext_time_seconds>>8;
+              tx_pkt->data[2] = timer_state.ext_time_seconds&0xFF;
+              tx_pkt->data[3] = timer_state.ext_time_100us>>8;
+              tx_pkt->data[4] = timer_state.ext_time_100us&0xFF;
+#endif
         //send RF message
         RF_SEND_VAR_CMD(nrf24l01_W_REGISTER | nrf24l01_TX_ADDR, tx_pkt->address, tx_pkt->address_length);
         RF_SEND_VAR_CMD(nrf24l01_W_TX_PAYLOAD_NOACK, tx_pkt->data, tx_pkt->data_length);
@@ -490,10 +496,13 @@ void nrf24l01_rx_packet_consumed()
 
 void nrf24l01_check_killswitch()
 {
-    uint32_t time_diff;
+    uint16_t time_diff;
     if (nrf24l01_rx_cur_packet()) {
         //LED_STATUS = 0;
         nrf24l01_rx_packet* rf_rx_pkt = nrf24l01_rx_cur_packet();
+        if( nrf24l01_state.rx_packets_end>0){
+            rf_rx_pkt = &nrf24l01_state.rx_packets[nrf24l01_state.rx_packets_end-1];
+        }
         switch (rf_rx_pkt->pipe) {
             case 0:
                 //default broadcast 32 byte pipe
@@ -514,8 +523,17 @@ void nrf24l01_check_killswitch()
                 if(rf_rx_pkt->data[0] & KILL_SYNC){
                     //sync bit was set, update timer!
                     time_diff = timer_state.fasttime - timer_state.fasttime_irq;
-                    if(time_diff<timer_state.fasttime){//stupid overflow check
-                        timer_state.fasttime = time_diff;//elapsed time since sync interrupt
+//                    if(time_diff<timer_state.fasttime){//stupid overflow check
+//                        //timer_state.fasttime = time_diff;//elapsed time since sync interrupt
+//                    } else {
+//
+//                    }
+                    timer_state.ext_time_seconds = (rf_rx_pkt->data[1]<<8) | (rf_rx_pkt->data[2]&0xFF);
+                    timer_state.ext_time_100us = (rf_rx_pkt->data[3]<<8) | (rf_rx_pkt->data[4]&0xFF);
+                    timer_state.ext_time_100us += time_diff+4;//account for on-air delay
+                    if(timer_state.ext_time_100us>=10000){
+                        timer_state.ext_time_100us -= 10000;
+                        timer_state.ext_time_seconds+=1;
                     }
                 }
                 break;

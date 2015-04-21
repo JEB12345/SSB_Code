@@ -69,7 +69,8 @@ return_value_t timers_init()
 
 	//Settings the Loop Time
 	TMR5 = 0x00; //Clear Timer 5 register
-	PR5 = 140; //Fp / (TCKPS*PR5) = LoopTime => 70000000/(1*140)=500000Hz
+	PR5 = 7000; //Fp / (TCKPS*PR5) = LoopTime => 70000000/7000 = 10000Hz
+        //70000000/(1*140)=500000Hz
 	IFS1bits.T5IF = 0; //Clear Timer 5 Interrupt Flag
 	IEC1bits.T5IE = 1; //Enable Timer 5 Interrupt
 	/****************************************/
@@ -83,6 +84,8 @@ return_value_t timers_init()
 	/****************************************/
 
         timer_state.fasttime = 0; //Init counter for high speed, synced timer
+        timer_state.ext_time_100us = 0;
+        timer_state.ext_time_seconds = 0;
 	timer_state.init_return = RET_OK;
 	return timer_state.init_return;
 }
@@ -100,7 +103,12 @@ void __attribute__((__interrupt__, no_auto_psv)) _T4Interrupt(void)
 
 void __attribute__((__interrupt__, auto_psv)) _T5Interrupt(void)
 {
-        //timer 5 is a continuously running timmer with a 
+        //timer 5 is a continuously running timer
 	++timer_state.fasttime;
+        ++timer_state.ext_time_100us;
+        if(timer_state.ext_time_100us>=10000){
+            timer_state.ext_time_100us = 0;
+            ++timer_state.ext_time_seconds;
+        }
 	IFS1bits.T5IF = 0; // Clear Timer 5 Interrupt Flag
 }
