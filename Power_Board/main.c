@@ -23,6 +23,7 @@
 #include "power_i2c.h"
 #include "power_temperature.h"
 #include "power_killswitch.h"
+#include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
 #include <p33Exxxx.h>
 
 extern timer_data timer_state;
@@ -75,6 +76,7 @@ int main (int argc, char** argv)
  
   // Enable CAN after calling the EN_OUT_# commands.
   // This prevents the while loop in the can_init() from stalling.
+  LED_STATUS = OFF;
 
   can_state.init_return = RET_UNKNOWN;
   if (can_init()) {
@@ -84,7 +86,6 @@ int main (int argc, char** argv)
     }
   buzzer_set_frequency(TONE_A_4);
 
-  LED_STATUS = ON;
 
   //TODO: make sure the modulo operations don't hurt performance
   for (;;){
@@ -92,7 +93,7 @@ int main (int argc, char** argv)
         {
           timer_state.prev_systime = timer_state.systime;
           asm("CLRWDT"); //clear watchdog timer
-          
+ 
           //buzzer stuff
           if(timer_state.systime==250 && buzzer_init){
               buzzer_set_frequency(0);//turn buzzer off
@@ -167,6 +168,15 @@ int main (int argc, char** argv)
                 KILLSWITCH_uC = OFF;
             }
 
+          /**
+           * CAN Festival Time Dispatch
+           * This funciton need to be called for CANOpen to work
+           */
+          if(can_flag){
+                TimeDispatch();
+                can_flag = 0;
+            }
+
           /*****************************************************************
            *
            * 5V output switches
@@ -201,11 +211,11 @@ int main (int argc, char** argv)
           } else {
               LED_B = 1;
           }
-          if(timer_state.ext_time_100us<5000){
-              LED_STATUS = ON;
-          } else {
-              LED_STATUS = OFF;
-          }
+//          if(timer_state.ext_time_100us<5000){
+//              LED_STATUS = ON;
+//          } else {
+//              LED_STATUS = OFF;
+//          }
 
             //DEBUG STUFF
             LATBbits.LATB6 = timer_state.ext_time_100us<5000;

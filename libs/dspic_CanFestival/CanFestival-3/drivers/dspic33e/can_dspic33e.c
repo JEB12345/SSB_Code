@@ -31,6 +31,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <p33Exxxx.h>
 #include "../../../../../Sensor_Board/sensor_pindefs.h"
 
+volatile uint8_t reset_elapsed_time;
+
 ///////////////////////////////////////////////////////////////////////////////
 ////////////////////// USER FUNCTIONS Replace when this is a library //////////
 
@@ -179,15 +181,12 @@ void Ecan1WriteRxAcptMask(int16_t m, int32_t identifier, uint16_t mide, uint16_t
 //internal RX buffer for CAN messages
 
 
-static unsigned int ecan1RXMsgBuf[8][8] __attribute__((aligned(8 * 16)));
-static unsigned int ecan1TXMsgBuf[8][8] __attribute__((aligned(8 * 16)));
-//#define CAN_RX_BUF_SIZE 1
-//static volatile Message rxbuffer[CAN_RX_BUF_SIZE]; //this is an internal buffer for received messages
-//static volatile uint8_t rxbuffer_start;
-//static volatile uint8_t rxbuffer_stop;
-#define CAN_RX_BUFF_SIZE 5*sizeof(Message)
-uint8_t can_rx_buffer_array[CAN_RX_BUFF_SIZE];
-CircularBuffer can_rx_circ_buff;
+volatile unsigned int ecan1RXMsgBuf[8][8] __attribute__((aligned(8 * 16)));
+volatile unsigned int ecan1TXMsgBuf[8][8] __attribute__((aligned(8 * 16)));
+
+#define CAN_RX_BUFF_SIZE 16*sizeof(Message)
+volatile uint8_t can_rx_buffer_array[CAN_RX_BUFF_SIZE];
+volatile CircularBuffer can_rx_circ_buff;
 uint8_t txreq_bitarray = 0;
 
 unsigned char canInit(unsigned int bitrate)
@@ -353,7 +352,7 @@ OUTPUT	1 if  hardware -> CAN frame
 		ecan1TXMsgBuf[0][4] = (((uint16_t) m->data[3]) << 8) | (m->data[2]&0xFF);
 		ecan1TXMsgBuf[0][5] = (((uint16_t) m->data[5]) << 8) | (m->data[4]&0xFF);
 		ecan1TXMsgBuf[0][6] = (((uint16_t) m->data[7]) << 8) | (m->data[6]&0xFF);
-		txreq_bitarray = txreq_bitarray | 0b00000001;
+                txreq_bitarray = txreq_bitarray | 0b00000001;
 
 		bufferSwitch++;
 		break;
@@ -446,21 +445,16 @@ INPUT	Message *m pointer to received CAN message
 OUTPUT	1 if a message received
  ******************************************************************************/
 {
+    DisableIntCAN1;
+    int ret_1 = CB_ReadMany(&can_rx_circ_buff, m, sizeof(Message));
+    EnableIntCAN1;
 
-	//get the first message in the queue (if any)
-	if (CB_ReadMany(&can_rx_circ_buff, m, sizeof(Message)) == SUCCESS) {
-		return 1;
-	} else {
-		return 0;
-	}
-	//    if(rxbuffer_start!=rxbuffer_stop){
-	//        res = &rxbuffer[rxbuffer_start++];
-	//        if(rxbuffer_start>CAN_RX_BUF_SIZE){
-	//            rxbuffer_start = 0;
-	//        }
-	//    }
-	//    return res;
-
+    //get the first message in the queue (if any)
+    if (ret_1 == SUCCESS) {
+            return 1;
+    } else {
+            return 0;
+    }
 }
 
 /***************************************************************************/
@@ -507,11 +501,6 @@ void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
 
 		ecan_msg_buf_ptr = ecan1RXMsgBuf[buffer];
 
-		// Clear the buffer full status bit so more messages can be received.
-		if (C1RXFUL1 & (1 << buffer)) {
-			C1RXFUL1 &= ~(1 << buffer);
-		}
-
 		//  Move the message from the DMA buffer to a data structure and then push it into our circular buffer.
 
 		// Read the first word to see the message type
@@ -548,14 +537,22 @@ void __attribute__((interrupt, no_auto_psv)) _C1Interrupt(void)
 			m.data[6] = (uint8_t) (ecan_msg_buf_ptr[6]&0xFF);
 			m.data[7] = (uint8_t) ((ecan_msg_buf_ptr[6] & 0xFF00) >> 8);
 
-
+                        //copy message to circular buffer
+                        CB_WriteMany(&can_rx_circ_buff, &m, sizeof(Message), 1);
 		}
 
-		//copy message to circular buffer
-		CB_WriteMany(&can_rx_circ_buff, &m, sizeof(Message), 1);
+                /**
+                 * Placed this at the end of the function so that we don't call it while we are storing data...?
+                 */
+                // Clear the buffer full status bit so more messages can be received.
+		if (C1FIFObits.FNRB <= 15) {
+                    C1RXFUL1 = ~(1 << C1FIFObits.FNRB);
+		}
+                else{
+                    C1RXFUL2 = ~(1 << (C1FIFObits.FNRB-16));
+                }
 
 		// Be sure to clear the interrupt flag.
-		C1RXFUL1 = 0;
 		C1INTFbits.RBIF = 0;
 	}
 

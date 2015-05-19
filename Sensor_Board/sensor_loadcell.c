@@ -164,7 +164,7 @@ return_value_t loadcell_init()
 	spi_wait();
 	//write the CONFIGURATION register
 	config_byte_1 = 0b00000100; // Chop disabled / REFIN1 ref. / Pseudo enabled
-	config_byte_2 = 0b00000001; // Enabled AIN1-4 / Disabled AIN5-8
+	config_byte_2 = 0b00001111; // Enabled AIN1-4 / Disabled AIN5-8
 	config_byte_3 = 0b01010111; // no burn / Ref. Detect enabled / Buffer enabled / bipolar / GAIN 128
 	loadcell_state.spi_state = SPI_VARIOUS;
 	SPI1BUF = config_byte_1;

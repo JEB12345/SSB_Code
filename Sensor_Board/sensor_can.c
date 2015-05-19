@@ -74,7 +74,8 @@ uint8_t can_process()
     uint8_t res = 0;
     if(can_state.init_return!=RET_OK){
         return 0;
-    } 
+    }
+
     while(canReceive(&rec_m)){
 /***********This code will start any board which sends out a
 	    pre-operational CANOpen code*/
@@ -211,10 +212,10 @@ static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time)
 
 void can_time_dispatch()
 {
-    if(can_state.timer_flag){
-        can_state.timer_flag = 0;
-        TimeDispatch();
-    }
+//    if(can_state.timer_flag){
+//        can_state.timer_flag = 0;
+//        TimeDispatch();
+//    }
 }
 
 void can_push_state()

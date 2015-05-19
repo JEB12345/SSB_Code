@@ -119,7 +119,6 @@
         return_value_t          init_return;
         char                    is_master;
         int volatile            state;
-        volatile bool           timer_flag;
     } can_data;
 
     typedef struct {

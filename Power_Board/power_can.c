@@ -174,10 +174,10 @@ static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time) {
 }
 
 void can_time_dispatch() {
-    if (can_state.timer_flag) {
-        can_state.timer_flag = 0;
-        TimeDispatch();
-    }
+//    if (can_state.timer_flag) {
+//        can_state.timer_flag = 0;
+//        TimeDispatch();
+//    }
 }
 
 void can_push_state() {
@@ -210,45 +210,35 @@ void can_update() {
     if (can_state.init_return == RET_OK) {
         can_process();
 
-        if (can_state.is_master) {
-            if (timer_state.systime == 2000) {
-                //test reset slaves
-                //can_reset_node(2);
-            }
+        can_push_state();
+
+        if (txreq_bitarray & 0b00000001 && !C1TR01CONbits.TXREQ0) {
+            C1TR01CONbits.TXREQ0 = 1;
+            txreq_bitarray = txreq_bitarray & 0b11111110;
         }
-        if (timer_state.systime % CAN_PUSH_UPDATE_TIME == 0) {
-            can_push_state();
+        if (txreq_bitarray & 0b00000010 && !C1TR01CONbits.TXREQ1) {
+            C1TR01CONbits.TXREQ1 = 1;
+            txreq_bitarray = txreq_bitarray & 0b11111101;
         }
-        if (timer_state.systime % 1 == 0) {
-            if (txreq_bitarray & 0b00000001 && !C1TR01CONbits.TXREQ0) {
-                C1TR01CONbits.TXREQ0 = 1;
-                txreq_bitarray = txreq_bitarray & 0b11111110;
-            }
-            if (txreq_bitarray & 0b00000010 && !C1TR01CONbits.TXREQ1) {
-                C1TR01CONbits.TXREQ1 = 1;
-                txreq_bitarray = txreq_bitarray & 0b11111101;
-            }
-            if (txreq_bitarray & 0b00000100 && !C1TR23CONbits.TXREQ2) {
-                C1TR23CONbits.TXREQ2 = 1;
-                txreq_bitarray = txreq_bitarray & 0b11111011;
-            }
-            if (txreq_bitarray & 0b00001000 && !C1TR23CONbits.TXREQ3) {
-                C1TR23CONbits.TXREQ3 = 1;
-                txreq_bitarray = txreq_bitarray & 0b11110111;
-            }
-            if (txreq_bitarray & 0b00010000 && !C1TR45CONbits.TXREQ4) {
-                C1TR45CONbits.TXREQ4 = 1;
-                txreq_bitarray = txreq_bitarray & 0b11101111;
-            }
-            if (txreq_bitarray & 0b00100000 && !C1TR45CONbits.TXREQ5) {
-                C1TR45CONbits.TXREQ5 = 1;
-                txreq_bitarray = txreq_bitarray & 0b11011111;
-            }
-            if (txreq_bitarray & 0b01000000 && !C1TR67CONbits.TXREQ6) {
-                C1TR67CONbits.TXREQ6 = 1;
-                txreq_bitarray = txreq_bitarray & 0b10111111;
-            }
+        if (txreq_bitarray & 0b00000100 && !C1TR23CONbits.TXREQ2) {
+            C1TR23CONbits.TXREQ2 = 1;
+            txreq_bitarray = txreq_bitarray & 0b11111011;
         }
-        can_time_dispatch();
+        if (txreq_bitarray & 0b00001000 && !C1TR23CONbits.TXREQ3) {
+            C1TR23CONbits.TXREQ3 = 1;
+            txreq_bitarray = txreq_bitarray & 0b11110111;
+        }
+        if (txreq_bitarray & 0b00010000 && !C1TR45CONbits.TXREQ4) {
+            C1TR45CONbits.TXREQ4 = 1;
+            txreq_bitarray = txreq_bitarray & 0b11101111;
+        }
+        if (txreq_bitarray & 0b00100000 && !C1TR45CONbits.TXREQ5) {
+            C1TR45CONbits.TXREQ5 = 1;
+            txreq_bitarray = txreq_bitarray & 0b11011111;
+        }
+        if (txreq_bitarray & 0b01000000 && !C1TR67CONbits.TXREQ6) {
+            C1TR67CONbits.TXREQ6 = 1;
+            txreq_bitarray = txreq_bitarray & 0b10111111;
+        }
     }
 }

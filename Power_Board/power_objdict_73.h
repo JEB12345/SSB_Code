@@ -26,5 +26,6 @@ extern UNS8 power73_power_switches_5V5_Out_1;		/* Mapped at index 0x2031, subind
 extern UNS8 power73_power_switches_5V5_Out_2;		/* Mapped at index 0x2031, subindex 0x03 */
 extern UNS8 power73_power_switches_5V5_Out_3;		/* Mapped at index 0x2031, subindex 0x04 */
 extern UNS8 power73_power_switches_5V5_Out_4;		/* Mapped at index 0x2031, subindex 0x05 */
+extern UNS32 power73_nrf_time;		/* Mapped at index 0x2032, subindex 0x00*/
 
 #endif // POWER_OBJDICT_73_H

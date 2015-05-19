@@ -30,6 +30,8 @@
 #include <stdlib.h>
 #include <p33Exxxx.h>
 
+extern volatile unsigned int ecan1TXMsgBuf[8][8] __attribute__((aligned(8 * 16)));
+
 extern system_data system_state;
 extern timer_data timer_state;
 extern loadcell_data loadcell_state;
@@ -115,6 +117,10 @@ main(int argc, char** argv)
             //make sure that everything in here takes less than 1ms
             //useful for checking state consistency, synchronization, watchdog...
 
+            if(timer_state.systime % 1000 == 1) {
+                LED_4 = 1;
+            }
+
             led_update();
             if (timer_state.systime % 10 == 1) {
                 IMU_GetQuaternion(quaterion);
@@ -124,10 +130,10 @@ main(int argc, char** argv)
             if (timer_state.systime % 5 == 1) {
                 IMU_normalizeData(&mpuData, &magData, &imuData);
                 // Run AHRS algorithm
-                //IMU_UpdateAHRS (&imuData);
+                IMU_UpdateAHRS (&imuData);
 
                 // Run IMU algorithm (does not use MAG data)
-                IMU_UpdateIMU(&imuData);
+//                IMU_UpdateIMU(&imuData);
 
                 //copy state to CAN dictionary
                 IMU_CopyOutput(&imuData, &mpuData, &magData);
@@ -143,43 +149,7 @@ main(int argc, char** argv)
                  * Sets CANFestival shared variables
                  * specific to Sensor Board
                  */
-                if (timer_state.systime % timeStep == 0) {
-                    can_push_state();
-                }
-
-                /**
-                 * Handles CAN transmission buffers
-                 */
-                if (timer_state.systime % 1 == 0) {
-                    if (txreq_bitarray & 0b00000001 && !C1TR01CONbits.TXREQ0) {
-                        C1TR01CONbits.TXREQ0 = 1;
-                        txreq_bitarray = txreq_bitarray & 0b11111110;
-                    }
-                    if (txreq_bitarray & 0b00000010 && !C1TR01CONbits.TXREQ1) {
-                        C1TR01CONbits.TXREQ1 = 1;
-                        txreq_bitarray = txreq_bitarray & 0b11111101;
-                    }
-                    if (txreq_bitarray & 0b00000100 && !C1TR23CONbits.TXREQ2) {
-                        C1TR23CONbits.TXREQ2 = 1;
-                        txreq_bitarray = txreq_bitarray & 0b11111011;
-                    }
-                    if (txreq_bitarray & 0b00001000 && !C1TR23CONbits.TXREQ3) {
-                        C1TR23CONbits.TXREQ3 = 1;
-                        txreq_bitarray = txreq_bitarray & 0b11110111;
-                    }
-                    if (txreq_bitarray & 0b00010000 && !C1TR45CONbits.TXREQ4) {
-                        C1TR45CONbits.TXREQ4 = 1;
-                        txreq_bitarray = txreq_bitarray & 0b11101111;
-                    }
-                    if (txreq_bitarray & 0b00100000 && !C1TR45CONbits.TXREQ5) {
-                        C1TR45CONbits.TXREQ5 = 1;
-                        txreq_bitarray = txreq_bitarray & 0b11011111;
-                    }
-                    if (txreq_bitarray & 0b01000000 && !C1TR67CONbits.TXREQ6) {
-                        C1TR67CONbits.TXREQ6 = 1;
-                        txreq_bitarray = txreq_bitarray & 0b10111111;
-                    }
-                }
+                can_push_state();
             }
 
             /**
@@ -209,16 +179,46 @@ main(int argc, char** argv)
 
             }
 
-            // Call resonablly fast, too fast might bork the Beagle Bone Black
-            if(canPrescaler > 2){
-            can_time_dispatch();
-            canPrescaler = 0;
+            if(can_flag){
+                TimeDispatch();
+                can_flag = 0;
             }
-            canPrescaler++;
 
             uart_rx_packet = uart_rx_cur_packet();
             if (uart_rx_packet != 0) {
                 uart_rx_packet_consumed();
+            }
+
+            /**
+             * Handles CAN transmission buffers
+             */
+            if ((txreq_bitarray & 0b00000001) && !C1TR01CONbits.TXREQ0) {
+                C1TR01CONbits.TXREQ0 = 1;
+                txreq_bitarray = txreq_bitarray & 0b11111110;
+            }
+            if ((txreq_bitarray & 0b00000010) && !C1TR01CONbits.TXREQ1) {
+                C1TR01CONbits.TXREQ1 = 1;
+                txreq_bitarray = txreq_bitarray & 0b11111101;
+            }
+            if ((txreq_bitarray & 0b00000100) && !C1TR23CONbits.TXREQ2) {
+                C1TR23CONbits.TXREQ2 = 1;
+                txreq_bitarray = txreq_bitarray & 0b11111011;
+            }
+            if ((txreq_bitarray & 0b00001000) && !C1TR23CONbits.TXREQ3) {
+                C1TR23CONbits.TXREQ3 = 1;
+                txreq_bitarray = txreq_bitarray & 0b11110111;
+            }
+            if ((txreq_bitarray & 0b00010000) && !C1TR45CONbits.TXREQ4) {
+                C1TR45CONbits.TXREQ4 = 1;
+                txreq_bitarray = txreq_bitarray & 0b11101111;
+            }
+            if ((txreq_bitarray & 0b00100000) && !C1TR45CONbits.TXREQ5) {
+                C1TR45CONbits.TXREQ5 = 1;
+                txreq_bitarray = txreq_bitarray & 0b11011111;
+            }
+            if ((txreq_bitarray & 0b01000000) && !C1TR67CONbits.TXREQ6) {
+                C1TR67CONbits.TXREQ6 = 1;
+                txreq_bitarray = txreq_bitarray & 0b10111111;
             }
         }
     }
@@ -244,8 +244,7 @@ hex2char(char halfhex)
  * This is the interrupt function for the INT pin on the MPU6000
  */
 void __attribute__((__interrupt__, no_auto_psv))
-_CNInterrupt(void)
-{
+_CNInterrupt(void) {
     if (mpuData.startData == 1) {
         if (PORTFbits.RF0 == 1) {
             // Gets the IMU data after the INT pin has been triggered

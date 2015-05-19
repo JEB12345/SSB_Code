@@ -34,6 +34,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 // Canfestivals includes
 #include "../can.h"
 
+extern volatile uint8_t can_flag;
+extern volatile uint8_t reset_elapsed_time;
 
 /************************* To be called by user app ***************************/
 

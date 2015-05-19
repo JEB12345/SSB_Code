@@ -523,7 +523,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1803_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1803_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1803_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1803_Event_Timer = 0x64;	/* 100 */
+                    UNS16 Sensor_Board_obj1803_Event_Timer = 0x32;	/* 50 */
                     UNS8 Sensor_Board_obj1803_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1803_callbacks[] = 
                      {
@@ -552,7 +552,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1804_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1804_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1804_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1804_Event_Timer = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj1804_Event_Timer = 0x32;	/* 50 */
                     UNS8 Sensor_Board_obj1804_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1804_callbacks[] = 
                      {
@@ -581,7 +581,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1805_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1805_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1805_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1805_Event_Timer = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj1805_Event_Timer = 0x32;	/* 50 */
                     UNS8 Sensor_Board_obj1805_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1805_callbacks[] = 
                      {
@@ -697,7 +697,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1809_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1809_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1809_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1809_Event_Timer = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj1809_Event_Timer = 0x32;	/* 50 */
                     UNS8 Sensor_Board_obj1809_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1809_callbacks[] = 
                      {
@@ -726,7 +726,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj180A_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj180A_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj180A_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj180A_Event_Timer = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj180A_Event_Timer = 0x32;	/* 50 */
                     UNS8 Sensor_Board_obj180A_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index180A_callbacks[] = 
                      {
@@ -755,7 +755,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj180B_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj180B_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj180B_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj180B_Event_Timer = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj180B_Event_Timer = 0x32;	/* 50 */
                     UNS8 Sensor_Board_obj180B_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index180B_callbacks[] = 
                      {

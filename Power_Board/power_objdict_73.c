@@ -20,6 +20,7 @@ UNS8 power73_power_switches_5V5_Out_1 = 0x1;		/* Mapped at index 0x2031, subinde
 UNS8 power73_power_switches_5V5_Out_2 = 0x1;		/* Mapped at index 0x2031, subindex 0x03 */
 UNS8 power73_power_switches_5V5_Out_3 = 0x0;		/* Mapped at index 0x2031, subindex 0x04 */
 UNS8 power73_power_switches_5V5_Out_4 = 0x0;		/* Mapped at index 0x2031, subindex 0x05 */
+UNS32 power73_nrf_time = 0x0;		/* Mapped at index 0x2032, subindex 0x00 */
 
 /**************************************************************************/
 /* Declaration of value range types                                       */
@@ -606,6 +607,12 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, uint8, sizeof (UNS8), (void*)&power73_power_switches_5V5_Out_4 }
                      };
 
+/* index 0x2032 :   Mapped variable power73_nrf_time */
+                    subindex Power_Board_Index2032[] = 
+                     {
+                       { RW, uint32, sizeof (UNS32), (void*)&power73_nrf_time }
+                     };
+
 /**************************************************************************/
 /* Declaration of pointed variables                                       */
 /**************************************************************************/
@@ -642,6 +649,7 @@ const indextable Power_Board_objdict[] =
   { (subindex*)Power_Board_Index1A03,sizeof(Power_Board_Index1A03)/sizeof(Power_Board_Index1A03[0]), 0x1A03},
   { (subindex*)Power_Board_Index2030,sizeof(Power_Board_Index2030)/sizeof(Power_Board_Index2030[0]), 0x2030},
   { (subindex*)Power_Board_Index2031,sizeof(Power_Board_Index2031)/sizeof(Power_Board_Index2031[0]), 0x2031},
+  { (subindex*)Power_Board_Index2032,sizeof(Power_Board_Index2032)/sizeof(Power_Board_Index2032[0]), 0x2032},
 };
 
 const indextable * Power_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks)
@@ -679,6 +687,7 @@ const indextable * Power_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODC
 		case 0x1A03: i = 27;break;
 		case 0x2030: i = 28;break;
 		case 0x2031: i = 29;break;
+		case 0x2032: i = 30;break;
 		default:
 			*errorCode = OD_NO_SUCH_OBJECT;
 			return NULL;
