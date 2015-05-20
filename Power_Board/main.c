@@ -71,6 +71,7 @@ int main (int argc, char** argv)
 
   uint16_t buzzer_init = 1; //used to turn the buzzer off after initialization
 
+
   //Enable Motor Current Sensing
   EN_MOTOR_CURRENT = 1;
  
@@ -128,7 +129,9 @@ int main (int argc, char** argv)
            */
           can_update();
 
-          adc_update_state();
+          if(timer_state.systime>1000){
+            adc_update_state();
+          }
 
           killswitch_update();
 
@@ -143,6 +146,7 @@ int main (int argc, char** argv)
            *
            ******************************************************************/
           adc_update_output();
+
 
           /******************************************************************
            *

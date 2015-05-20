@@ -63,6 +63,7 @@ typedef struct {
     int32_t                 mA_motor_current;
     uint32_t                mV_motor_voltage;
     int32_t                 mW_motor_power;
+    int32_t                 mW_motor_power_filtered;
 
     //internal variables
     uint32_t                motor_current_offset;  //offset for bipolar mA_motor_current value

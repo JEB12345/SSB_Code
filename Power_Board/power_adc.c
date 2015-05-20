@@ -132,6 +132,7 @@ return_value_t init_adc()
     Delay_us(20);
 
     adc_values.motor_current_offset = 0x7B6;
+    adc_values.mW_motor_power_filtered = 0;
 
     return RET_OK;
 }
@@ -148,6 +149,11 @@ inline void adc_update_state()
     } else if(ctr==256) {
         ctr++;
         adc_values.motor_current_offset  = offset>>8;
+    } else {
+        adc_values.mW_motor_power_filtered =
+                95*adc_values.mW_motor_power_filtered
+                + 5*adc_values.mW_motor_power; //TODO: add a parameter for this
+        adc_values.mW_motor_power_filtered /= 100;
     }
 }
 
@@ -159,13 +165,14 @@ void adc_update_output() {
     adc_values.mV_motor_voltage = ((((uint32_t)adc_values.AN12)*36300))>>12;
 
     adc_values.mA_5V5_out = ((((uint32_t)adc_values.AN13)*3300))>>12;
-    if(adc_values.AN11>=adc_values.motor_current_offset){
-        adc_values.mA_motor_current = adc_values.AN11-adc_values.motor_current_offset;
-
-    } else {
-        adc_values.mA_motor_current = adc_values.motor_current_offset-adc_values.AN11;
-        adc_values.mA_motor_current = -adc_values.mA_motor_current;
-    }
+    adc_values.mA_motor_current = (int32_t)adc_values.AN11;
+    adc_values.mA_motor_current -= (int32_t)adc_values.motor_current_offset;
+//    if(adc_values.AN11>=adc_values.motor_current_offset){
+//        //pass
+//    } else {
+//        adc_values.mA_motor_current = adc_values.motor_current_offset-adc_values.AN11;
+//        adc_values.mA_motor_current = -adc_values.mA_motor_current;
+//    }
     adc_values.mA_motor_current *= 30000;
     adc_values.mA_motor_current /= 4096;
     //adc_values.mA_motor_current = ((((int32_t)adc_values.AN11)-adc_values.motor_current_offset)*30000)/4096; ;//((((int32_t)adc_values.AN11)-adc_values.motor_current_offset)*30000)/4096; //110mv/A
@@ -180,7 +187,7 @@ void adc_update_output() {
     CO(adc_state_mV_vbackup_battery) = adc_values.mV_vbackup_battery;
     CO(adc_state_mV_main_battery) = adc_values.mV_main_battery;
     CO(adc_state_mA_motor_current) = adc_values.mA_motor_current;
-    CO(adc_state_mW_motor_power) = adc_values.mW_motor_power;
+    CO(adc_state_mW_motor_power) = adc_values.mW_motor_power_filtered;//adc_values.mW_motor_power; //TODO: add specific variable
     CO(adc_state_mV_motor_voltage) = adc_values.mV_motor_voltage;
 
     if ((adc_values.mV_main_battery) > 21000) {
