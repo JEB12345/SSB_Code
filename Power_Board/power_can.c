@@ -6,11 +6,7 @@
 
 #include "power_can.h"
 #include "power_pindef.h"
-#ifdef CONF73
-#include "power_objdict_73.h"
-#else
-#include "power_objdict_3.h"
-#endif
+#include "power_objdict_include.h"
 
 can_data can_state;
 extern CO_Data Power_Board_Data;

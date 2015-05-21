@@ -120,7 +120,6 @@ void __attribute__((__interrupt__, no_auto_psv)) _INT1Interrupt(void)
 
 return_value_t nrf24l01_init(void) {
     uint16_t i;
-
     //power toggle the chip
     RF_GND_EN = 0;
     for(i=0;i<50;++i){
@@ -167,8 +166,9 @@ return_value_t nrf24l01_init(void) {
     nrf24l01_state.spi_rf_busy = 0;
 
     SPI1STATbits.SPIEN = 1; // Enable SPI module
+    
     rf_init_data();
-
+    
     /*wait >=100 ms for the RF to go in power down mode*/
     for(i=0;i<150;++i){
         Delay_us(1000);

@@ -13,11 +13,12 @@
 #include "power_timers.h"
 #include "power_adc.h"
 #include "power_can.h"
-#ifdef CONF73
-#include "power_objdict_73.h"
-#else
-#include "power_objdict_3.h"
-#endif
+//#ifdef CONF73
+//#include "power_objdict_73.h"
+//#else
+//#include "power_objdict_3.h"
+//#endif
+#include "power_objdict_include.h"
 #include "power_nrf24l01.h"
 #include "power_buzzer.h"
 #include "power_i2c.h"
@@ -57,15 +58,15 @@ int main (int argc, char** argv)
   buzzer_set_frequency(TONE_A_7);
   init_adc ();
   led_init ();
-  buzzer_set_frequency(TONE_A_6);
+  buzzer_set_frequency(TONE_A_6);  
   nrf24l01_init();
   buzzer_set_frequency(TONE_A_5);
   i2c_1_init();
   temperature_init();
-  buzzer_set_frequency(TONE_D_5);
+  buzzer_set_frequency(TONE_D_7);
   killswitch_init();
 
-  // Parameter Initalziations for timer, UART
+  // Parameter Initializations for timer, UART
   timer_state.prev_systime = 0;
   timer_state.systime = 0;
 
