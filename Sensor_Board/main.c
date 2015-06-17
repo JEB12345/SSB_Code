@@ -25,6 +25,13 @@
 #include "MPU60xx/IMU.h"
 #include "MPU60xx/IMU_Math.h"
 
+/**
+ * This code is for the DWM1000 Module
+ */
+#include "sensor_spi2.h"
+#include "dwm1000_dspic/dwm_spi.h"
+#include "dwm1000_dspic/decadriver/instance.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,6 +72,12 @@ main(int argc, char** argv)
     uint8_t* uart_rx_packet;
     uint32_t old_loadcell_data;
     uint16_t timeStep = 1;
+    uint8_t dwt_init_flag = 1;
+
+    NFET_DWM = 1;
+    uint8_t s = decamutexon();
+    dwt_rxdiag_t test;
+    dwt_deviceentcnts_t counters;
 
     clock_init();
     pin_init();
@@ -72,6 +85,7 @@ main(int argc, char** argv)
     timers_init();
     state_init();
     uart_init();
+
 
     // Set up UART2 for 115200 baud. There's no round() on the dsPICs, so we implement our own.
     double brg = (double) 140000000 / 2.0 / 16.0 / 115200.0 - 1.0;
@@ -117,27 +131,50 @@ main(int argc, char** argv)
             //make sure that everything in here takes less than 1ms
             //useful for checking state consistency, synchronization, watchdog...
 
+            if(timer_state.systime >= 10){
+                if(dwt_init_flag){
+                    uint8_t result = -1;
+                    config_spi2_slow();
+#ifdef IS_ANCHOR
+                    result = dwm_init(ANCHOR);
+#endif
+#ifdef IS_TAG
+                    result = dwm_init(TAG);
+#endif
+                    if(result == 0){
+                        LED_3 = 1;
+                    }
+                    decamutexoff(s);
+                    dwt_init_flag = 0;
+                }
+            }
+
+            if(dwt_init_flag == 0){
+                    instance_run();
+                    dwt_readeventcounters (&counters);
+            }
+
             if(timer_state.systime % 1000 == 1) {
                 LED_4 = 1;
             }
 
             led_update();
-            if (timer_state.systime % 10 == 1) {
-                IMU_GetQuaternion(quaterion);
-                QuaternionToYawPitchRoll(quaterion, ypr);
-            }
-
-            if (timer_state.systime % 5 == 1) {
-                IMU_normalizeData(&mpuData, &magData, &imuData);
-                // Run AHRS algorithm
-                IMU_UpdateAHRS (&imuData);
-
-                // Run IMU algorithm (does not use MAG data)
-//                IMU_UpdateIMU(&imuData);
-
-                //copy state to CAN dictionary
-                IMU_CopyOutput(&imuData, &mpuData, &magData);
-            }
+//            if (timer_state.systime % 10 == 1) {
+//                IMU_GetQuaternion(quaterion);
+//                QuaternionToYawPitchRoll(quaterion, ypr);
+//            }
+//
+//            if (timer_state.systime % 5 == 1) {
+//                IMU_normalizeData(&mpuData, &magData, &imuData);
+//                // Run AHRS algorithm
+//                IMU_UpdateAHRS (&imuData);
+//
+//                // Run IMU algorithm (does not use MAG data)
+////                IMU_UpdateIMU(&imuData);
+//
+//                //copy state to CAN dictionary
+//                IMU_CopyOutput(&imuData, &mpuData, &magData);
+//            }
 
             /**
              * CANFestival Loop
@@ -170,13 +207,19 @@ main(int argc, char** argv)
 //            LED_1 = mpuData.accelZ > 0;
 
 //            IMU_GetData();
-            IMU_CopyI2CData(&mpuData, &magData);
+//            IMU_CopyI2CData(&mpuData, &magData);
 
             if (!T1CONbits.TON) {
                 RGB_RED = 0;
                 RGB_GREEN = RGB_BLUE = 1;
                 while (1);
 
+            }
+
+            if(dwm_status.irq_enable){
+                dwt_isr();
+                dwt_readdignostics(&test);
+                dwm_status.irq_enable = 0;
             }
 
             if(can_flag){
@@ -243,16 +286,25 @@ hex2char(char halfhex)
 /**
  * This is the interrupt function for the INT pin on the MPU6000
  */
-void __attribute__((__interrupt__, no_auto_psv))
-_CNInterrupt(void) {
-    if (mpuData.startData == 1) {
-        if (PORTFbits.RF0 == 1) {
-            // Gets the IMU data after the INT pin has been triggered
-            IMU_GetCount(); //(&mpuData, &magData);
+//void __attribute__((__interrupt__, no_auto_psv))
+//_CNInterrupt(void) {
+//    if (mpuData.startData == 1) {
+//        if (PORTFbits.RF0 == 1) {
+//            // Gets the IMU data after the INT pin has been triggered
+//            IMU_GetCount(); //(&mpuData, &magData);
+//
+//            // Data normalization
+//            //			IMU_normalizeData(mpuData, magData, &imuData);
+//        }
+//    }
+//    IFS1bits.CNIF = 0; // Clear the interrupt flag
+//}
 
-            // Data normalization
-            //			IMU_normalizeData(mpuData, magData, &imuData);
-        }
-    }
-    IFS1bits.CNIF = 0; // Clear the interrupt flag
+void Delay_us(unsigned int delay)
+{
+	uint16_t i;
+	for (i = 0; i < delay; i++) {
+		__asm__ volatile ("repeat #39");
+		__asm__ volatile ("nop");
+	}
 }

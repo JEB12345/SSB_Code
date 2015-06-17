@@ -4,3 +4,6 @@
 [submodule "Motor_Driver/PMSM"]
 	path = Motor_Driver/PMSM
 	url = git@github.com:FrauBluher/PMSM
+[submodule "Sensor_Board/dwm1000_dspic"]
+	path = Sensor_Board/dwm1000_dspic
+	url = git@github.com:JEB12345/dwm1000_dspic.git

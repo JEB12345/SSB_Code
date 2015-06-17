@@ -54,23 +54,39 @@ pin_init ()
   RPINR8bits.IC4R = 25;
   TRISAbits.TRISA4 = 0;
 
-  //RF
+  //DWM1000 Module
   RPINR1bits.INT2R = 94;
   TRISBbits.TRISB9 = 0;
-  XBEE_nSSEL = 1;
-  _RP41R = 0;
+  nSELECT = 1;
+  _RP41R = 0; // Default Pin output
   TRISFbits.TRISF1 = 0;
-  XBEE_SLEEP_RQ = 0;
+  DWM_WAKEUP = 0;
   _RP97R = 0;
   TRISEbits.TRISE13 = 0;
-  XBEE_nRESET = 1;
-  _SDI2R = 40; // Map SPI2 DI to RP40
-  _RP39R = 8; // Map SPI2 DO to RP39
+  DWM_RESET = 1;
+  _SDI2R = 40; // Map SPI2 MISO to RP40
+  _RP39R = 8; // Map SPI2 MOSI to RP39
   TRISBbits.TRISB7 = 0;
-
-  //TRISCbits.TRISC9 = 0;
+  TRISCbits.TRISC9 = 0;
   _RP57R = 9; // Map SPI2 CLK to RP57
-  CNPUEbits.CNPUE14 = 1; // XBEE_nATTN pull up
+
+  //RF
+//  RPINR1bits.INT2R = 94;
+//  TRISBbits.TRISB9 = 0;
+//  XBEE_nSSEL = 1;
+//  _RP41R = 0;
+//  TRISFbits.TRISF1 = 0;
+//  XBEE_SLEEP_RQ = 0;
+//  _RP97R = 0;
+//  TRISEbits.TRISE13 = 0;
+//  XBEE_nRESET = 1;
+//  _SDI2R = 40; // Map SPI2 DI to RP40
+//  _RP39R = 8; // Map SPI2 DO to RP39
+//  TRISBbits.TRISB7 = 0;
+
+//  //TRISCbits.TRISC9 = 0;
+//  _RP57R = 9; // Map SPI2 CLK to RP57
+//  CNPUEbits.CNPUE14 = 1; // XBEE_nATTN pull up
 
   //LEDs
   TRISGbits.TRISG6 = 0;
@@ -87,6 +103,7 @@ pin_init ()
   TRISCbits.TRISC12 = 0;
   TRISCbits.TRISC15 = 0;
   TRISAbits.TRISA10 = 0;
+  TRISAbits.TRISA7 = 0;
 
   //UART 1
   _RP36R = 0b000001; //RB4 UART 1 tx

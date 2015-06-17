@@ -27,23 +27,31 @@ extern "C" {
 #define INT_IMU     PORTFbits.RF0 //actually tied to INT1
 
     //RF
-#define XBEE_nATTN      PORTEbits.RE14//actually tied to INT2
-#define XBEE_nSSEL      LATBbits.LATB9
-#define XBEE_SLEEP_RQ   LATFbits.LATF1
-#define XBEE_nRESET     LATEbits.LATE13
-#define XBEE_DOUT       LATCbits.LATC10
-#define XBEE_DOUT_INPUT (TRISCbits.TRISC10 = 1)
-#define XBEE_DOUT_OUTPUT (TRISCbits.TRISC10 = 0)
+//#define XBEE_nATTN      PORTEbits.RE14//actually tied to INT2
+//#define XBEE_nSSEL      LATBbits.LATB9
+//#define XBEE_SLEEP_RQ   LATFbits.LATF1
+//#define XBEE_nRESET     LATEbits.LATE13
+//#define XBEE_DOUT       LATCbits.LATC10
+//#define XBEE_DOUT_INPUT (TRISCbits.TRISC10 = 1)
+//#define XBEE_DOUT_OUTPUT (TRISCbits.TRISC10 = 0)
 
     //POWER MOSFETS
 #define NFET_1      LATCbits.LATC12 //PWR_SW1
 #define NFET_2      LATCbits.LATC15 //PWR_SW2
-#define NFET_3      LATAbits.LATA10 //PWR_SW3
+#define NFET_3      LATAbits.LATA7 //PWR_SW3
+#define NFET_DWM    LATAbits.LATA10 //XBEE_PWR
 
     //LOAD CELL
 #define SHD         LATCbits.LATC6
 #define SS          LATBbits.LATB0
 #define SG_MISO     PORTAbits.RA9
+
+    // DWM1000 SPI
+#define nSELECT     LATBbits.LATB9
+#define DWM_IRQ     PORTEbits.RE14 //actually tied to INT2
+#define DWM_RESET   LATEbits.LATE13
+#define DWM_WAKEUP  LATFbits.LATF1
+#define DWM_EXTON   PORTBbits.RB11
 
     //Pin Out Connectors
     //ANALOG pins -> analog input specified in ADC module if needed

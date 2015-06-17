@@ -193,11 +193,3 @@ void __attribute__((interrupt, no_auto_psv)) _U1RXInterrupt(void)
 	IFS0bits.U1RXIF = 0;
 }
 
-void Delay_us(unsigned int delay)
-{
-	uint16_t i;
-	for (i = 0; i < delay; i++) {
-		__asm__ volatile ("repeat #39");
-		__asm__ volatile ("nop");
-	}
-}

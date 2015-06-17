@@ -89,25 +89,25 @@ uint8_t can_process()
         res = 1;
     }
 
-    switch(getState(&Sensor_Board_Data)){
-        case Initialisation:
-            LED_2 = 0;
-            LED_3 = 0;
-            break;
-        case Pre_operational:
-            LED_2 = 1;
-            LED_3 = 0;
-            break;
-        case Operational:
-            LED_2 = 0;
-            LED_3 = 1;
-            break;
-        default:
-            LED_2 = 1;
-            LED_3 = 1;
-            break;
-
-    };
+//    switch(getState(&Sensor_Board_Data)){
+//        case Initialisation:
+//            LED_2 = 0;
+//            LED_3 = 0;
+//            break;
+//        case Pre_operational:
+//            LED_2 = 1;
+//            LED_3 = 0;
+//            break;
+//        case Operational:
+//            LED_2 = 0;
+//            LED_3 = 1;
+//            break;
+//        default:
+//            LED_2 = 1;
+//            LED_3 = 1;
+//            break;
+//
+//    };
 
     return res;
 }

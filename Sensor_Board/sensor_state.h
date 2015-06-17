@@ -368,6 +368,10 @@ typedef enum {
         int16_t                 cur_vel;
     } motor_cmd_data;
 
+    typedef struct {
+        uint8_t     irq_enable;
+    }dwm_1000_status;
+
 #ifdef	__cplusplus
 }
 #endif
