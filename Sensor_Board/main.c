@@ -30,7 +30,6 @@
  */
 #include "sensor_spi2.h"
 #include "dwm1000_dspic/dwm_spi.h"
-#include "dwm1000_dspic/decadriver/instance.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -73,6 +72,7 @@ main(int argc, char** argv)
     uint32_t old_loadcell_data;
     uint16_t timeStep = 1;
     uint8_t dwt_init_flag = 1;
+    uint8_t dwt_works = 0;
 
     NFET_DWM = 1;
     uint8_t s = decamutexon();
@@ -135,23 +135,19 @@ main(int argc, char** argv)
                 if(dwt_init_flag){
                     uint8_t result = -1;
                     config_spi2_slow();
-#ifdef IS_ANCHOR
-                    result = dwm_init(ANCHOR);
-#endif
-#ifdef IS_TAG
-                    result = dwm_init(TAG);
-#endif
+                    result = dwm_init();
                     if(result == 0){
                         LED_3 = 1;
+                        dwt_works = 1;
                     }
                     decamutexoff(s);
                     dwt_init_flag = 0;
                 }
             }
 
-            if(dwt_init_flag == 0){
-                    instance_run();
-                    dwt_readeventcounters (&counters);
+            if(dwt_works){
+                instance_process();
+//                    dwt_readeventcounters (&counters);
             }
 
             if(timer_state.systime % 1000 == 1) {
@@ -218,7 +214,7 @@ main(int argc, char** argv)
 
             if(dwm_status.irq_enable){
                 dwt_isr();
-                dwt_readdignostics(&test);
+//                dwt_readdignostics(&test);
                 dwm_status.irq_enable = 0;
             }
 
