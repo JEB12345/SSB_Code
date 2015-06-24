@@ -166,10 +166,11 @@ main(int argc, char** argv)
             if(timer_state.systime % 100 == 0){
                 if(dwt_works){
 #ifdef IS_TAG
-                    dwt_forcetrxoff();
-                    dwt_writetxdata(sizeof(fin_msg2), (uint8_t*) &fin_msg2, 0);
-                    dwt_writetxfctrl(sizeof(fin_msg2), 0);
-                    dwt_starttx(DWT_START_TX_IMMEDIATE);
+//                    dwt_forcetrxoff();
+//                    dwt_writetxdata(sizeof(fin_msg2), (uint8_t*) &fin_msg2, 0);
+//                    dwt_writetxfctrl(sizeof(fin_msg2), 0);
+//                    dwt_starttx(DWT_START_TX_IMMEDIATE);
+                    send_poll();
 #endif
 //                    instance_process();
     //                    dwt_readeventcounters (&counters);
@@ -241,7 +242,8 @@ main(int argc, char** argv)
             if(dwm_status.irq_enable){
                 dwt_isr();
                 incr_subsequence_counter();
-//                dwt_readdignostics(&test);
+               dwt_readdignostics(&test);
+               dwt_readeventcounters(&counters);
                 dwm_status.irq_enable = 0;
             }
 
