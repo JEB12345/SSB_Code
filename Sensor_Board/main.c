@@ -54,19 +54,6 @@ float ypr[3] = {0, 0, 0};
 
 uint16_t count = 0;
 
-struct ieee154_final_msg  {
-        uint8_t frameCtrl[2];                             //  frame control bytes 00-01
-        uint8_t seqNum;                                   //  sequence_number 02
-        uint8_t panID[2];                                 //  PAN ID 03-04
-        uint8_t destAddr[8];
-        uint8_t sourceAddr[8];
-        uint8_t messageType; //   (application data and any user payload)
-        uint8_t anchorID;
-        float distanceHist[NUM_ANTENNAS*NUM_ANTENNAS*NUM_CHANNELS];
-        uint8_t fcs[2] ;                                  //  we allow space for the CRC as it is logically part of the message. However ScenSor TX calculates and adds these bytes.
-    } __attribute__ ((__packed__));
-struct ieee154_final_msg fin_msg2;
-
 char hex2char(char halfhex);
 
 /*
@@ -144,7 +131,7 @@ main(int argc, char** argv)
             //make sure that everything in here takes less than 1ms
             //useful for checking state consistency, synchronization, watchdog...
 
-            if(timer_state.systime >= 10){
+            if(timer_state.systime >= 100){
                 if(dwt_init_flag){
                     uint8_t result = -1;
                     config_spi2_slow();
@@ -152,28 +139,25 @@ main(int argc, char** argv)
                     if(result == 0){
                         LED_3 = 1;
                         dwt_works = 1;
-//                        incr_subsequence_counter();
+                        instance_process();        
+//                        dwt_configeventcounters(1);
                     }
                     decamutexoff(s);
                     dwt_init_flag = 0;
-#ifdef IS_ANCHOR
-                    dwt_rxenable(0);
-                    dwt_setrxtimeout(0); // disable timeout
-#endif
+//#ifdef IS_ANCHOR
+//                    dwt_rxenable(0);
+//                    dwt_setrxtimeout(0); // disable timeout
+//#endif
                 }
             }
 
-            if(timer_state.systime % 100 == 0){
+            if(timer_state.systime % 1 == 0){
                 if(dwt_works){
-#ifdef IS_TAG
-//                    dwt_forcetrxoff();
-//                    dwt_writetxdata(sizeof(fin_msg2), (uint8_t*) &fin_msg2, 0);
-//                    dwt_writetxfctrl(sizeof(fin_msg2), 0);
-//                    dwt_starttx(DWT_START_TX_IMMEDIATE);
-                    send_poll();
-#endif
-//                    instance_process();
-    //                    dwt_readeventcounters (&counters);
+                    instance_process();
+//                    dwt_readeventcounters(&counters);
+//#ifdef IS_TAG
+//                    send_poll();
+//#endif
                 }
             }
 
@@ -241,9 +225,6 @@ main(int argc, char** argv)
 
             if(dwm_status.irq_enable){
                 dwt_isr();
-                incr_subsequence_counter();
-               dwt_readdignostics(&test);
-               dwt_readeventcounters(&counters);
                 dwm_status.irq_enable = 0;
             }
 

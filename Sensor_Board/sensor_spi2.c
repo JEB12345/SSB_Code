@@ -22,7 +22,7 @@
  * Primary Prescaler = 4, Secondary Prescaler = 7, 2.5MHz = (70,000,000) / (4 * 7)
  *
  * Fast Rate:
- * Primary Prescaler = 1, Secondary Prescaler = 5, 14MHz = (70,000,000) / (1 * 5)
+ * Primary Prescaler = 1, Secondary Prescaler = 7, 10MHz = (70,000,000) / (1 * 7)
  */
 unsigned int config1slow = ENABLE_SCK_PIN &         // Internal Serial Clock is Enabled
                             ENABLE_SDO_PIN &        // SDO2 pin is controlled by the module
@@ -43,8 +43,8 @@ unsigned int config1fast = ENABLE_SCK_PIN &         // Internal Serial Clock is 
                             SLAVE_ENABLE_OFF &      // Slave Select Disable
                             CLK_POL_ACTIVE_HIGH &   // Idle state for clock is low, active is high
                             MASTER_ENABLE_ON &      // Master Mode
-                            SEC_PRESCAL_5_1 &
-                            PRI_PRESCAL_1_1         // // SPI CLK at 14MHz
+                            SEC_PRESCAL_7_1 &
+                            PRI_PRESCAL_1_1         // // SPI CLK at 10MHz
                             ;
 
 // This contains the parameters to be configured in the SPIxCON2 register
