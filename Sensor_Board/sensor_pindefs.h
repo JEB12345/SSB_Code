@@ -52,6 +52,7 @@ extern "C" {
 #define DWM_RESET   LATEbits.LATE13
 #define DWM_WAKEUP  LATFbits.LATF1
 #define DWM_EXTON   PORTBbits.RB11
+#define DWM_SYNC    LATBbits.LATB10
 
     //Pin Out Connectors
     //ANALOG pins -> analog input specified in ADC module if needed

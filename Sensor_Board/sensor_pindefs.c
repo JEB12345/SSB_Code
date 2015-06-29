@@ -69,6 +69,9 @@ pin_init ()
   TRISBbits.TRISB7 = 0;
   TRISCbits.TRISC9 = 0;
   _RP57R = 9; // Map SPI2 CLK to RP57
+  _RP41R = 0; // Default Pin ouput
+  TRISBbits.TRISB10 = 0;
+  DWM_SYNC = 0;
 
   //RF
 //  RPINR1bits.INT2R = 94;
