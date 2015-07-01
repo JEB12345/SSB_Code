@@ -78,6 +78,8 @@ main(int argc, char** argv)
     uint8_t s = decamutexon();
     dwt_rxdiag_t test;
     dwt_deviceentcnts_t counters;
+    
+    uint32_t debug_time;
 
     clock_init();
     pin_init();
@@ -86,6 +88,8 @@ main(int argc, char** argv)
     state_init();
     uart_init();
 
+    // Needs to be called ASAP so that the DWM isn't held in reset
+    DWM_RESET_OFF;
 
     // Set up UART2 for 115200 baud. There's no round() on the dsPICs, so we implement our own.
 //    double brg = (double) 140000000 / 2.0 / 16.0 / 115200.0 - 1.0;
@@ -136,9 +140,15 @@ main(int argc, char** argv)
                     uint8_t result = -1;
                     config_spi2_slow();
                     result = dwm_init();
+                    uint32_t status = dwt_read32bitreg(0x0F) ;            // read status register low 32bitsus
+                    if(status & 0x02000000){
+                        result = dwt_write32bitreg(0x0F,(status & 0x02000000));
+//                        result = dwm_init();
+                    }
                     if(result == 0){
                         LED_3 = 1;
                         dwt_works = 1;
+//                        config_spi2_fast();
                         instance_process();        
 //                        dwt_configeventcounters(1);
                     }
@@ -150,6 +160,13 @@ main(int argc, char** argv)
 //#endif
                 }
             }
+            
+//            if(timer_state.systime==500){
+//                debug_time = dwt_readsystimestamphi32();
+//            } else if((timer_state.systime%100==0)&& timer_state.systime>=700){
+//                uint32_t end_time = dwt_readsystimestamphi32();
+//                uint32_t time_diff = end_time-debug_time;
+//            }
 
             if(timer_state.systime % 1 == 0){
                 if(dwt_works){
@@ -225,7 +242,12 @@ main(int argc, char** argv)
 
             if(dwm_status.irq_enable){
                 dwt_isr();
-                dwm_status.irq_enable = 0;
+                if(PORTEbits.RE13){
+                    dwm_status.irq_enable = 1;
+                }
+                else{
+                    dwm_status.irq_enable = 0;
+                }
             }
 
             if(can_flag){

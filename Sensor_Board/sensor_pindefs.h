@@ -49,7 +49,9 @@ extern "C" {
     // DWM1000 SPI
 #define nSELECT     LATBbits.LATB9
 #define DWM_IRQ     PORTEbits.RE14 //actually tied to INT2
-#define DWM_RESET   LATEbits.LATE13
+#define DWM_RESET_TRIS  TRISEbits.TRISE13
+#define DWM_RESET_OUT   LATEbits.LATE13
+#define DWM_RESET_IN    PORTEbits.RE13
 #define DWM_WAKEUP  LATFbits.LATF1
 #define DWM_EXTON   PORTBbits.RB11
 #define DWM_SYNC    LATBbits.LATB10

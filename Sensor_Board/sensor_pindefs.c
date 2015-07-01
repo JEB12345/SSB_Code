@@ -63,7 +63,6 @@ pin_init ()
   DWM_WAKEUP = 0;
   _RP97R = 0;
   TRISEbits.TRISE13 = 0;
-  DWM_RESET = 1;
   _SDI2R = 40; // Map SPI2 MISO to RP40
   _RP39R = 8; // Map SPI2 MOSI to RP39
   TRISBbits.TRISB7 = 0;
