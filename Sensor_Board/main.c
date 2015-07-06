@@ -140,41 +140,22 @@ main(int argc, char** argv)
                     uint8_t result = -1;
                     config_spi2_slow();
                     result = dwm_init();
-                    uint32_t status = dwt_read32bitreg(0x0F) ;            // read status register low 32bitsus
-                    if(status & 0x02000000){
-                        result = dwt_write32bitreg(0x0F,(status & 0x02000000));
-//                        result = dwm_init();
-                    }
                     if(result == 0){
                         LED_3 = 1;
                         dwt_works = 1;
-//                        config_spi2_fast();
+                        config_spi2_fast();
                         instance_process();        
 //                        dwt_configeventcounters(1);
                     }
                     decamutexoff(s);
                     dwt_init_flag = 0;
-//#ifdef IS_ANCHOR
-//                    dwt_rxenable(0);
-//                    dwt_setrxtimeout(0); // disable timeout
-//#endif
                 }
             }
-            
-//            if(timer_state.systime==500){
-//                debug_time = dwt_readsystimestamphi32();
-//            } else if((timer_state.systime%100==0)&& timer_state.systime>=700){
-//                uint32_t end_time = dwt_readsystimestamphi32();
-//                uint32_t time_diff = end_time-debug_time;
-//            }
 
             if(timer_state.systime % 1 == 0){
                 if(dwt_works){
                     instance_process();
 //                    dwt_readeventcounters(&counters);
-//#ifdef IS_TAG
-//                    send_poll();
-//#endif
                 }
             }
 
@@ -240,14 +221,9 @@ main(int argc, char** argv)
 
             }
 
-            if(dwm_status.irq_enable){
+            if(dwm_status.irq_enable){ 
+                dwm_status.irq_enable = 0;
                 dwt_isr();
-                if(PORTEbits.RE13){
-                    dwm_status.irq_enable = 1;
-                }
-                else{
-                    dwm_status.irq_enable = 0;
-                }
             }
 
             if(can_flag){
