@@ -370,6 +370,7 @@ typedef enum {
 
     typedef struct {
         uint8_t     irq_enable;
+        double       distance; //current distance measurement
     }dwm_1000_status;
 
 #ifdef	__cplusplus

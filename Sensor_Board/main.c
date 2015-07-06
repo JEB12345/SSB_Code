@@ -44,6 +44,7 @@ extern loadcell_data loadcell_state;
 //extern imu_data imu_state;
 extern can_data can_state;
 extern uint8_t txreq_bitarray;
+extern dwm_1000_status dwm_status;
 
 MPU6050_Data mpuData;
 MAG3110_Data magData;
@@ -201,6 +202,31 @@ main(int argc, char** argv)
                               LED_1 = !LED_1;
             }
 
+            /**
+             * UART DW1000 debug Loop
+             */
+            if (timer_state.systime % 50 == 0 ) {
+              uart_tx_packet = uart_tx_cur_packet ();
+              uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
+              uart_tx_packet[1] = 0xFF; //CMD
+              uart_tx_packet[2] = 14;
+              long double dist = dwm_status.distance;
+              memcpy(&(uart_tx_packet[3]),&dist,sizeof(dist));
+//              uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
+//              uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
+//              uart_tx_packet[5] = (loadcell_state.values[0]) & 0xFF;
+//              uart_tx_packet[6] = 0x01;
+//              uart_tx_packet[7] = 0x89; 
+//              uart_tx_packet[8] = 0x0;
+//              uart_tx_packet[9] = 0x0;
+//              uart_tx_packet[10] = 0x0;
+              uart_tx_packet[11] = 0x02;
+              uart_tx_packet[12] = 0x8b; // same as "\n"
+              uart_tx_compute_cks (uart_tx_packet);
+              uart_tx_update_index ();
+              uart_tx_start_transmit ();
+            }
+            
 
         }
         else {
@@ -219,6 +245,12 @@ main(int argc, char** argv)
                 RGB_GREEN = RGB_BLUE = 1;
                 while (1);
 
+            }
+            
+            //Manually check if the IRQ pin on the DW1000 is still high
+            //to prevent getting stuck on a failed SPI read
+            if((dwm_status.irq_enable==0) && (DWM_IRQ==1)){
+                dwm_status.irq_enable=1;
             }
 
             if(dwm_status.irq_enable){ 
