@@ -206,25 +206,27 @@ main(int argc, char** argv)
              * UART DW1000 debug Loop
              */
             if (timer_state.systime % 50 == 0 ) {
-              uart_tx_packet = uart_tx_cur_packet ();
-              uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
-              uart_tx_packet[1] = 0xFF; //CMD
-              uart_tx_packet[2] = 14;
-              long double dist = dwm_status.distance;
-              memcpy(&(uart_tx_packet[3]),&dist,sizeof(dist));
-//              uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
-//              uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
-//              uart_tx_packet[5] = (loadcell_state.values[0]) & 0xFF;
-//              uart_tx_packet[6] = 0x01;
-//              uart_tx_packet[7] = 0x89; 
-//              uart_tx_packet[8] = 0x0;
-//              uart_tx_packet[9] = 0x0;
-//              uart_tx_packet[10] = 0x0;
-              uart_tx_packet[11] = 0x02;
-              uart_tx_packet[12] = 0x8b; // same as "\n"
-              uart_tx_compute_cks (uart_tx_packet);
-              uart_tx_update_index ();
-              uart_tx_start_transmit ();
+                if(!(abs(dwm_status.distance) > 1000)){
+                    uart_tx_packet = uart_tx_cur_packet ();
+                    uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
+                    uart_tx_packet[1] = 0xFF; //CMD
+                    uart_tx_packet[2] = 14;
+                    long double dist = dwm_status.distance;
+                    memcpy(&(uart_tx_packet[3]),&dist,sizeof(dist));
+      //              uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
+      //              uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
+      //              uart_tx_packet[5] = (loadcell_state.values[0]) & 0xFF;
+      //              uart_tx_packet[6] = 0x01;
+      //              uart_tx_packet[7] = 0x89; 
+      //              uart_tx_packet[8] = 0x0;
+      //              uart_tx_packet[9] = 0x0;
+      //              uart_tx_packet[10] = 0x0;
+                    uart_tx_packet[11] = 0x02;
+                    uart_tx_packet[12] = 0x8b; // same as "\n"
+                    uart_tx_compute_cks (uart_tx_packet);
+                    uart_tx_update_index ();
+                    uart_tx_start_transmit ();
+                }
             }
             
 
