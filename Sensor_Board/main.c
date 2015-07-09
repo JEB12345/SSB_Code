@@ -120,13 +120,13 @@ main(int argc, char** argv)
 #ifdef CONF71
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
-    if (IMU_Init(400000, 70000000) == 0) {
-        // imu_state.init_return = RET_OK;
-        mpuData.startData = 1;
-    }
-    else {
-        //imu_state.init_return = RET_ERROR;
-    }
+//    if (IMU_Init(400000, 70000000) == 0) {
+//        // imu_state.init_return = RET_OK;
+//        mpuData.startData = 1;
+//    }
+//    else {
+//        //imu_state.init_return = RET_ERROR;
+//    }
 #endif
 
     for (;;) {
