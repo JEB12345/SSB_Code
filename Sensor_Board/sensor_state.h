@@ -4,11 +4,11 @@
  *
  * Created on August 28, 2013, 11:55 PM
  */
-
-#ifndef SENSOR_STATE_H
-#define	SENSOR_STATE_H
 #include <stdint.h>
 #include "superball_circularbuffer.h"
+#ifndef SENSOR_STATE_H
+#define	SENSOR_STATE_H
+
 
 #define bool uint8_t
 
@@ -367,11 +367,7 @@ typedef enum {
         int32_t                 cur_pos;
         int16_t                 cur_vel;
     } motor_cmd_data;
-
-    typedef struct {
-        uint8_t     irq_enable;
-        double       distance; //current distance measurement
-    }dwm_1000_status;
+    
 
 #ifdef	__cplusplus
 }
