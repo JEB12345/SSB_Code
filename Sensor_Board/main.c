@@ -218,10 +218,14 @@ main(int argc, char** argv)
                     uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
                     uart_tx_packet[1] = 0xFF; //CMD
                     uart_tx_packet[2] = 14;
-                    double dist = dwm_status.distance[0];
+                    uint16_t dist = dwm_status.distance_mm[0];
                     memcpy(&(uart_tx_packet[3]),&dist,sizeof(dist));
-                    dist = dwm_status.distance[1];
-                    memcpy(&(uart_tx_packet[7]),&dist,sizeof(dist));
+                    dist = dwm_status.distance_mm[1];
+                    memcpy(&(uart_tx_packet[3+2]),&dist,sizeof(dist));
+                    dist = dwm_status.distance_mm[2];
+                    memcpy(&(uart_tx_packet[3+4]),&dist,sizeof(dist));
+                    dist = dwm_status.distance_mm[3];
+                    memcpy(&(uart_tx_packet[3+6]),&dist,sizeof(dist));
                     uart_tx_packet[11] = 0x02;
                     uart_tx_packet[12] = 0x8b; // same as "\n"
                     uart_tx_compute_cks (uart_tx_packet);
