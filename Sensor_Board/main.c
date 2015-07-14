@@ -75,6 +75,8 @@ main(int argc, char** argv)
     uint8_t dwt_init_flag = 1;
     uint8_t dwt_works = 0;
 
+    volatile unsigned timer4_flag = 0;
+    
     NFET_DWM = 1;
     uint8_t s = decamutexon();
     dwt_rxdiag_t test;
@@ -140,7 +142,11 @@ main(int argc, char** argv)
                 if(dwt_init_flag){
                     uint8_t result = -1;
                     config_spi2_slow();
-                    result = dwm_init();
+#ifdef CONF71
+                    result = dwm_init(1, timer_4_set);
+#else
+                    result = dwm_init(0, timer_4_set);
+#endif
                     if(result == 0){
                         LED_3 = 1;
                         dwt_works = 1;
@@ -201,32 +207,31 @@ main(int argc, char** argv)
             if (timer_state.systime % 25 == 0) {
                               LED_1 = !LED_1;
             }
+            
 
             /**
              * UART DW1000 debug Loop
              */
             if (timer_state.systime % 50 == 0 ) {
-                if(!(abs(dwm_status.distance) > 1000)){
+                //if(!(abs(dwm_status.distance[0]) > 1000)){
                     uart_tx_packet = uart_tx_cur_packet ();
                     uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
                     uart_tx_packet[1] = 0xFF; //CMD
                     uart_tx_packet[2] = 14;
-                    long double dist = dwm_status.distance;
+                    uint16_t dist = dwm_status.distance_mm[0];
                     memcpy(&(uart_tx_packet[3]),&dist,sizeof(dist));
-      //              uart_tx_packet[3] = (loadcell_state.values[0] >> 16)&0xFF;
-      //              uart_tx_packet[4] = (loadcell_state.values[0] >> 8)&0xFF;
-      //              uart_tx_packet[5] = (loadcell_state.values[0]) & 0xFF;
-      //              uart_tx_packet[6] = 0x01;
-      //              uart_tx_packet[7] = 0x89; 
-      //              uart_tx_packet[8] = 0x0;
-      //              uart_tx_packet[9] = 0x0;
-      //              uart_tx_packet[10] = 0x0;
+                    dist = dwm_status.distance_mm[1];
+                    memcpy(&(uart_tx_packet[3+2]),&dist,sizeof(dist));
+                    dist = dwm_status.distance_mm[2];
+                    memcpy(&(uart_tx_packet[3+4]),&dist,sizeof(dist));
+                    dist = dwm_status.distance_mm[3];
+                    memcpy(&(uart_tx_packet[3+6]),&dist,sizeof(dist));
                     uart_tx_packet[11] = 0x02;
                     uart_tx_packet[12] = 0x8b; // same as "\n"
                     uart_tx_compute_cks (uart_tx_packet);
                     uart_tx_update_index ();
                     uart_tx_start_transmit ();
-                }
+                //}
             }
             
 
@@ -260,6 +265,10 @@ main(int argc, char** argv)
                 dwt_isr();
             }
 
+            if(dwm_status.timer_interrupt){
+                dwt_timer_interrupt();
+            }
+            
             if(can_flag){
                 TimeDispatch();
                 can_flag = 0;

@@ -13,7 +13,12 @@ extern "C" {
 #endif
     return_value_t timers_init();
 
-
+    /**
+    * Sets up timer 4 for an event 'microseconds' in the future.
+    * @param microseconds how far in the future do we need to trigger the event
+    * @param cb callback function that gets called when the timer expires
+    */
+    void timer_4_set(uint16_t microseconds, void (*cb)());
 
 #ifdef	__cplusplus
 }

@@ -67,7 +67,7 @@ extern "C" {
 #define RG9_IO         PIN_INPUT
 #define RA11_IO        PIN_OUTPUT
 #define RA1_IO         PIN_OUTPUT
-#define RB2_IO         PIN_INPUT
+#define RB2_IO         PIN_INPUT //debug
 #define RB15_IO        PIN_INPUT
 #define RA12_IO        PIN_INPUT
 #define RG7_IO         PIN_OUTPUT
