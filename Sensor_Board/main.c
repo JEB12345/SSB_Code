@@ -62,7 +62,7 @@ char hex2char(char halfhex);
  */
 int
 main(int argc, char** argv)
-{
+{    
     uint32_t led_colors = 0;
     uint8_t at_parm_test[10];
     unsigned once;
@@ -92,7 +92,7 @@ main(int argc, char** argv)
     uart_init();
 
     // Needs to be called ASAP so that the DWM isn't held in reset
-    DWM_RESET_OFF;
+    //DWM_RESET_OFF;
 
     // Set up UART2 for 115200 baud. There's no round() on the dsPICs, so we implement our own.
 //    double brg = (double) 140000000 / 2.0 / 16.0 / 115200.0 - 1.0;
@@ -143,7 +143,12 @@ main(int argc, char** argv)
                     uint8_t result = -1;
                     config_spi2_slow();
 #ifdef CONF71
+#ifdef FIXED_BASE
+                    result = dwm_init(2, timer_4_set);
+#else
                     result = dwm_init(1, timer_4_set);
+#endif
+                   
 #else
                     result = dwm_init(0, timer_4_set);
 #endif
@@ -244,6 +249,12 @@ main(int argc, char** argv)
                 //}
             }
             
+            if (timer_state.systime % 100 == 0) {
+                //dwm_status.irq_enable = 1; //in case the device hangs
+                dwt_forcetrxoff();
+                dwt_setrxtimeout(0); //TODO: not sure if needed
+                dwt_rxenable(0);
+            }
 
         }
         else {
