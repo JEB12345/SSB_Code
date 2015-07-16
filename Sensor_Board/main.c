@@ -72,7 +72,7 @@ main(int argc, char** argv)
     uint8_t* uart_rx_packet;
     uint32_t old_loadcell_data;
     uint16_t timeStep = 1;
-    uint8_t dwt_init_flag = 1;
+    uint8_t dwt_init_flag = 0;
     uint8_t dwt_works = 0;
 
     volatile unsigned timer4_flag = 0;
@@ -119,16 +119,17 @@ main(int argc, char** argv)
     timer_state.prev_systime = 0;
     timer_state.systime = 0;
 
-#ifdef CONF71
+
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
-//    if (IMU_Init(400000, 70000000) == 0) {
-//        // imu_state.init_return = RET_OK;
-//        mpuData.startData = 1;
-//    }
-//    else {
-//        //imu_state.init_return = RET_ERROR;
-//    }
+#if defined(CONF71) && !defined(NO_BOOTLOADER)
+    if (IMU_Init(400000, 70000000) == 0) {
+        // imu_state.init_return = RET_OK;
+        mpuData.startData = 1;
+    }
+    else {
+        //imu_state.init_return = RET_ERROR;
+    }
 #endif
 
     for (;;) {
@@ -176,22 +177,22 @@ main(int argc, char** argv)
             }
 
             led_update();
-//            if (timer_state.systime % 10 == 1) {
-//                IMU_GetQuaternion(quaterion);
-//                QuaternionToYawPitchRoll(quaterion, ypr);
-//            }
-//
-//            if (timer_state.systime % 5 == 1) {
-//                IMU_normalizeData(&mpuData, &magData, &imuData);
-//                // Run AHRS algorithm
-//                IMU_UpdateAHRS (&imuData);
-//
-//                // Run IMU algorithm (does not use MAG data)
-////                IMU_UpdateIMU(&imuData);
-//
-//                //copy state to CAN dictionary
-//                IMU_CopyOutput(&imuData, &mpuData, &magData);
-//            }
+            if (timer_state.systime % 10 == 1) {
+                IMU_GetQuaternion(quaterion);
+                QuaternionToYawPitchRoll(quaterion, ypr);
+            }
+
+            if (timer_state.systime % 5 == 1) {
+                IMU_normalizeData(&mpuData, &magData, &imuData);
+                // Run AHRS algorithm
+                IMU_UpdateAHRS (&imuData);
+
+                // Run IMU algorithm (does not use MAG data)
+//                IMU_UpdateIMU(&imuData);
+
+                //copy state to CAN dictionary
+                IMU_CopyOutput(&imuData, &mpuData, &magData);
+            }
 
             /**
              * CANFestival Loop
@@ -249,10 +250,10 @@ main(int argc, char** argv)
                 //}
             }
             
-            if (timer_state.systime % 100 == 0) {
+            if (timer_state.systime % 100 == 0 && dwt_works) {
                 //dwm_status.irq_enable = 1; //in case the device hangs
                 dwt_forcetrxoff();
-                dwt_setrxtimeout(0); //TODO: not sure if needed
+//                dwt_setrxtimeout(0); //TODO: not sure if needed
                 dwt_rxenable(0);
             }
 
@@ -266,7 +267,7 @@ main(int argc, char** argv)
 //            LED_1 = mpuData.accelZ > 0;
 
 //            IMU_GetData();
-//            IMU_CopyI2CData(&mpuData, &magData);
+            IMU_CopyI2CData(&mpuData, &magData);
 
             if (!T1CONbits.TON) {
                 RGB_RED = 0;
@@ -354,19 +355,19 @@ hex2char(char halfhex)
 /**
  * This is the interrupt function for the INT pin on the MPU6000
  */
-//void __attribute__((__interrupt__, no_auto_psv))
-//_CNInterrupt(void) {
-//    if (mpuData.startData == 1) {
-//        if (PORTFbits.RF0 == 1) {
-//            // Gets the IMU data after the INT pin has been triggered
-//            IMU_GetCount(); //(&mpuData, &magData);
-//
-//            // Data normalization
-//            //			IMU_normalizeData(mpuData, magData, &imuData);
-//        }
-//    }
-//    IFS1bits.CNIF = 0; // Clear the interrupt flag
-//}
+void __attribute__((__interrupt__, no_auto_psv))
+_CNInterrupt(void) {
+    if (mpuData.startData == 1) {
+        if (PORTFbits.RF0 == 1) {
+            // Gets the IMU data after the INT pin has been triggered
+            IMU_GetCount(); //(&mpuData, &magData);
+
+            // Data normalization
+            //			IMU_normalizeData(mpuData, magData, &imuData);
+        }
+    }
+    IFS1bits.CNIF = 0; // Clear the interrupt flag
+}
 
 void Delay_us(unsigned int delay)
 {
