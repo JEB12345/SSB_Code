@@ -72,7 +72,7 @@ main(int argc, char** argv)
     uint8_t* uart_rx_packet;
     uint32_t old_loadcell_data;
     uint16_t timeStep = 1;
-    uint8_t dwt_init_flag = 0;
+    uint8_t dwt_init_flag = 1;
     uint8_t dwt_works = 0;
 
     volatile unsigned timer4_flag = 0;
