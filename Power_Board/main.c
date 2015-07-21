@@ -221,9 +221,11 @@ int main (int argc, char** argv)
 //          } else {
 //              LED_STATUS = OFF;
 //          }
+            
+            
 
             //DEBUG STUFF
-            LATBbits.LATB6 = timer_state.ext_time_100us<5000;
+//            LATBbits.LATB6 ^= 1;
       }
 
     }

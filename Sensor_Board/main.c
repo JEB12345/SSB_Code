@@ -122,13 +122,13 @@ main(int argc, char** argv)
 #ifdef CONF71
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
-//    if (IMU_Init(400000, 70000000) == 0) {
-//        // imu_state.init_return = RET_OK;
-//        mpuData.startData = 1;
-//    }
-//    else {
-//        //imu_state.init_return = RET_ERROR;
-//    }
+    if (IMU_Init(400000, 70000000) == 0) {
+        // imu_state.init_return = RET_OK;
+        mpuData.startData = 1;
+    }
+    else {
+        //imu_state.init_return = RET_ERROR;
+    }
 #endif
 
     for (;;) {
@@ -171,22 +171,22 @@ main(int argc, char** argv)
             }
 
             led_update();
-//            if (timer_state.systime % 10 == 1) {
-//                IMU_GetQuaternion(quaterion);
-//                QuaternionToYawPitchRoll(quaterion, ypr);
-//            }
-//
-//            if (timer_state.systime % 5 == 1) {
-//                IMU_normalizeData(&mpuData, &magData, &imuData);
-//                // Run AHRS algorithm
-//                IMU_UpdateAHRS (&imuData);
-//
-//                // Run IMU algorithm (does not use MAG data)
-////                IMU_UpdateIMU(&imuData);
-//
-//                //copy state to CAN dictionary
-//                IMU_CopyOutput(&imuData, &mpuData, &magData);
-//            }
+            if (timer_state.systime % 10 == 1) {
+                IMU_GetQuaternion(quaterion);
+                QuaternionToYawPitchRoll(quaterion, ypr);
+            }
+
+            if (timer_state.systime % 5 == 1) {
+                IMU_normalizeData(&mpuData, &magData, &imuData);
+                // Run AHRS algorithm
+                IMU_UpdateAHRS (&imuData);
+
+                // Run IMU algorithm (does not use MAG data)
+//                IMU_UpdateIMU(&imuData);
+
+                //copy state to CAN dictionary
+                IMU_CopyOutput(&imuData, &mpuData, &magData);
+            }
 
             /**
              * CANFestival Loop
@@ -343,19 +343,19 @@ hex2char(char halfhex)
 /**
  * This is the interrupt function for the INT pin on the MPU6000
  */
-//void __attribute__((__interrupt__, no_auto_psv))
-//_CNInterrupt(void) {
-//    if (mpuData.startData == 1) {
-//        if (PORTFbits.RF0 == 1) {
-//            // Gets the IMU data after the INT pin has been triggered
-//            IMU_GetCount(); //(&mpuData, &magData);
-//
-//            // Data normalization
-//            //			IMU_normalizeData(mpuData, magData, &imuData);
-//        }
-//    }
-//    IFS1bits.CNIF = 0; // Clear the interrupt flag
-//}
+void __attribute__((__interrupt__, no_auto_psv))
+_CNInterrupt(void) {
+    if (mpuData.startData == 1) {
+        if (PORTFbits.RF0 == 1) {
+            // Gets the IMU data after the INT pin has been triggered
+            IMU_GetCount(); //(&mpuData, &magData);
+
+            // Data normalization
+            //			IMU_normalizeData(mpuData, magData, &imuData);
+        }
+    }
+    IFS1bits.CNIF = 0; // Clear the interrupt flag
+}
 
 void Delay_us(unsigned int delay)
 {
