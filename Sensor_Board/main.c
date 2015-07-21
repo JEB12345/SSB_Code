@@ -62,7 +62,7 @@ char hex2char(char halfhex);
  */
 int
 main(int argc, char** argv)
-{
+{    
     uint32_t led_colors = 0;
     uint8_t at_parm_test[10];
     unsigned once;
@@ -72,7 +72,7 @@ main(int argc, char** argv)
     uint8_t* uart_rx_packet;
     uint32_t old_loadcell_data;
     uint16_t timeStep = 1;
-    uint8_t dwt_init_flag = 1;
+    uint8_t dwt_init_flag = 0;
     uint8_t dwt_works = 0;
 
     volatile unsigned timer4_flag = 0;
@@ -92,7 +92,7 @@ main(int argc, char** argv)
     uart_init();
 
     // Needs to be called ASAP so that the DWM isn't held in reset
-    DWM_RESET_OFF;
+    //DWM_RESET_OFF;
 
     // Set up UART2 for 115200 baud. There's no round() on the dsPICs, so we implement our own.
 //    double brg = (double) 140000000 / 2.0 / 16.0 / 115200.0 - 1.0;
@@ -119,9 +119,10 @@ main(int argc, char** argv)
     timer_state.prev_systime = 0;
     timer_state.systime = 0;
 
-#ifdef CONF71
+
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
+#if defined(CONF71) && !defined(NO_BOOTLOADER)
     if (IMU_Init(400000, 70000000) == 0) {
         // imu_state.init_return = RET_OK;
         mpuData.startData = 1;
@@ -143,7 +144,12 @@ main(int argc, char** argv)
                     uint8_t result = -1;
                     config_spi2_slow();
 #ifdef CONF71
+#ifdef FIXED_BASE
+                    result = dwm_init(2, timer_4_set);
+#else
                     result = dwm_init(1, timer_4_set);
+#endif
+                   
 #else
                     result = dwm_init(0, timer_4_set);
 #endif
@@ -244,6 +250,12 @@ main(int argc, char** argv)
                 //}
             }
             
+            if (timer_state.systime % 100 == 0 && dwt_works) {
+                //dwm_status.irq_enable = 1; //in case the device hangs
+                dwt_forcetrxoff();
+//                dwt_setrxtimeout(0); //TODO: not sure if needed
+                dwt_rxenable(0);
+            }
 
         }
         else {
@@ -255,7 +267,7 @@ main(int argc, char** argv)
 //            LED_1 = mpuData.accelZ > 0;
 
 //            IMU_GetData();
-//            IMU_CopyI2CData(&mpuData, &magData);
+            IMU_CopyI2CData(&mpuData, &magData);
 
             if (!T1CONbits.TON) {
                 RGB_RED = 0;
