@@ -72,7 +72,7 @@ main(int argc, char** argv)
     uint8_t* uart_rx_packet;
     uint32_t old_loadcell_data;
     uint16_t timeStep = 1;
-    uint8_t dwt_init_flag = 0;
+    uint8_t dwt_init_flag = 1;
     uint8_t dwt_works = 0;
 
     volatile unsigned timer4_flag = 0;
@@ -172,26 +172,26 @@ main(int argc, char** argv)
                 }
             }
 
-            if(timer_state.systime % 1000 == 1) {
+            if(timer_state.systime % 1000 == 0) {
                 LED_4 = 1;
             }
 
             led_update();
-            if (timer_state.systime % 10 == 1) {
-                IMU_GetQuaternion(quaterion);
-                QuaternionToYawPitchRoll(quaterion, ypr);
+            if (timer_state.systime % 10 == 0) {
+//                IMU_GetQuaternion(quaterion);
+//                QuaternionToYawPitchRoll(quaterion, ypr);
             }
 
-            if (timer_state.systime % 5 == 1) {
-                IMU_normalizeData(&mpuData, &magData, &imuData);
-                // Run AHRS algorithm
-                IMU_UpdateAHRS (&imuData);
-
-                // Run IMU algorithm (does not use MAG data)
-//                IMU_UpdateIMU(&imuData);
-
-                //copy state to CAN dictionary
-                IMU_CopyOutput(&imuData, &mpuData, &magData);
+            if (timer_state.systime % 5 == 0) {
+//                IMU_normalizeData(&mpuData, &magData, &imuData);
+//                // Run AHRS algorithm
+//                IMU_UpdateAHRS (&imuData);
+//
+//                // Run IMU algorithm (does not use MAG data)
+////                IMU_UpdateIMU(&imuData);
+//
+//                //copy state to CAN dictionary
+//                IMU_CopyOutput(&imuData, &mpuData, &magData);
             }
 
             /**
@@ -267,7 +267,7 @@ main(int argc, char** argv)
 //            LED_1 = mpuData.accelZ > 0;
 
 //            IMU_GetData();
-            IMU_CopyI2CData(&mpuData, &magData);
+//            IMU_CopyI2CData(&mpuData, &magData);
 
             if (!T1CONbits.TON) {
                 RGB_RED = 0;
@@ -360,7 +360,7 @@ _CNInterrupt(void) {
     if (mpuData.startData == 1) {
         if (PORTFbits.RF0 == 1) {
             // Gets the IMU data after the INT pin has been triggered
-            IMU_GetCount(); //(&mpuData, &magData);
+//            IMU_GetCount(); //(&mpuData, &magData);
 
             // Data normalization
             //			IMU_normalizeData(mpuData, magData, &imuData);

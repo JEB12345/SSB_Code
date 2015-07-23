@@ -19,7 +19,7 @@
 extern "C" {
 #endif
     
-#define MOTOR_POSITION_LIMIT 50     //This value is in rads
+#define MOTOR_POSITION_LIMIT 35     //This value is in rads
 
     /**
      * @brief can_init() Initalizes the dspic33e's CAN Bus at 1Mbaud
