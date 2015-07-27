@@ -123,13 +123,13 @@ main(int argc, char** argv)
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
 #if defined(CONF71) && !defined(NO_BOOTLOADER)
-    if (IMU_Init(400000, 70000000) == 0) {
-        // imu_state.init_return = RET_OK;
-        mpuData.startData = 1;
-    }
-    else {
-        //imu_state.init_return = RET_ERROR;
-    }
+//    if (IMU_Init(400000, 70000000) == 0) {
+//        // imu_state.init_return = RET_OK;
+//        mpuData.startData = 1;
+//    }
+//    else {
+//        //imu_state.init_return = RET_ERROR;
+//    }
 #endif
 
     for (;;) {
@@ -144,14 +144,13 @@ main(int argc, char** argv)
                     uint8_t result = -1;
                     config_spi2_slow();
 #ifdef CONF71
+                    result = dwm_init(1, timer_4_set);
+#else
 #ifdef FIXED_BASE
                     result = dwm_init(2, timer_4_set);
 #else
-                    result = dwm_init(1, timer_4_set);
-#endif
-                   
-#else
                     result = dwm_init(0, timer_4_set);
+#endif
 #endif
                     if(result == 0){
                         LED_3 = 1;
@@ -183,15 +182,15 @@ main(int argc, char** argv)
             }
 
             if (timer_state.systime % 5 == 0) {
-//                IMU_normalizeData(&mpuData, &magData, &imuData);
-//                // Run AHRS algorithm
-//                IMU_UpdateAHRS (&imuData);
-//
-//                // Run IMU algorithm (does not use MAG data)
-////                IMU_UpdateIMU(&imuData);
-//
-//                //copy state to CAN dictionary
-//                IMU_CopyOutput(&imuData, &mpuData, &magData);
+                IMU_normalizeData(&mpuData, &magData, &imuData);
+                // Run AHRS algorithm
+                IMU_UpdateAHRS (&imuData);
+
+                // Run IMU algorithm (does not use MAG data)
+//                IMU_UpdateIMU(&imuData);
+
+                //copy state to CAN dictionary
+                IMU_CopyOutput(&imuData, &mpuData, &magData);
             }
 
             /**
@@ -267,7 +266,7 @@ main(int argc, char** argv)
 //            LED_1 = mpuData.accelZ > 0;
 
 //            IMU_GetData();
-//            IMU_CopyI2CData(&mpuData, &magData);
+            IMU_CopyI2CData(&mpuData, &magData);
 
             if (!T1CONbits.TON) {
                 RGB_RED = 0;
@@ -360,7 +359,7 @@ _CNInterrupt(void) {
     if (mpuData.startData == 1) {
         if (PORTFbits.RF0 == 1) {
             // Gets the IMU data after the INT pin has been triggered
-//            IMU_GetCount(); //(&mpuData, &magData);
+            IMU_GetCount(); //(&mpuData, &magData);
 
             // Data normalization
             //			IMU_normalizeData(mpuData, magData, &imuData);
