@@ -123,13 +123,13 @@ main(int argc, char** argv)
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
 #if defined(CONF71) && !defined(NO_BOOTLOADER)
-    if (IMU_Init(400000, 70000000) == 0) {
-        // imu_state.init_return = RET_OK;
-        mpuData.startData = 1;
-    }
-    else {
-        //imu_state.init_return = RET_ERROR;
-    }
+//    if (IMU_Init(400000, 70000000) == 0) {
+//        // imu_state.init_return = RET_OK;
+//        mpuData.startData = 1;
+//    }
+//    else {
+//        //imu_state.init_return = RET_ERROR;
+//    }
 #endif
 
     for (;;) {
@@ -144,14 +144,13 @@ main(int argc, char** argv)
                     uint8_t result = -1;
                     config_spi2_slow();
 #ifdef CONF71
+                    result = dwm_init(1, timer_4_set);
+#else
 #ifdef FIXED_BASE
                     result = dwm_init(2, timer_4_set);
 #else
-                    result = dwm_init(1, timer_4_set);
-#endif
-                   
-#else
                     result = dwm_init(0, timer_4_set);
+#endif
 #endif
                     if(result == 0){
                         LED_3 = 1;
@@ -172,17 +171,17 @@ main(int argc, char** argv)
                 }
             }
 
-            if(timer_state.systime % 1000 == 1) {
+            if(timer_state.systime % 1000 == 0) {
                 LED_4 = 1;
             }
 
             led_update();
-            if (timer_state.systime % 10 == 1) {
-                IMU_GetQuaternion(quaterion);
-                QuaternionToYawPitchRoll(quaterion, ypr);
+            if (timer_state.systime % 10 == 0) {
+//                IMU_GetQuaternion(quaterion);
+//                QuaternionToYawPitchRoll(quaterion, ypr);
             }
 
-            if (timer_state.systime % 5 == 1) {
+            if (timer_state.systime % 5 == 0) {
                 IMU_normalizeData(&mpuData, &magData, &imuData);
                 // Run AHRS algorithm
                 IMU_UpdateAHRS (&imuData);
