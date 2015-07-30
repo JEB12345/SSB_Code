@@ -54,6 +54,22 @@ extern REAL32 sensor1_mag_mag_z_norm;		/* Mapped at index 0x2016, subindex 0x03 
 extern INTEGER16 sensor1_mag_mag_x_raw;		/* Mapped at index 0x2016, subindex 0x04 */
 extern INTEGER16 sensor1_mag_mag_y_raw;		/* Mapped at index 0x2016, subindex 0x05 */
 extern INTEGER16 sensor1_mag_mag_z_raw;		/* Mapped at index 0x2016, subindex 0x06 */
+extern UNS16 sensor1_ranging_distances_node_1;		/* Mapped at index 0x2017, subindex 0x01 */
+extern UNS16 sensor1_ranging_distances_node_2;		/* Mapped at index 0x2017, subindex 0x02 */
+extern UNS16 sensor1_ranging_distances_node_3;		/* Mapped at index 0x2017, subindex 0x03 */
+extern UNS16 sensor1_ranging_distances_node_4;		/* Mapped at index 0x2017, subindex 0x04 */
+extern UNS16 sensor1_ranging_distances_node_5;		/* Mapped at index 0x2017, subindex 0x05 */
+extern UNS16 sensor1_ranging_distances_node_6;		/* Mapped at index 0x2017, subindex 0x06 */
+extern UNS16 sensor1_ranging_distances_node_7;		/* Mapped at index 0x2017, subindex 0x07 */
+extern UNS16 sensor1_ranging_distances_node_8;		/* Mapped at index 0x2017, subindex 0x08 */
+extern UNS16 sensor1_ranging_distances_node_9;		/* Mapped at index 0x2017, subindex 0x09 */
+extern UNS16 sensor1_ranging_distances_node_10;		/* Mapped at index 0x2017, subindex 0x0A */
+extern UNS16 sensor1_ranging_distances_node_11;		/* Mapped at index 0x2017, subindex 0x0B */
+extern UNS16 sensor1_ranging_distances_node_12;		/* Mapped at index 0x2017, subindex 0x0C */
+extern UNS16 sensor1_ranging_distances_node_13;		/* Mapped at index 0x2017, subindex 0x0D */
+extern UNS16 sensor1_ranging_distances_node_14;		/* Mapped at index 0x2017, subindex 0x0E */
+extern UNS16 sensor1_ranging_distances_node_15;		/* Mapped at index 0x2017, subindex 0x0F */
+extern UNS16 sensor1_ranging_distances_node_16;		/* Mapped at index 0x2017, subindex 0x10 */
 extern INTEGER32 motor2_position_control_Commanded_Position;		/* Mapped at index 0x2022, subindex 0x01 */
 extern UNS16 motor2_position_control_P_Gain;		/* Mapped at index 0x2022, subindex 0x02 */
 extern UNS16 motor2_position_control_I_Gain;		/* Mapped at index 0x2022, subindex 0x03 */
@@ -66,5 +82,6 @@ extern REAL32 motor2_position_control_O_Gain_2st_Order;		/* Mapped at index 0x20
 extern REAL32 motor2_position_control_O_Gain_3st_Order;		/* Mapped at index 0x2022, subindex 0x0A */
 extern INTEGER32 desired_motor_position_motor_2;		/* Mapped at index 0x2040, subindex 0x01 */
 extern INTEGER32 desired_motor_position_motor_72;		/* Mapped at index 0x2040, subindex 0x02 */
+extern UNS8 ranging_id;		/* Mapped at index 0x2041, subindex 0x00*/
 
 #endif // SENSOR_OBJDICT_1_H
