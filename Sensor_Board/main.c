@@ -72,8 +72,9 @@ main(int argc, char** argv)
     uint8_t* uart_rx_packet;
     uint32_t old_loadcell_data;
     uint16_t timeStep = 1;
-    uint8_t dwt_init_flag = 1;
+    uint8_t dwt_init_flag = 0;
     uint8_t dwt_works = 0;
+    uint8_t result = -1;
 
     volatile unsigned timer4_flag = 0;
     
@@ -123,13 +124,9 @@ main(int argc, char** argv)
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
 #if defined(CONF71) && !defined(NO_BOOTLOADER)
-//    if (IMU_Init(400000, 70000000) == 0) {
-//        // imu_state.init_return = RET_OK;
-//        mpuData.startData = 1;
-//    }
-//    else {
-//        //imu_state.init_return = RET_ERROR;
-//    }
+    if (IMU_Init(400000, 70000000) == 0) {
+        mpuData.startData = 1;
+    }
 #endif
 
     for (;;) {
@@ -139,29 +136,35 @@ main(int argc, char** argv)
             //make sure that everything in here takes less than 1ms
             //useful for checking state consistency, synchronization, watchdog...
 
-            if(timer_state.systime >= 100){
-                if(dwt_init_flag){
-                    uint8_t result = -1;
-                    config_spi2_slow();
+            if(result != 0){
+#ifndef FIXED_BASE
+                if(ranging_id != 0){
+                    dwt_init_flag = 1;
+                }
+#else
+                dwt_init_flag = 1;
+#endif
+                    if(dwt_init_flag){
+                        config_spi2_slow();
 #ifdef CONF71
-                    result = dwm_init(1, timer_4_set);
+                        result = dwm_init((ranging_id - 1), timer_4_set);
 #else
 #ifdef FIXED_BASE
-                    result = dwm_init(2, timer_4_set);
+                        result = dwm_init(0, timer_4_set);
 #else
-                    result = dwm_init(0, timer_4_set);
+                        result = dwm_init(ranging_id, timer_4_set);
 #endif
 #endif
-                    if(result == 0){
-                        LED_3 = 1;
-                        dwt_works = 1;
-                        config_spi2_fast();
-                        instance_process();        
-//                        dwt_configeventcounters(1);
+                        if(result == 0){
+                            LED_3 = 1;
+                            dwt_works = 1;
+                            config_spi2_fast();
+                            instance_process();        
+        //                        dwt_configeventcounters(1);
+                        }
+                        decamutexoff(s);
+                        dwt_init_flag = 0;
                     }
-                    decamutexoff(s);
-                    dwt_init_flag = 0;
-                }
             }
 
             if(timer_state.systime % 1 == 0){
@@ -176,21 +179,28 @@ main(int argc, char** argv)
             }
 
             led_update();
-            if (timer_state.systime % 10 == 0) {
-//                IMU_GetQuaternion(quaterion);
-//                QuaternionToYawPitchRoll(quaterion, ypr);
-            }
+            
+            /**
+             * IMU Loop
+             */
+            if(mpuData.startData){
+                if (timer_state.systime % 10 == 0) {
+    //                IMU_GetQuaternion(quaterion);
+    //                QuaternionToYawPitchRoll(quaterion, ypr);
+                }
 
-            if (timer_state.systime % 5 == 0) {
-                IMU_normalizeData(&mpuData, &magData, &imuData);
-                // Run AHRS algorithm
-                IMU_UpdateAHRS (&imuData);
+                if (timer_state.systime % 5 == 0) {
+                    IMU_normalizeData(&mpuData, &magData, &imuData);
+                    // Run AHRS algorithm
+                    //TODO: Takes a long time (and can stall the pic) ONLY when the DWM code is loaded
+//                    IMU_UpdateAHRS (&imuData);
 
-                // Run IMU algorithm (does not use MAG data)
-//                IMU_UpdateIMU(&imuData);
+                    // Run IMU algorithm (does not use MAG data)
+                    IMU_UpdateIMU(&imuData);
 
-                //copy state to CAN dictionary
-                IMU_CopyOutput(&imuData, &mpuData, &magData);
+                    //copy state to CAN dictionary
+                    IMU_CopyOutput(&imuData, &mpuData, &magData);
+                }
             }
 
             /**
@@ -265,8 +275,12 @@ main(int argc, char** argv)
 //            LED_3 = mpuData.accelY > 0;
 //            LED_1 = mpuData.accelZ > 0;
 
-//            IMU_GetData();
-            IMU_CopyI2CData(&mpuData, &magData);
+            /**
+             * IMU Fast Function
+             */
+            if(mpuData.startData){
+                IMU_CopyI2CData(&mpuData, &magData);
+            }
 
             if (!T1CONbits.TON) {
                 RGB_RED = 0;
@@ -277,7 +291,7 @@ main(int argc, char** argv)
             
             //Manually check if the IRQ pin on the DW1000 is still high
             //to prevent getting stuck on a failed SPI read
-            if((dwm_status.irq_enable==0) && (DWM_IRQ==1)){
+            if((dwm_status.irq_enable==0) && (DWM_IRQ==1) && (dwt_works==1)){
                 dwm_status.irq_enable=1;
             }
 
@@ -360,9 +374,6 @@ _CNInterrupt(void) {
         if (PORTFbits.RF0 == 1) {
             // Gets the IMU data after the INT pin has been triggered
             IMU_GetCount(); //(&mpuData, &magData);
-
-            // Data normalization
-            //			IMU_normalizeData(mpuData, magData, &imuData);
         }
     }
     IFS1bits.CNIF = 0; // Clear the interrupt flag

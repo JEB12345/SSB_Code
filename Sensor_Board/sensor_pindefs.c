@@ -44,9 +44,6 @@ pin_init ()
 
   //RP36/35
 
-  //IMU
-  //configured in sensor_imu.c
-
   //LOAD CELL
   TRISCbits.TRISC6 = 0;
   _RP54R = 0;

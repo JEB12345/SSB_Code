@@ -48,6 +48,22 @@ REAL32 sensor71_mag_mag_z_norm = 0.000000;		/* Mapped at index 0x2016, subindex 
 INTEGER16 sensor71_mag_mag_x_raw = 0x0;		/* Mapped at index 0x2016, subindex 0x04 */
 INTEGER16 sensor71_mag_mag_y_raw = 0x0;		/* Mapped at index 0x2016, subindex 0x05 */
 INTEGER16 sensor71_mag_mag_z_raw = 0x0;		/* Mapped at index 0x2016, subindex 0x06 */
+UNS8 sensor71_ranging_distances_node_1 = 0x0;		/* Mapped at index 0x2017, subindex 0x01 */
+UNS8 sensor71_ranging_distances_node_2 = 0x0;		/* Mapped at index 0x2017, subindex 0x02 */
+UNS8 sensor71_ranging_distances_node_3 = 0x0;		/* Mapped at index 0x2017, subindex 0x03 */
+UNS8 sensor71_ranging_distances_node_4 = 0x0;		/* Mapped at index 0x2017, subindex 0x04 */
+UNS8 sensor71_ranging_distances_node_5 = 0x0;		/* Mapped at index 0x2017, subindex 0x05 */
+UNS8 sensor71_ranging_distances_node_6 = 0x0;		/* Mapped at index 0x2017, subindex 0x06 */
+UNS8 sensor71_ranging_distances_node_7 = 0x0;		/* Mapped at index 0x2017, subindex 0x07 */
+UNS8 sensor71_ranging_distances_node_8 = 0x0;		/* Mapped at index 0x2017, subindex 0x08 */
+UNS8 sensor71_ranging_distances_node_9 = 0x0;		/* Mapped at index 0x2017, subindex 0x09 */
+UNS8 sensor71_ranging_distances_node_10 = 0x0;		/* Mapped at index 0x2017, subindex 0x0A */
+UNS8 sensor71_ranging_distances_node_11 = 0x0;		/* Mapped at index 0x2017, subindex 0x0B */
+UNS8 sensor71_ranging_distances_node_12 = 0x0;		/* Mapped at index 0x2017, subindex 0x0C */
+UNS8 sensor71_ranging_distances_node_13 = 0x0;		/* Mapped at index 0x2017, subindex 0x0D */
+UNS8 sensor71_ranging_distances_node_14 = 0x0;		/* Mapped at index 0x2017, subindex 0x0E */
+UNS8 sensor71_ranging_distances_node_15 = 0x0;		/* Mapped at index 0x2017, subindex 0x0F */
+UNS8 sensor71_ranging_distances_node_16 = 0x0;		/* Mapped at index 0x2017, subindex 0x10 */
 INTEGER32 motor72_position_control_Commanded_Position = 0x0;		/* Mapped at index 0x2022, subindex 0x01 */
 UNS16 motor72_position_control_P_Gain = 0x0;		/* Mapped at index 0x2022, subindex 0x02 */
 UNS16 motor72_position_control_I_Gain = 0x0;		/* Mapped at index 0x2022, subindex 0x03 */
@@ -60,6 +76,7 @@ REAL32 motor72_position_control_O_Gain_2st_Order = 0.000000;		/* Mapped at index
 REAL32 motor72_position_control_O_Gain_3st_Order = 0.000000;		/* Mapped at index 0x2022, subindex 0x0A */
 INTEGER32 desired_motor_position_motor_2 = 0x0;		/* Mapped at index 0x2040, subindex 0x01 */
 INTEGER32 desired_motor_position_motor_72 = 0x0;		/* Mapped at index 0x2040, subindex 0x02 */
+UNS8 ranging_id = 0x0;		/* Mapped at index 0x2041, subindex 0x00 */
 
 /**************************************************************************/
 /* Declaration of value range types                                       */
@@ -295,7 +312,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x1401 :   Receive PDO 2 Parameter. */
                     UNS8 Sensor_Board_highestSubIndex_obj1401 = 6; /* number of subindex - 1*/
-                    UNS32 Sensor_Board_obj1401_COB_ID_used_by_PDO = 0x0;	/* 0 */
+                    UNS32 Sensor_Board_obj1401_COB_ID_used_by_PDO = 0x481;	/* 1153 */
                     UNS8 Sensor_Board_obj1401_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1401_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1401_Compatibility_Entry = 0x0;	/* 0 */
@@ -365,17 +382,15 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                      };
 
 /* index 0x1601 :   Receive PDO 2 Mapping. */
-                    UNS8 Sensor_Board_highestSubIndex_obj1601 = 2; /* number of subindex - 1*/
+                    UNS8 Sensor_Board_highestSubIndex_obj1601 = 1; /* number of subindex - 1*/
                     UNS32 Sensor_Board_obj1601[] = 
                     {
-                      0x0,	/* 0 */
-                      0x0	/* 0 */
+                      0x20410008	/* 541130760 */
                     };
                     subindex Sensor_Board_Index1601[] = 
                      {
                        { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj1601 },
-                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1601[0] },
-                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1601[1] }
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1601[0] }
                      };
 
 /* index 0x1602 :   Receive PDO 3 Mapping. */
@@ -923,6 +938,122 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_obj1810_SYNC_start_value }
                      };
 
+/* index 0x1811 :   Transmit PDO 18 Parameter. */
+                    UNS8 Sensor_Board_highestSubIndex_obj1811 = 6; /* number of subindex - 1*/
+                    UNS32 Sensor_Board_obj1811_COB_ID_used_by_PDO = 0x202;	/* 514 */
+                    UNS8 Sensor_Board_obj1811_Transmission_Type = 0xFF;	/* 255 */
+                    UNS16 Sensor_Board_obj1811_Inhibit_Time = 0x0;	/* 0 */
+                    UNS8 Sensor_Board_obj1811_Compatibility_Entry = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj1811_Event_Timer = 0x32;	/* 50 */
+                    UNS8 Sensor_Board_obj1811_SYNC_start_value = 0x0;	/* 0 */
+                    ODCallback_t Sensor_Board_Index1811_callbacks[] = 
+                     {
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                     };
+                    subindex Sensor_Board_Index1811[] = 
+                     {
+                       { RO, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj1811 },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1811_COB_ID_used_by_PDO },
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_obj1811_Transmission_Type },
+                       { RW, uint16, sizeof (UNS16), (void*)&Sensor_Board_obj1811_Inhibit_Time },
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_obj1811_Compatibility_Entry },
+                       { RW, uint16, sizeof (UNS16), (void*)&Sensor_Board_obj1811_Event_Timer },
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_obj1811_SYNC_start_value }
+                     };
+
+/* index 0x1812 :   Transmit PDO 19 Parameter. */
+                    UNS8 Sensor_Board_highestSubIndex_obj1812 = 6; /* number of subindex - 1*/
+                    UNS32 Sensor_Board_obj1812_COB_ID_used_by_PDO = 0x203;	/* 515 */
+                    UNS8 Sensor_Board_obj1812_Transmission_Type = 0xFF;	/* 255 */
+                    UNS16 Sensor_Board_obj1812_Inhibit_Time = 0x0;	/* 0 */
+                    UNS8 Sensor_Board_obj1812_Compatibility_Entry = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj1812_Event_Timer = 0x32;	/* 50 */
+                    UNS8 Sensor_Board_obj1812_SYNC_start_value = 0x0;	/* 0 */
+                    ODCallback_t Sensor_Board_Index1812_callbacks[] = 
+                     {
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                     };
+                    subindex Sensor_Board_Index1812[] = 
+                     {
+                       { RO, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj1812 },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1812_COB_ID_used_by_PDO },
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_obj1812_Transmission_Type },
+                       { RW, uint16, sizeof (UNS16), (void*)&Sensor_Board_obj1812_Inhibit_Time },
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_obj1812_Compatibility_Entry },
+                       { RW, uint16, sizeof (UNS16), (void*)&Sensor_Board_obj1812_Event_Timer },
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_obj1812_SYNC_start_value }
+                     };
+
+/* index 0x1813 :   Transmit PDO 20 Parameter. */
+                    UNS8 Sensor_Board_highestSubIndex_obj1813 = 6; /* number of subindex - 1*/
+                    UNS32 Sensor_Board_obj1813_COB_ID_used_by_PDO = 0x204;	/* 516 */
+                    UNS8 Sensor_Board_obj1813_Transmission_Type = 0xFF;	/* 255 */
+                    UNS16 Sensor_Board_obj1813_Inhibit_Time = 0x0;	/* 0 */
+                    UNS8 Sensor_Board_obj1813_Compatibility_Entry = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj1813_Event_Timer = 0x32;	/* 50 */
+                    UNS8 Sensor_Board_obj1813_SYNC_start_value = 0x0;	/* 0 */
+                    ODCallback_t Sensor_Board_Index1813_callbacks[] = 
+                     {
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                     };
+                    subindex Sensor_Board_Index1813[] = 
+                     {
+                       { RO, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj1813 },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1813_COB_ID_used_by_PDO },
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_obj1813_Transmission_Type },
+                       { RW, uint16, sizeof (UNS16), (void*)&Sensor_Board_obj1813_Inhibit_Time },
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_obj1813_Compatibility_Entry },
+                       { RW, uint16, sizeof (UNS16), (void*)&Sensor_Board_obj1813_Event_Timer },
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_obj1813_SYNC_start_value }
+                     };
+
+/* index 0x1814 :   Transmit PDO 21 Parameter. */
+                    UNS8 Sensor_Board_highestSubIndex_obj1814 = 6; /* number of subindex - 1*/
+                    UNS32 Sensor_Board_obj1814_COB_ID_used_by_PDO = 0x205;	/* 517 */
+                    UNS8 Sensor_Board_obj1814_Transmission_Type = 0xFF;	/* 255 */
+                    UNS16 Sensor_Board_obj1814_Inhibit_Time = 0x0;	/* 0 */
+                    UNS8 Sensor_Board_obj1814_Compatibility_Entry = 0x0;	/* 0 */
+                    UNS16 Sensor_Board_obj1814_Event_Timer = 0x32;	/* 50 */
+                    UNS8 Sensor_Board_obj1814_SYNC_start_value = 0x0;	/* 0 */
+                    ODCallback_t Sensor_Board_Index1814_callbacks[] = 
+                     {
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                     };
+                    subindex Sensor_Board_Index1814[] = 
+                     {
+                       { RO, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj1814 },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1814_COB_ID_used_by_PDO },
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_obj1814_Transmission_Type },
+                       { RW, uint16, sizeof (UNS16), (void*)&Sensor_Board_obj1814_Inhibit_Time },
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_obj1814_Compatibility_Entry },
+                       { RW, uint16, sizeof (UNS16), (void*)&Sensor_Board_obj1814_Event_Timer },
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_obj1814_SYNC_start_value }
+                     };
+
 /* index 0x1A00 :   Transmit PDO 1 Mapping. */
                     UNS8 Sensor_Board_highestSubIndex_obj1A00 = 1; /* number of subindex - 1*/
                     UNS32 Sensor_Board_obj1A00[] = 
@@ -1145,6 +1276,78 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A10[2] }
                      };
 
+/* index 0x1A11 :   Transmit PDO 18 Mapping. */
+                    UNS8 Sensor_Board_highestSubIndex_obj1A11 = 4; /* number of subindex - 1*/
+                    UNS32 Sensor_Board_obj1A11[] = 
+                    {
+                      0x20170108,	/* 538378504 */
+                      0x20170208,	/* 538378760 */
+                      0x20170308,	/* 538379016 */
+                      0x20170408	/* 538379272 */
+                    };
+                    subindex Sensor_Board_Index1A11[] = 
+                     {
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj1A11 },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A11[0] },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A11[1] },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A11[2] },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A11[3] }
+                     };
+
+/* index 0x1A12 :   Transmit PDO 19 Mapping. */
+                    UNS8 Sensor_Board_highestSubIndex_obj1A12 = 4; /* number of subindex - 1*/
+                    UNS32 Sensor_Board_obj1A12[] = 
+                    {
+                      0x20170508,	/* 538379528 */
+                      0x20170608,	/* 538379784 */
+                      0x20170708,	/* 538380040 */
+                      0x20170808	/* 538380296 */
+                    };
+                    subindex Sensor_Board_Index1A12[] = 
+                     {
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj1A12 },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A12[0] },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A12[1] },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A12[2] },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A12[3] }
+                     };
+
+/* index 0x1A13 :   Transmit PDO 20 Mapping. */
+                    UNS8 Sensor_Board_highestSubIndex_obj1A13 = 4; /* number of subindex - 1*/
+                    UNS32 Sensor_Board_obj1A13[] = 
+                    {
+                      0x20170908,	/* 538380552 */
+                      0x20170A08,	/* 538380808 */
+                      0x20170B08,	/* 538381064 */
+                      0x20170C08	/* 538381320 */
+                    };
+                    subindex Sensor_Board_Index1A13[] = 
+                     {
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj1A13 },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A13[0] },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A13[1] },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A13[2] },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A13[3] }
+                     };
+
+/* index 0x1A14 :   Transmit PDO 21 Mapping. */
+                    UNS8 Sensor_Board_highestSubIndex_obj1A14 = 4; /* number of subindex - 1*/
+                    UNS32 Sensor_Board_obj1A14[] = 
+                    {
+                      0x20170D08,	/* 538381576 */
+                      0x20170E08,	/* 538381832 */
+                      0x20170F08,	/* 538382088 */
+                      0x20171008	/* 538382344 */
+                    };
+                    subindex Sensor_Board_Index1A14[] = 
+                     {
+                       { RW, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj1A14 },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A14[0] },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A14[1] },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A14[2] },
+                       { RW, uint32, sizeof (UNS32), (void*)&Sensor_Board_obj1A14[3] }
+                     };
+
 /* index 0x2010 :   Mapped variable sensor71_strain_gauge_processed */
                     UNS8 Sensor_Board_highestSubIndex_obj2010 = 8; /* number of subindex - 1*/
                     subindex Sensor_Board_Index2010[] = 
@@ -1236,6 +1439,29 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, int16, sizeof (INTEGER16), (void*)&sensor71_mag_mag_z_raw }
                      };
 
+/* index 0x2017 :   Mapped variable sensor71_ranging_distances */
+                    UNS8 Sensor_Board_highestSubIndex_obj2017 = 16; /* number of subindex - 1*/
+                    subindex Sensor_Board_Index2017[] = 
+                     {
+                       { RO, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj2017 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_1 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_2 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_3 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_4 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_5 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_6 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_7 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_8 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_9 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_10 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_11 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_12 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_13 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_14 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_15 },
+                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_16 }
+                     };
+
 /* index 0x2022 :   Mapped variable motor72_position_control */
                     UNS8 Sensor_Board_highestSubIndex_obj2022 = 10; /* number of subindex - 1*/
                     subindex Sensor_Board_Index2022[] = 
@@ -1260,6 +1486,12 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RO, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj2040 },
                        { RW, int32, sizeof (INTEGER32), (void*)&desired_motor_position_motor_2 },
                        { RW, int32, sizeof (INTEGER32), (void*)&desired_motor_position_motor_72 }
+                     };
+
+/* index 0x2041 :   Mapped variable ranging_id */
+                    subindex Sensor_Board_Index2041[] = 
+                     {
+                       { RW, uint8, sizeof (UNS8), (void*)&ranging_id }
                      };
 
 /**************************************************************************/
@@ -1305,6 +1537,10 @@ const indextable Sensor_Board_objdict[] =
   { (subindex*)Sensor_Board_Index180E,sizeof(Sensor_Board_Index180E)/sizeof(Sensor_Board_Index180E[0]), 0x180E},
   { (subindex*)Sensor_Board_Index180F,sizeof(Sensor_Board_Index180F)/sizeof(Sensor_Board_Index180F[0]), 0x180F},
   { (subindex*)Sensor_Board_Index1810,sizeof(Sensor_Board_Index1810)/sizeof(Sensor_Board_Index1810[0]), 0x1810},
+  { (subindex*)Sensor_Board_Index1811,sizeof(Sensor_Board_Index1811)/sizeof(Sensor_Board_Index1811[0]), 0x1811},
+  { (subindex*)Sensor_Board_Index1812,sizeof(Sensor_Board_Index1812)/sizeof(Sensor_Board_Index1812[0]), 0x1812},
+  { (subindex*)Sensor_Board_Index1813,sizeof(Sensor_Board_Index1813)/sizeof(Sensor_Board_Index1813[0]), 0x1813},
+  { (subindex*)Sensor_Board_Index1814,sizeof(Sensor_Board_Index1814)/sizeof(Sensor_Board_Index1814[0]), 0x1814},
   { (subindex*)Sensor_Board_Index1A00,sizeof(Sensor_Board_Index1A00)/sizeof(Sensor_Board_Index1A00[0]), 0x1A00},
   { (subindex*)Sensor_Board_Index1A01,sizeof(Sensor_Board_Index1A01)/sizeof(Sensor_Board_Index1A01[0]), 0x1A01},
   { (subindex*)Sensor_Board_Index1A02,sizeof(Sensor_Board_Index1A02)/sizeof(Sensor_Board_Index1A02[0]), 0x1A02},
@@ -1322,6 +1558,10 @@ const indextable Sensor_Board_objdict[] =
   { (subindex*)Sensor_Board_Index1A0E,sizeof(Sensor_Board_Index1A0E)/sizeof(Sensor_Board_Index1A0E[0]), 0x1A0E},
   { (subindex*)Sensor_Board_Index1A0F,sizeof(Sensor_Board_Index1A0F)/sizeof(Sensor_Board_Index1A0F[0]), 0x1A0F},
   { (subindex*)Sensor_Board_Index1A10,sizeof(Sensor_Board_Index1A10)/sizeof(Sensor_Board_Index1A10[0]), 0x1A10},
+  { (subindex*)Sensor_Board_Index1A11,sizeof(Sensor_Board_Index1A11)/sizeof(Sensor_Board_Index1A11[0]), 0x1A11},
+  { (subindex*)Sensor_Board_Index1A12,sizeof(Sensor_Board_Index1A12)/sizeof(Sensor_Board_Index1A12[0]), 0x1A12},
+  { (subindex*)Sensor_Board_Index1A13,sizeof(Sensor_Board_Index1A13)/sizeof(Sensor_Board_Index1A13[0]), 0x1A13},
+  { (subindex*)Sensor_Board_Index1A14,sizeof(Sensor_Board_Index1A14)/sizeof(Sensor_Board_Index1A14[0]), 0x1A14},
   { (subindex*)Sensor_Board_Index2010,sizeof(Sensor_Board_Index2010)/sizeof(Sensor_Board_Index2010[0]), 0x2010},
   { (subindex*)Sensor_Board_Index2011,sizeof(Sensor_Board_Index2011)/sizeof(Sensor_Board_Index2011[0]), 0x2011},
   { (subindex*)Sensor_Board_Index2012,sizeof(Sensor_Board_Index2012)/sizeof(Sensor_Board_Index2012[0]), 0x2012},
@@ -1329,8 +1569,10 @@ const indextable Sensor_Board_objdict[] =
   { (subindex*)Sensor_Board_Index2014,sizeof(Sensor_Board_Index2014)/sizeof(Sensor_Board_Index2014[0]), 0x2014},
   { (subindex*)Sensor_Board_Index2015,sizeof(Sensor_Board_Index2015)/sizeof(Sensor_Board_Index2015[0]), 0x2015},
   { (subindex*)Sensor_Board_Index2016,sizeof(Sensor_Board_Index2016)/sizeof(Sensor_Board_Index2016[0]), 0x2016},
+  { (subindex*)Sensor_Board_Index2017,sizeof(Sensor_Board_Index2017)/sizeof(Sensor_Board_Index2017[0]), 0x2017},
   { (subindex*)Sensor_Board_Index2022,sizeof(Sensor_Board_Index2022)/sizeof(Sensor_Board_Index2022[0]), 0x2022},
   { (subindex*)Sensor_Board_Index2040,sizeof(Sensor_Board_Index2040)/sizeof(Sensor_Board_Index2040[0]), 0x2040},
+  { (subindex*)Sensor_Board_Index2041,sizeof(Sensor_Board_Index2041)/sizeof(Sensor_Board_Index2041[0]), 0x2041},
 };
 
 const indextable * Sensor_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCallback_t **callbacks)
@@ -1375,32 +1617,42 @@ const indextable * Sensor_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, OD
 		case 0x180E: i = 34;*callbacks = Sensor_Board_Index180E_callbacks; break;
 		case 0x180F: i = 35;*callbacks = Sensor_Board_Index180F_callbacks; break;
 		case 0x1810: i = 36;*callbacks = Sensor_Board_Index1810_callbacks; break;
-		case 0x1A00: i = 37;break;
-		case 0x1A01: i = 38;break;
-		case 0x1A02: i = 39;break;
-		case 0x1A03: i = 40;break;
-		case 0x1A04: i = 41;break;
-		case 0x1A05: i = 42;break;
-		case 0x1A06: i = 43;break;
-		case 0x1A07: i = 44;break;
-		case 0x1A08: i = 45;break;
-		case 0x1A09: i = 46;break;
-		case 0x1A0A: i = 47;break;
-		case 0x1A0B: i = 48;break;
-		case 0x1A0C: i = 49;break;
-		case 0x1A0D: i = 50;break;
-		case 0x1A0E: i = 51;break;
-		case 0x1A0F: i = 52;break;
-		case 0x1A10: i = 53;break;
-		case 0x2010: i = 54;break;
-		case 0x2011: i = 55;break;
-		case 0x2012: i = 56;break;
-		case 0x2013: i = 57;break;
-		case 0x2014: i = 58;break;
-		case 0x2015: i = 59;break;
-		case 0x2016: i = 60;break;
-		case 0x2022: i = 61;break;
-		case 0x2040: i = 62;break;
+		case 0x1811: i = 37;*callbacks = Sensor_Board_Index1811_callbacks; break;
+		case 0x1812: i = 38;*callbacks = Sensor_Board_Index1812_callbacks; break;
+		case 0x1813: i = 39;*callbacks = Sensor_Board_Index1813_callbacks; break;
+		case 0x1814: i = 40;*callbacks = Sensor_Board_Index1814_callbacks; break;
+		case 0x1A00: i = 41;break;
+		case 0x1A01: i = 42;break;
+		case 0x1A02: i = 43;break;
+		case 0x1A03: i = 44;break;
+		case 0x1A04: i = 45;break;
+		case 0x1A05: i = 46;break;
+		case 0x1A06: i = 47;break;
+		case 0x1A07: i = 48;break;
+		case 0x1A08: i = 49;break;
+		case 0x1A09: i = 50;break;
+		case 0x1A0A: i = 51;break;
+		case 0x1A0B: i = 52;break;
+		case 0x1A0C: i = 53;break;
+		case 0x1A0D: i = 54;break;
+		case 0x1A0E: i = 55;break;
+		case 0x1A0F: i = 56;break;
+		case 0x1A10: i = 57;break;
+		case 0x1A11: i = 58;break;
+		case 0x1A12: i = 59;break;
+		case 0x1A13: i = 60;break;
+		case 0x1A14: i = 61;break;
+		case 0x2010: i = 62;break;
+		case 0x2011: i = 63;break;
+		case 0x2012: i = 64;break;
+		case 0x2013: i = 65;break;
+		case 0x2014: i = 66;break;
+		case 0x2015: i = 67;break;
+		case 0x2016: i = 68;break;
+		case 0x2017: i = 69;break;
+		case 0x2022: i = 70;break;
+		case 0x2040: i = 71;break;
+		case 0x2041: i = 72;break;
 		default:
 			*errorCode = OD_NO_SUCH_OBJECT;
 			return NULL;
@@ -1414,7 +1666,7 @@ const indextable * Sensor_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, OD
  * Even if no pdoTransmit are defined, at least one entry is computed
  * for compilations issues.
  */
-s_PDO_status Sensor_Board_PDO_status[17] = {s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer};
+s_PDO_status Sensor_Board_PDO_status[21] = {s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer,s_PDO_status_Initializer};
 
 const quick_index Sensor_Board_firstIndex = {
   5, /* SDO_SVR */
@@ -1422,7 +1674,7 @@ const quick_index Sensor_Board_firstIndex = {
   12, /* PDO_RCV */
   16, /* PDO_RCV_MAP */
   20, /* PDO_TRS */
-  37 /* PDO_TRS_MAP */
+  41 /* PDO_TRS_MAP */
 };
 
 const quick_index Sensor_Board_lastIndex = {
@@ -1430,8 +1682,8 @@ const quick_index Sensor_Board_lastIndex = {
   11, /* SDO_CLT */
   15, /* PDO_RCV */
   19, /* PDO_RCV_MAP */
-  36, /* PDO_TRS */
-  53 /* PDO_TRS_MAP */
+  40, /* PDO_TRS */
+  61 /* PDO_TRS_MAP */
 };
 
 const UNS16 Sensor_Board_ObjdictSize = sizeof(Sensor_Board_objdict)/sizeof(Sensor_Board_objdict[0]); 
