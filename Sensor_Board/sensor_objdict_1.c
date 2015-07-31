@@ -1441,6 +1441,26 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x2017 :   Mapped variable sensor1_ranging_distances */
                     UNS8 Sensor_Board_highestSubIndex_obj2017 = 16; /* number of subindex - 1*/
+                    ODCallback_t sensor1_ranging_distances_callbacks[] = 
+                     {
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                     };
                     subindex Sensor_Board_Index2017[] = 
                      {
                        { RO, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj2017 },
@@ -1649,7 +1669,7 @@ const indextable * Sensor_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, OD
 		case 0x2014: i = 66;break;
 		case 0x2015: i = 67;break;
 		case 0x2016: i = 68;break;
-		case 0x2017: i = 69;break;
+		case 0x2017: i = 69;*callbacks = sensor1_ranging_distances_callbacks; break;
 		case 0x2022: i = 70;break;
 		case 0x2040: i = 71;break;
 		case 0x2041: i = 72;break;
