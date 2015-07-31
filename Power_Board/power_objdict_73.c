@@ -21,7 +21,7 @@ UNS8 power73_power_switches_5V5_Out_2 = 0x1;		/* Mapped at index 0x2031, subinde
 UNS8 power73_power_switches_5V5_Out_3 = 0x0;		/* Mapped at index 0x2031, subindex 0x04 */
 UNS8 power73_power_switches_5V5_Out_4 = 0x0;		/* Mapped at index 0x2031, subindex 0x05 */
 UNS32 power73_nrf_time = 0x0;		/* Mapped at index 0x2032, subindex 0x00 */
-UNS8 _24V_on = 0x0;		/* Mapped at index 0x2033, subindex 0x00 */
+UNS8 power73_24V_on = 0x0;		/* Mapped at index 0x2033, subindex 0x00 */
 
 /**************************************************************************/
 /* Declaration of value range types                                       */
@@ -655,10 +655,10 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, uint32, sizeof (UNS32), (void*)&power73_nrf_time }
                      };
 
-/* index 0x2033 :   Mapped variable 24V_on */
+/* index 0x2033 :   Mapped variable power73_24V_on */
                     subindex Power_Board_Index2033[] = 
                      {
-                       { RW, uint8, sizeof (UNS8), (void*)&_24V_on }
+                       { RW, uint8, sizeof (UNS8), (void*)&power73_24V_on }
                      };
 
 /**************************************************************************/
