@@ -48,22 +48,22 @@ REAL32 sensor71_mag_mag_z_norm = 0.000000;		/* Mapped at index 0x2016, subindex 
 INTEGER16 sensor71_mag_mag_x_raw = 0x0;		/* Mapped at index 0x2016, subindex 0x04 */
 INTEGER16 sensor71_mag_mag_y_raw = 0x0;		/* Mapped at index 0x2016, subindex 0x05 */
 INTEGER16 sensor71_mag_mag_z_raw = 0x0;		/* Mapped at index 0x2016, subindex 0x06 */
-UNS8 sensor71_ranging_distances_node_1 = 0x0;		/* Mapped at index 0x2017, subindex 0x01 */
-UNS8 sensor71_ranging_distances_node_2 = 0x0;		/* Mapped at index 0x2017, subindex 0x02 */
-UNS8 sensor71_ranging_distances_node_3 = 0x0;		/* Mapped at index 0x2017, subindex 0x03 */
-UNS8 sensor71_ranging_distances_node_4 = 0x0;		/* Mapped at index 0x2017, subindex 0x04 */
-UNS8 sensor71_ranging_distances_node_5 = 0x0;		/* Mapped at index 0x2017, subindex 0x05 */
-UNS8 sensor71_ranging_distances_node_6 = 0x0;		/* Mapped at index 0x2017, subindex 0x06 */
-UNS8 sensor71_ranging_distances_node_7 = 0x0;		/* Mapped at index 0x2017, subindex 0x07 */
-UNS8 sensor71_ranging_distances_node_8 = 0x0;		/* Mapped at index 0x2017, subindex 0x08 */
-UNS8 sensor71_ranging_distances_node_9 = 0x0;		/* Mapped at index 0x2017, subindex 0x09 */
-UNS8 sensor71_ranging_distances_node_10 = 0x0;		/* Mapped at index 0x2017, subindex 0x0A */
-UNS8 sensor71_ranging_distances_node_11 = 0x0;		/* Mapped at index 0x2017, subindex 0x0B */
-UNS8 sensor71_ranging_distances_node_12 = 0x0;		/* Mapped at index 0x2017, subindex 0x0C */
-UNS8 sensor71_ranging_distances_node_13 = 0x0;		/* Mapped at index 0x2017, subindex 0x0D */
-UNS8 sensor71_ranging_distances_node_14 = 0x0;		/* Mapped at index 0x2017, subindex 0x0E */
-UNS8 sensor71_ranging_distances_node_15 = 0x0;		/* Mapped at index 0x2017, subindex 0x0F */
-UNS8 sensor71_ranging_distances_node_16 = 0x0;		/* Mapped at index 0x2017, subindex 0x10 */
+UNS16 sensor71_ranging_distances_node_1 = 0x0;		/* Mapped at index 0x2017, subindex 0x01 */
+UNS16 sensor71_ranging_distances_node_2 = 0x0;		/* Mapped at index 0x2017, subindex 0x02 */
+UNS16 sensor71_ranging_distances_node_3 = 0x0;		/* Mapped at index 0x2017, subindex 0x03 */
+UNS16 sensor71_ranging_distances_node_4 = 0x0;		/* Mapped at index 0x2017, subindex 0x04 */
+UNS16 sensor71_ranging_distances_node_5 = 0x0;		/* Mapped at index 0x2017, subindex 0x05 */
+UNS16 sensor71_ranging_distances_node_6 = 0x0;		/* Mapped at index 0x2017, subindex 0x06 */
+UNS16 sensor71_ranging_distances_node_7 = 0x0;		/* Mapped at index 0x2017, subindex 0x07 */
+UNS16 sensor71_ranging_distances_node_8 = 0x0;		/* Mapped at index 0x2017, subindex 0x08 */
+UNS16 sensor71_ranging_distances_node_9 = 0x0;		/* Mapped at index 0x2017, subindex 0x09 */
+UNS16 sensor71_ranging_distances_node_10 = 0x0;		/* Mapped at index 0x2017, subindex 0x0A */
+UNS16 sensor71_ranging_distances_node_11 = 0x0;		/* Mapped at index 0x2017, subindex 0x0B */
+UNS16 sensor71_ranging_distances_node_12 = 0x0;		/* Mapped at index 0x2017, subindex 0x0C */
+UNS16 sensor71_ranging_distances_node_13 = 0x0;		/* Mapped at index 0x2017, subindex 0x0D */
+UNS16 sensor71_ranging_distances_node_14 = 0x0;		/* Mapped at index 0x2017, subindex 0x0E */
+UNS16 sensor71_ranging_distances_node_15 = 0x0;		/* Mapped at index 0x2017, subindex 0x0F */
+UNS16 sensor71_ranging_distances_node_16 = 0x0;		/* Mapped at index 0x2017, subindex 0x10 */
 INTEGER32 motor72_position_control_Commanded_Position = 0x0;		/* Mapped at index 0x2022, subindex 0x01 */
 UNS16 motor72_position_control_P_Gain = 0x0;		/* Mapped at index 0x2022, subindex 0x02 */
 UNS16 motor72_position_control_I_Gain = 0x0;		/* Mapped at index 0x2022, subindex 0x03 */
@@ -1444,22 +1444,22 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     subindex Sensor_Board_Index2017[] = 
                      {
                        { RO, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj2017 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_1 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_2 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_3 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_4 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_5 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_6 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_7 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_8 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_9 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_10 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_11 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_12 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_13 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_14 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_15 },
-                       { RW, uint8, sizeof (UNS8), (void*)&sensor71_ranging_distances_node_16 }
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_1 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_2 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_3 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_4 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_5 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_6 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_7 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_8 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_9 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_10 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_11 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_12 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_13 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_14 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_15 },
+                       { RW, uint16, sizeof (UNS16), (void*)&sensor71_ranging_distances_node_16 }
                      };
 
 /* index 0x2022 :   Mapped variable motor72_position_control */
