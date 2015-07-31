@@ -13,12 +13,14 @@
 #endif
 #include "sensor_uart.h"
 #include "sensor_loadcell.h"
+#include "dwm1000_dspic/dwm_spi.h"
 
 
 can_data can_state;
 extern CO_Data Sensor_Board_Data;
 extern motor_cmd_data motor_cmd_state[2];
 extern loadcell_data loadcell_state;
+extern dwm_1000_status dwm_status;
 static Message rec_m;
 
 static void can_reset(CO_Data* d);
@@ -253,5 +255,24 @@ void can_push_state()
 	CO(strain_gauge_raw_Strain_Gauge_6R) = loadcell_state.values[5];
         CO(strain_gauge_raw_Strain_Gauge_7R) = loadcell_state.values[6];
 	CO(strain_gauge_raw_Strain_Gauge_8R) = loadcell_state.values[7];
+    
+    //DWM distance sensor
+    CO(ranging_distances_node_1) = dwm_status.distance_mm_fixed[0];
+    CO(ranging_distances_node_2) = dwm_status.distance_mm_fixed[1];
+    CO(ranging_distances_node_3) = dwm_status.distance_mm_fixed[2];
+    CO(ranging_distances_node_4) = dwm_status.distance_mm_fixed[3];
+    CO(ranging_distances_node_5) = dwm_status.distance_mm_fixed[4];
+    CO(ranging_distances_node_6) = dwm_status.distance_mm_fixed[5];
+    CO(ranging_distances_node_7) = dwm_status.distance_mm_fixed[6];
+    CO(ranging_distances_node_8) = dwm_status.distance_mm_fixed[7];
+    CO(ranging_distances_node_9) = dwm_status.distance_mm_fixed[8];
+    CO(ranging_distances_node_10) = dwm_status.distance_mm_fixed[8];
+    CO(ranging_distances_node_11) = dwm_status.distance_mm_fixed[10];
+    CO(ranging_distances_node_12) = dwm_status.distance_mm_fixed[11];
+    CO(ranging_distances_node_13) = dwm_status.distance_mm_fixed[12];
+    CO(ranging_distances_node_14) = dwm_status.distance_mm_fixed[13];
+    CO(ranging_distances_node_15) = dwm_status.distance_mm_fixed[14];
+    CO(ranging_distances_node_16) = dwm_status.distance_mm_fixed[15];
+    //TODO: add support for distances transmitted by the fixed nodes
 
 }
