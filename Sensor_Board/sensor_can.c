@@ -257,22 +257,22 @@ void can_push_state()
 	CO(strain_gauge_raw_Strain_Gauge_8R) = loadcell_state.values[7];
     
     //DWM distance sensor
-    CO(ranging_distances_node_1) = dwm_status.distance_mm_fixed[0];
-    CO(ranging_distances_node_2) = dwm_status.distance_mm_fixed[1];
-    CO(ranging_distances_node_3) = dwm_status.distance_mm_fixed[2];
-    CO(ranging_distances_node_4) = dwm_status.distance_mm_fixed[3];
-    CO(ranging_distances_node_5) = dwm_status.distance_mm_fixed[4];
-    CO(ranging_distances_node_6) = dwm_status.distance_mm_fixed[5];
-    CO(ranging_distances_node_7) = dwm_status.distance_mm_fixed[6];
-    CO(ranging_distances_node_8) = dwm_status.distance_mm_fixed[7];
-    CO(ranging_distances_node_9) = dwm_status.distance_mm_fixed[8];
-    CO(ranging_distances_node_10) = dwm_status.distance_mm_fixed[8];
-    CO(ranging_distances_node_11) = dwm_status.distance_mm_fixed[10];
-    CO(ranging_distances_node_12) = dwm_status.distance_mm_fixed[11];
-    CO(ranging_distances_node_13) = dwm_status.distance_mm_fixed[12];
-    CO(ranging_distances_node_14) = dwm_status.distance_mm_fixed[13];
-    CO(ranging_distances_node_15) = dwm_status.distance_mm_fixed[14];
-    CO(ranging_distances_node_16) = dwm_status.distance_mm_fixed[15];
+    CO(ranging_distances_node_1) = dwm_status.distance_mm[0];
+    CO(ranging_distances_node_2) = dwm_status.distance_mm[1];
+    CO(ranging_distances_node_3) = dwm_status.distance_mm[2];
+    CO(ranging_distances_node_4) = dwm_status.distance_mm[3];
+    CO(ranging_distances_node_5) = dwm_status.distance_mm[4];
+    CO(ranging_distances_node_6) = dwm_status.distance_mm[5];
+    CO(ranging_distances_node_7) = dwm_status.distance_mm[6];
+    CO(ranging_distances_node_8) = dwm_status.distance_mm[7];
+    CO(ranging_distances_node_9) = dwm_status.distance_mm[8];
+    CO(ranging_distances_node_10) = dwm_status.distance_mm[9];
+    CO(ranging_distances_node_11) = dwm_status.distance_mm[10];
+    CO(ranging_distances_node_12) = dwm_status.distance_mm[11];
+    CO(ranging_distances_node_13) = dwm_status.distance_mm[12];
+    CO(ranging_distances_node_14) = dwm_status.distance_mm[13];
+    CO(ranging_distances_node_15) = dwm_status.distance_mm[14];
+    CO(ranging_distances_node_16) = dwm_status.distance_mm[15];
     //TODO: add support for distances transmitted by the fixed nodes
 
 }

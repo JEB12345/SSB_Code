@@ -135,7 +135,7 @@ main(int argc, char** argv)
             //everything in here will be executed once every ms
             //make sure that everything in here takes less than 1ms
             //useful for checking state consistency, synchronization, watchdog...
-
+            
             if(result != 0){
 #ifndef FIXED_BASE
                 if(ranging_id != 0){
@@ -147,12 +147,12 @@ main(int argc, char** argv)
                     if(dwt_init_flag){
                         config_spi2_slow();
 #ifdef CONF71
-                        result = dwm_init((ranging_id - 1), timer_4_set);
+                        result = dwm_init((ranging_id - 2), timer_4_set);
 #else
 #ifdef FIXED_BASE
                         result = dwm_init(0, timer_4_set);
 #else
-                        result = dwm_init(ranging_id, timer_4_set);
+                        result = dwm_init(ranging_id-1, timer_4_set);
 #endif
 #endif
                         if(result == 0){
@@ -215,14 +215,14 @@ main(int argc, char** argv)
                  */
                 can_push_state();
                 
-                //Hijack strain gauge data to transfer distance sensor info
-                if(dwm_status.node_id==0){
-                    CO(strain_gauge_raw_Strain_Gauge_1R) = (((uint32_t)dwm_status.distance_mm[1])<<16)|dwm_status.distance_mm[2];
-                } else if(dwm_status.node_id==1){
-                    CO(strain_gauge_raw_Strain_Gauge_1R) = (((uint32_t)dwm_status.distance_mm[0])<<16)|dwm_status.distance_mm[2];
-                } else if(dwm_status.node_id==2){
-                    CO(strain_gauge_raw_Strain_Gauge_1R) = (((uint32_t)dwm_status.distance_mm[0])<<16)|dwm_status.distance_mm[1];
-                }
+//                //Hijack strain gauge data to transfer distance sensor info
+//                if(dwm_status.node_id==0){
+//                    CO(strain_gauge_raw_Strain_Gauge_1R) = (((uint32_t)dwm_status.distance_mm[1])<<16)|dwm_status.distance_mm[2];
+//                } else if(dwm_status.node_id==1){
+//                    CO(strain_gauge_raw_Strain_Gauge_1R) = (((uint32_t)dwm_status.distance_mm[0])<<16)|dwm_status.distance_mm[2];
+//                } else if(dwm_status.node_id==2){
+//                    CO(strain_gauge_raw_Strain_Gauge_1R) = (((uint32_t)dwm_status.distance_mm[0])<<16)|dwm_status.distance_mm[1];
+//                }
                 
             }
 
