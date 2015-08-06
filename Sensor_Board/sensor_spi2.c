@@ -43,8 +43,8 @@ unsigned int config1fast = ENABLE_SCK_PIN &         // Internal Serial Clock is 
                             SLAVE_ENABLE_OFF &      // Slave Select Disable
                             CLK_POL_ACTIVE_HIGH &   // Idle state for clock is low, active is high
                             MASTER_ENABLE_ON &      // Master Mode
-                            SEC_PRESCAL_5_1 &
-                            PRI_PRESCAL_1_1         // // SPI CLK at 14MHz
+                            SEC_PRESCAL_5_1 & //5
+                            PRI_PRESCAL_1_1  //1       // // SPI CLK at 14MHz
                             ;
 
 // This contains the parameters to be configured in the SPIxCON2 register

@@ -243,16 +243,12 @@ main(int argc, char** argv)
                     uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
                     uart_tx_packet[1] = 0xFF; //CMD
                     uart_tx_packet[2] = 14;
-                    uint16_t dist = dwm_status.distance_mm[0];
-                    memcpy(&(uart_tx_packet[3]),&dist,sizeof(dist));
-                    dist = dwm_status.distance_mm[1];
-                    memcpy(&(uart_tx_packet[3+2]),&dist,sizeof(dist));
-                    dist = dwm_status.distance_mm[2];
-                    memcpy(&(uart_tx_packet[3+4]),&dist,sizeof(dist));
-                    dist = dwm_status.distance_mm[3];
-                    memcpy(&(uart_tx_packet[3+6]),&dist,sizeof(dist));
-                    uart_tx_packet[11] = 0x02;
-                    uart_tx_packet[12] = 0x8b; // same as "\n"
+                    memcpy(&(uart_tx_packet[3]),&(dwm_status.rxdiag.firstPathAmp1),2);
+                    memcpy(&(uart_tx_packet[5]),&(dwm_status.rxdiag.firstPathAmp2),2);
+                    memcpy(&(uart_tx_packet[7]),&(dwm_status.rxdiag.firstPathAmp3),2);
+                    memcpy(&(uart_tx_packet[9]),&(dwm_status.rxdiag.maxGrowthCIR),2);
+                    memcpy(&(uart_tx_packet[11]),&(dwm_status.rxdiag.rxPreamCount),2);
+                    
                     uart_tx_compute_cks (uart_tx_packet);
                     uart_tx_update_index ();
                     uart_tx_start_transmit ();
