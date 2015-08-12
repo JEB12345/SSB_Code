@@ -152,6 +152,9 @@ main(int argc, char** argv)
 #ifdef FIXED_BASE
                         result = dwm_init(0, timer_4_set);
 #else
+//                        if(ranging_id = 0xC){
+//                            ranging_id = 0xA;
+//                        }
                         result = dwm_init(ranging_id-1, timer_4_set);
 #endif
 #endif
