@@ -25,6 +25,7 @@
 #include "power_temperature.h"
 #include "power_killswitch.h"
 #include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
+#include "power_objdict_3.h"
 #include <p33Exxxx.h>
 
 extern timer_data timer_state;
@@ -146,6 +147,7 @@ int main (int argc, char** argv)
            * ADC measurements
            *
            ******************************************************************/
+          LED_STATUS ^= 1;
           adc_update_output();
 
 
@@ -169,7 +171,9 @@ int main (int argc, char** argv)
                     CO(power_switches_24_killswitch)
                   && (killswitch_state.state==KS_ON)) {
                 KILLSWITCH_uC = ON;
+                CO(24V_on) = 1;
             } else {
+                CO(24V_on) = 0;
                 KILLSWITCH_uC = OFF;
             }
 
