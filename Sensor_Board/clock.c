@@ -7,7 +7,12 @@ _FOSCSEL(FNOSC_FRC & IESO_OFF); //PWMLOCK_OFF needed to configure PWM on MC vari
 _FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_NONE);
 _FWDT(FWDTEN_OFF);
 /* Disable JTAG */
+#ifdef ANCHOR
+_FICD(JTAGEN_OFF & ICS_PGD1);
+_FPOR(ALTI2C1_OFF);
+#else
 _FICD(JTAGEN_OFF & ICS_PGD2);
+#endif
 #endif
 
 clock_data clock_state;

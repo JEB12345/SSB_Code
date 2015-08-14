@@ -70,7 +70,6 @@
 ******************************************************************/
 void _trapISR _OscillatorFail(void)
 {
-    LED_4 = 0;
 
         INTCON1bits.OSCFAIL = 0;
         while(1);
@@ -78,7 +77,6 @@ void _trapISR _OscillatorFail(void)
 
 void _trapISR _AddressError(void)
 {
-    LED_4 = 0;
 
         INTCON1bits.ADDRERR = 0;
         while(1);
@@ -96,7 +94,6 @@ void _trapISR _AddressError(void)
 
 void _trapISR _StackError(void)
 {
-LED_4 = 0;
 
         INTCON1bits.STKERR = 0;
         while(1);
@@ -104,7 +101,6 @@ LED_4 = 0;
 
 void _trapISR _MathError(void)
 {
-LED_4 = 0;
     
         INTCON1bits.MATHERR = 0;
         while(1);
@@ -120,7 +116,6 @@ LED_4 = 0;
 ******************************************************************/
 void _trapISR _AltOscillatorFail(void)
 {
-LED_4 = 0;
 
         INTCON1bits.OSCFAIL = 0;
         while(1);
@@ -128,7 +123,6 @@ LED_4 = 0;
 
 void _trapISR _AltAddressError(void)
 {
-LED_4 = 0;
 
         INTCON1bits.ADDRERR = 0;
         while(1);
@@ -136,7 +130,6 @@ LED_4 = 0;
 
 void _trapISR _AltStackError(void)
 {
-LED_4 = 0;
 
         INTCON1bits.STKERR = 0;
         while(1);
@@ -144,7 +137,6 @@ LED_4 = 0;
 
 void _trapISR _AltMathError(void)
 {
-LED_4 = 0;
     
         INTCON1bits.MATHERR = 0;
         while(1);

@@ -39,7 +39,9 @@ return_value_t can_init()
         can_state.init_return = RET_ERROR;
         return can_state.init_return;
     }
+#ifndef ANCHOR
     LED_1;
+#endif
     initTimer();
     
     //initialize CanFestival

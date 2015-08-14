@@ -11,6 +11,7 @@ return_value_t led_init()
     led_state.rgb_blue = 0;
     led_state.rgb_green = 0;
     led_state.rgb_red = 0;
+#ifndef ANCHOR
     LED_1 = 0;
     LED_2 = 0;
     LED_3 = 0;
@@ -18,6 +19,7 @@ return_value_t led_init()
     RGB_BLUE = 1;
     RGB_RED = 1;
     RGB_GREEN = 1;
+#endif
     led_state.init_return = RET_OK;
     return led_state.init_return;
 }
@@ -30,10 +32,11 @@ void led_update()
     static uint16_t state = 0;
     
     if(RGB_LED_ON == 1){
+#ifndef ANCHOR
         RGB_RED = led_state.rgb_red<=state;
         RGB_GREEN =led_state.rgb_green<=state;
         RGB_BLUE = led_state.rgb_blue<=state;
-
+#endif
         if(++state>=8){
             state=0;
         }
@@ -56,11 +59,14 @@ void led_rgb_set(uint8_t r, uint8_t g, uint8_t b)
 
 void led_rgb_off()
 {
+#ifndef ANCHOR
     RGB_RED = 1;
     RGB_BLUE = 1;
     RGB_GREEN = 1;
 
+#endif
     RGB_LED_ON = 0;
+    
 }
 
 void led_rgb_on()

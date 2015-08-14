@@ -22,11 +22,13 @@ pin_init ()
   ANSELC = 0x0;
   ANSELE = 0x0;
 
+#ifndef ANCHOR
   //peripheral pin select
   RPINR7bits.IC1R = 47; //RB15
   RPINR7bits.IC2R = 119; //RG7
   RPINR8bits.IC3R = 121; //RB9
-
+#endif 
+  
   /*
    * Watchdog
    */
@@ -35,23 +37,28 @@ pin_init ()
   /*
    * CAN
    */
+#ifndef ANCHOR
   TRISCbits.TRISC8 = 0; //TX = output
   _RP56R = 0b001110; //TX
   RPINR26bits.C1RXR = 55; //RX RP55
   //    IN_FN_PPS_C1RX = IN_PIN_PPS_RP36;
   //    OUT_PIN_PPS_RP35 = OUT_FN_PPS_C1TX;
+#endif
 
 
   //RP36/35
 
+#ifndef ANCHOR
   //LOAD CELL
   TRISCbits.TRISC6 = 0;
   _RP54R = 0;
   TRISBbits.TRISB0 = 0;
   RPINR8bits.IC4R = 25;
   TRISAbits.TRISA4 = 0;
+#endif
 
   //DWM1000 Module
+#ifndef ANCHOR
   RPINR1bits.INT2R = 94;
   TRISBbits.TRISB9 = 0;
   nSELECT = 1;
@@ -68,6 +75,50 @@ pin_init ()
   _RP41R = 0; // Default Pin ouput
   TRISBbits.TRISB10 = 0;
   DWM_SYNC = 0;
+#else
+  RPINR1bits.INT2R = 44; //INT2 connected to 
+  TRISBbits.TRISB12 = 1; // IRQ is input
+  //TRISBbits.TRISB6 = 0; //
+  
+  nSELECT = 1; //
+  _RP97R = 0; // Default Pin output //
+  TRISFbits.TRISF1 = 0;
+  
+  DWM_RESET_TRIS = 0;  //reset //
+  _RP118R = 0;
+  
+  //miso
+  _SDI2R = 46; // Map SPI2 MISO to RPI46 
+  
+  //mosi
+  TRISBbits.TRISB5 = 0;  //MOSI //
+  _RP37R = 0b001000; // Map SPI2 MOSI to RP37 // TODO
+  //_RP39R = 8;
+  //TRISBbits.TRISB7 = 0;
+  
+  //clock
+  TRISBbits.TRISB10 = 0; //CLK //
+  _RP42R = 9; // Map SPI2 CLK to RP42 //
+  
+  //ext on
+  TRISCbits.TRISC9 = 1;
+  
+  //sync
+  TRISGbits.TRISG7 = 0; //
+  DWM_SYNC = 0; //
+   
+  
+  /*
+  IRQ //RPI44/PWM2H/RB12 //
+  CLK //RP42/PWM3H/RB10
+  nSelect //RP97/RF1 //
+  MOSI //PGED2/ASDA2/RP37/RB5
+  EXTON //RP57/RC9
+  RESET //RP118/RG6
+  SYNC //RPI119/RG7
+  MISO//RPI46/PWM1H/T3CK/RB14
+  */
+#endif
 
   //RF
 //  RPINR1bits.INT2R = 94;
@@ -87,6 +138,7 @@ pin_init ()
 //  _RP57R = 9; // Map SPI2 CLK to RP57
 //  CNPUEbits.CNPUE14 = 1; // XBEE_nATTN pull up
 
+#ifndef ANCHOR
   //LEDs
   TRISGbits.TRISG6 = 0;
   _RP118R = 0;
@@ -97,8 +149,10 @@ pin_init ()
   TRISDbits.TRISD5 = 0;
   TRISCbits.TRISC13 = 0;
   TRISDbits.TRISD8 = 0;
+#endif
 
   //POWER MOSFETS
+#ifndef ANCHOR
   TRISCbits.TRISC12 = 0;
   TRISCbits.TRISC15 = 0;
   TRISAbits.TRISA10 = 0;
@@ -122,7 +176,8 @@ pin_init ()
   CNENFbits.CNIEF0 = 1; // Enables RF0 as interrupt detection
   IFS1bits.CNIF = 0; // Clears the Interrupt flag
   IEC1bits.CNIE = 1; // Enables CN interrupts
-
+#endif
+  
   //P6
 #if RB14_IO==PIN_OUTPUT
   TRISBbits.TRISB14 = 0;
@@ -156,11 +211,13 @@ pin_init ()
   TRISBbits.TRISB3 = 0;
 #endif
 
+#ifndef ANCHOR
   //ANALOG PINS
   ANSELCbits.ANSC0 = 1;
   ANSELCbits.ANSC1 = 1;
   ANSELCbits.ANSC2 = 1;
   ANSELCbits.ANSC11 = 1;
+#endif
 
   //P7
 #if RE12_IO==PIN_OUTPUT

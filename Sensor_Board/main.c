@@ -105,25 +105,32 @@ main(int argc, char** argv)
 //    }
     //  Uart2Init (brg); // Init UART 2 as 115200 baud/s
 
+#ifndef ANCHOR
     loadcell_init();
     loadcell_start();
 
 
     led_rgb_off();
     led_rgb_set(50, 0, 100);
+#endif
 
     can_state.init_return = RET_UNKNOWN;
+#ifndef ANCHOR
     if (can_init()) {
         while (1);
     }
+#endif
 
     timer_state.prev_systime = 0;
     timer_state.systime = 0;
 
-
+#ifdef ANCHOR
+    ranging_id = ANCHOR_ID +1;
+#endif
+    
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
-#if defined(CONF71) && !defined(NO_BOOTLOADER)
+#if defined(CONF71) && !defined(NO_BOOTLOADER) &&!defined(ANCHOR)
     if (IMU_Init(400000, 70000000) == 0) {
         mpuData.startData = 1;
     }
@@ -159,7 +166,9 @@ main(int argc, char** argv)
 #endif
 #endif
                         if(result == 0){
+#ifndef ANCHOR
                             LED_3 = 1;
+#endif
                             dwt_works = 1;
                             config_spi2_fast();
                             instance_process();        
@@ -178,7 +187,9 @@ main(int argc, char** argv)
             }
 
             if(timer_state.systime % 1000 == 0) {
+#ifndef ANCHOR
                 LED_4 = 1;
+#endif
             }
 
             led_update();
@@ -218,22 +229,15 @@ main(int argc, char** argv)
                  */
                 can_push_state();
                 
-//                //Hijack strain gauge data to transfer distance sensor info
-//                if(dwm_status.node_id==0){
-//                    CO(strain_gauge_raw_Strain_Gauge_1R) = (((uint32_t)dwm_status.distance_mm[1])<<16)|dwm_status.distance_mm[2];
-//                } else if(dwm_status.node_id==1){
-//                    CO(strain_gauge_raw_Strain_Gauge_1R) = (((uint32_t)dwm_status.distance_mm[0])<<16)|dwm_status.distance_mm[2];
-//                } else if(dwm_status.node_id==2){
-//                    CO(strain_gauge_raw_Strain_Gauge_1R) = (((uint32_t)dwm_status.distance_mm[0])<<16)|dwm_status.distance_mm[1];
-//                }
-                
             }
 
             /**
              * Blinking LED Loop
              */
             if (timer_state.systime % 25 == 0) {
+#ifndef ANCHOR
                               LED_1 = !LED_1;
+#endif
             }
             
 
@@ -282,8 +286,10 @@ main(int argc, char** argv)
             }
 
             if (!T1CONbits.TON) {
+#ifndef ANCHOR
                 RGB_RED = 0;
                 RGB_GREEN = RGB_BLUE = 1;
+#endif
                 while (1);
 
             }
