@@ -944,7 +944,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1811_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1811_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1811_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1811_Event_Timer = 0x32;	/* 50 */
+                    UNS16 Sensor_Board_obj1811_Event_Timer = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1811_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1811_callbacks[] = 
                      {
@@ -973,7 +973,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1812_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1812_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1812_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1812_Event_Timer = 0x32;	/* 50 */
+                    UNS16 Sensor_Board_obj1812_Event_Timer = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1812_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1812_callbacks[] = 
                      {
@@ -1002,7 +1002,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1813_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1813_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1813_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1813_Event_Timer = 0x32;	/* 50 */
+                    UNS16 Sensor_Board_obj1813_Event_Timer = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1813_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1813_callbacks[] = 
                      {
@@ -1031,7 +1031,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1814_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1814_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1814_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1814_Event_Timer = 0x32;	/* 50 */
+                    UNS16 Sensor_Board_obj1814_Event_Timer = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1814_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1814_callbacks[] = 
                      {
@@ -1280,10 +1280,10 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_highestSubIndex_obj1A11 = 4; /* number of subindex - 1*/
                     UNS32 Sensor_Board_obj1A11[] = 
                     {
-                      0x20170110,	/* 538378504 */
-                      0x20170210,	/* 538378760 */
-                      0x20170310,	/* 538379016 */
-                      0x20170410 	/* 538379272 */
+                      0x20170110,	/* 538378512 */
+                      0x20170210,	/* 538378768 */
+                      0x20170310,	/* 538379024 */
+                      0x20170410	/* 538379280 */
                     };
                     subindex Sensor_Board_Index1A11[] = 
                      {
@@ -1298,10 +1298,10 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_highestSubIndex_obj1A12 = 4; /* number of subindex - 1*/
                     UNS32 Sensor_Board_obj1A12[] = 
                     {
-                      0x20170510,	/* 538379528 */
-                      0x20170610,	/* 538379784 */
-                      0x20170710,	/* 538380040 */
-                      0x20170810	/* 538380296 */
+                      0x20170510,	/* 538379536 */
+                      0x20170610,	/* 538379792 */
+                      0x20170710,	/* 538380048 */
+                      0x20170810	/* 538380304 */
                     };
                     subindex Sensor_Board_Index1A12[] = 
                      {
@@ -1316,10 +1316,10 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_highestSubIndex_obj1A13 = 4; /* number of subindex - 1*/
                     UNS32 Sensor_Board_obj1A13[] = 
                     {
-                      0x20170910,	/* 538380552 */
-                      0x20170A10,	/* 538380808 */
-                      0x20170B10,	/* 538381064 */
-                      0x20170C10	/* 538381320 */
+                      0x20170910,	/* 538380560 */
+                      0x20170A10,	/* 538380816 */
+                      0x20170B10,	/* 538381072 */
+                      0x20170C10	/* 538381328 */
                     };
                     subindex Sensor_Board_Index1A13[] = 
                      {
@@ -1334,10 +1334,10 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_highestSubIndex_obj1A14 = 4; /* number of subindex - 1*/
                     UNS32 Sensor_Board_obj1A14[] = 
                     {
-                      0x20170D10,	/* 538381576 */
-                      0x20170E10,	/* 538381832 */
-                      0x20170F10,	/* 538382088 */
-                      0x20171010	/* 538382344 */
+                      0x20170D10,	/* 538381584 */
+                      0x20170E10,	/* 538381840 */
+                      0x20170F10,	/* 538382096 */
+                      0x20171010	/* 538382352 */
                     };
                     subindex Sensor_Board_Index1A14[] = 
                      {
@@ -1441,26 +1441,6 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 /* index 0x2017 :   Mapped variable sensor71_ranging_distances */
                     UNS8 Sensor_Board_highestSubIndex_obj2017 = 16; /* number of subindex - 1*/
-                    ODCallback_t sensor71_ranging_distances_callbacks[] = 
-                     {
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                     };
                     subindex Sensor_Board_Index2017[] = 
                      {
                        { RO, uint8, sizeof (UNS8), (void*)&Sensor_Board_highestSubIndex_obj2017 },
@@ -1669,7 +1649,7 @@ const indextable * Sensor_Board_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, OD
 		case 0x2014: i = 66;break;
 		case 0x2015: i = 67;break;
 		case 0x2016: i = 68;break;
-		case 0x2017: i = 69;*callbacks = sensor71_ranging_distances_callbacks; break;
+		case 0x2017: i = 69;break;
 		case 0x2022: i = 70;break;
 		case 0x2040: i = 71;break;
 		case 0x2041: i = 72;break;
