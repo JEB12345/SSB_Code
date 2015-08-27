@@ -271,7 +271,7 @@ void can_push_state()
     CO(ranging_distances_node_12) = dwm_status.distance_mm[11];
     CO(ranging_distances_node_13) = dwm_status.distance_mm[12];
     CO(ranging_distances_node_14) = dwm_status.distance_mm[13];
-    CO(ranging_distances_node_15) = dwm_status.distance_mm[14];
+    CO(ranging_distances_node_15) = dwm_status.distance_mm[16];
     CO(ranging_distances_node_16) = dwm_status.distance_mm[15];
     //TODO: add support for distances transmitted by the fixed nodes
 
