@@ -167,13 +167,16 @@ int main (int argc, char** argv)
 //#endif
 //            }
 
+          CO(24V_on) = 1;
            if (nrf24l01_state.rf_killswitch_state &&
                     CO(power_switches_24_killswitch)
                   && (killswitch_state.state==KS_ON)) {
                 KILLSWITCH_uC = ON;
-                CO(24V_on) = 1;
+//                CO(24V_on) = 1;
+                CO(power_switches_5V5_Out_1) = 1;
             } else {
-                CO(24V_on) = 0;
+//                CO(24V_on) = 0;
+                CO(power_switches_5V5_Out_1) = 0;
                 KILLSWITCH_uC = OFF;
             }
 
