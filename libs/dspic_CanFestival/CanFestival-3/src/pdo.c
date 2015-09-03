@@ -531,16 +531,17 @@ sendOnePDOevent (CO_Data * d, UNS8 pdoNum)
     }
 
   /*Compare new and old PDO */
-  if (d->PDO_status[pdoNum].last_message.cob_id == pdo.cob_id
-      && d->PDO_status[pdoNum].last_message.len == pdo.len
-      && memcmp(d->PDO_status[pdoNum].last_message.data,
-					pdo.data, 8) == 0
-    )
-    {
-      /* No changes -> go to next pdo */
-      return 0;
-    }
-  else
+  //Ken: removed this weird CANopen thing: we want to send data, even if it did not change
+//  if (d->PDO_status[pdoNum].last_message.cob_id == pdo.cob_id
+//      && d->PDO_status[pdoNum].last_message.len == pdo.len
+//      && memcmp(d->PDO_status[pdoNum].last_message.data,
+//					pdo.data, 8) == 0
+//    )
+//    {
+//      /* No changes -> go to next pdo */
+//      return 0;
+//    }
+//  else
     {
 
       TIMEVAL EventTimerDuration;
