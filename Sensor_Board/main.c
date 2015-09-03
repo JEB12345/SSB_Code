@@ -125,7 +125,8 @@ main(int argc, char** argv)
     timer_state.systime = 0;
 
 #ifdef ANCHOR
-    ranging_id = ANCHOR_ID +1;
+//    ranging_id = ANCHOR_ID +1;
+    ranging_id = 0xD;
 #endif
     
     // Start Reading the int pin on IMU

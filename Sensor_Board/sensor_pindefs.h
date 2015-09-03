@@ -15,7 +15,7 @@ extern "C" {
     return_value_t pin_init();
 
     //LEDs
-#ifndef ANCHOR
+//#ifndef ANCHOR
 #define RGB_RED     LATGbits.LATG8
 #define RGB_BLUE    LATGbits.LATG6
 #define RGB_GREEN   LATAbits.LATA0
@@ -24,7 +24,7 @@ extern "C" {
 #define LED_3       LATCbits.LATC13
 #define LED_2       LATDbits.LATD8
 
-#endif
+//#endif
     //IMU
 #define INT_IMU     PORTFbits.RF0 //actually tied to INT1
 
@@ -48,7 +48,7 @@ extern "C" {
 #define SS          LATBbits.LATB0
 #define SG_MISO     PORTAbits.RA9
 
-#ifndef ANCHOR
+//#ifndef ANCHOR
     // DWM1000 SPI
 #define nSELECT     LATBbits.LATB9
 #define DWM_IRQ     PORTEbits.RE14 //actually tied to INT2
@@ -58,15 +58,15 @@ extern "C" {
 #define DWM_WAKEUP  LATFbits.LATF1
 #define DWM_EXTON   PORTBbits.RB11
 #define DWM_SYNC    LATBbits.LATB10
-#else
-#define nSELECT     LATFbits.LATF1 //
-#define DWM_IRQ     PORTBbits.RB12 //actually tied to INT2 //
-#define DWM_RESET_TRIS  TRISGbits.TRISG6 //
-#define DWM_RESET_OUT   LATGbits.LATG6//
-#define DWM_RESET_IN    PORTGbits.RG6//
+//#else
+//#define nSELECT     LATFbits.LATF1 //
+//#define DWM_IRQ     PORTBbits.RB12 //actually tied to INT2 //
+//#define DWM_RESET_TRIS  TRISGbits.TRISG6 //
+//#define DWM_RESET_OUT   LATGbits.LATG6//
+//#define DWM_RESET_IN    PORTGbits.RG6//
 //#define DWM_WAKEUP  LATFbits.LATF1
-#define DWM_EXTON   PORTCbits.RC9 //
-#define DWM_SYNC    LATGbits.LATG7 //
+//#define DWM_EXTON   PORTCbits.RC9 //
+//#define DWM_SYNC    LATGbits.LATG7 //
     /*
   IRQ //RPI44/PWM2H/RB12 //
   CLK //RP42/PWM3H/RB10
@@ -77,7 +77,7 @@ extern "C" {
   SYNC //RPI119/RG7
   MISO//RPI46/PWM1H/T3CK/RB14
   */
-#endif
+//#endif
 
     //Pin Out Connectors
     //ANALOG pins -> analog input specified in ADC module if needed
