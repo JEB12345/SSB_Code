@@ -196,10 +196,10 @@ main(int argc, char** argv)
                     IMU_normalizeData(&mpuData, &magData, &imuData);
                     // Run AHRS algorithm
                     //TODO: Takes a long time (and can stall the pic) ONLY when the DWM code is loaded
-//                    IMU_UpdateAHRS (&imuData);
+                    IMU_UpdateAHRS (&imuData);
 
                     // Run IMU algorithm (does not use MAG data)
-                    IMU_UpdateIMU(&imuData);
+//                    IMU_UpdateIMU(&imuData);
 
                     //copy state to CAN dictionary
                     IMU_CopyOutput(&imuData, &mpuData, &magData);
