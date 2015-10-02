@@ -39,7 +39,7 @@ return_value_t can_init()
         can_state.init_return = RET_ERROR;
         return can_state.init_return;
     }
-    LED_1;
+//    LED_1;
     initTimer();
     
     //initialize CanFestival
