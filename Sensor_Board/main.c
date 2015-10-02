@@ -13,10 +13,10 @@
 #include "sensor_loadcell.h"
 #include "sensor_pindefs.h"
 #include "sensor_state.h"
-#include "sensor_uart.h"
+//#include "sensor_uart.h"
 #include "sensor_timers.h"
 #include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
-#include "packing.h"
+//#include "packing.h"
 
 /**
  * This is code from the git submodule for the MPU60xx library
@@ -90,7 +90,7 @@ main(int argc, char** argv)
     led_init();
     timers_init();
     state_init();
-    uart_init();
+//    uart_init();
 
     // Needs to be called ASAP so that the DWM isn't held in reset
     //DWM_RESET_OFF;
@@ -240,23 +240,23 @@ main(int argc, char** argv)
             /**
              * UART DW1000 debug Loop
              */
-            if (timer_state.systime % 50 == 0 ) {
-                //if(!(abs(dwm_status.distance[0]) > 1000)){
-                    uart_tx_packet = uart_tx_cur_packet ();
-                    uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
-                    uart_tx_packet[1] = 0xFF; //CMD
-                    uart_tx_packet[2] = 14;
-                    memcpy(&(uart_tx_packet[3]),&(dwm_status.rxdiag.firstPathAmp1),2);
-                    memcpy(&(uart_tx_packet[5]),&(dwm_status.rxdiag.firstPathAmp2),2);
-                    memcpy(&(uart_tx_packet[7]),&(dwm_status.rxdiag.firstPathAmp3),2);
-                    memcpy(&(uart_tx_packet[9]),&(dwm_status.rxdiag.maxGrowthCIR),2);
-                    memcpy(&(uart_tx_packet[11]),&(dwm_status.rxdiag.rxPreamCount),2);
-                    
-                    uart_tx_compute_cks (uart_tx_packet);
-                    uart_tx_update_index ();
-                    uart_tx_start_transmit ();
-                //}
-            }
+//            if (timer_state.systime % 50 == 0 ) {
+//                //if(!(abs(dwm_status.distance[0]) > 1000)){
+//                    uart_tx_packet = uart_tx_cur_packet ();
+//                    uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
+//                    uart_tx_packet[1] = 0xFF; //CMD
+//                    uart_tx_packet[2] = 14;
+//                    memcpy(&(uart_tx_packet[3]),&(dwm_status.rxdiag.firstPathAmp1),2);
+//                    memcpy(&(uart_tx_packet[5]),&(dwm_status.rxdiag.firstPathAmp2),2);
+//                    memcpy(&(uart_tx_packet[7]),&(dwm_status.rxdiag.firstPathAmp3),2);
+//                    memcpy(&(uart_tx_packet[9]),&(dwm_status.rxdiag.maxGrowthCIR),2);
+//                    memcpy(&(uart_tx_packet[11]),&(dwm_status.rxdiag.rxPreamCount),2);
+//                    
+//                    uart_tx_compute_cks (uart_tx_packet);
+//                    uart_tx_update_index ();
+//                    uart_tx_start_transmit ();
+//                //}
+//            }
             
             if (timer_state.systime % 100 == 0 && dwt_works) {
                 //dwm_status.irq_enable = 1; //in case the device hangs
