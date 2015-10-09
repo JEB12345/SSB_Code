@@ -273,13 +273,20 @@ void can_push_state()
     CO(ranging_distances_node_14) = dwm_status.distance_mm[13];
     CO(ranging_distances_node_15) = dwm_status.distance_mm[16];
     CO(ranging_distances_node_16) = dwm_status.distance_mm[15];
+    // Added 4 more anchors
+    CO(ranging_distances_node_18) = dwm_status.distance_mm[16];
+    CO(ranging_distances_node_19) = dwm_status.distance_mm[17];
+    CO(ranging_distances_node_20) = dwm_status.distance_mm[18];
+    CO(ranging_distances_node_21) = dwm_status.distance_mm[19];
     //TODO: add support for distances transmitted by the fixed nodes
 
     if(dwm_status.new_data_flag){
         dwm_status.new_data_flag = 0; 
-        sendOnePDOevent(&Sensor_Board_Data, 17); //0x1A14 should be the PDO for ranging data 1-4
-        sendOnePDOevent(&Sensor_Board_Data, 18); //0x1A14 should be the PDO for ranging data 5-8
-        sendOnePDOevent(&Sensor_Board_Data, 19); //0x1A14 should be the PDO for ranging data 9-12
+        sendOnePDOevent(&Sensor_Board_Data, 17); //0x1A11 should be the PDO for ranging data 1-4
+        sendOnePDOevent(&Sensor_Board_Data, 18); //0x1A12 should be the PDO for ranging data 5-8
+        sendOnePDOevent(&Sensor_Board_Data, 19); //0x1A13 should be the PDO for ranging data 9-12
         sendOnePDOevent(&Sensor_Board_Data, 20); //0x1A14 should be the PDO for ranging data 13-16
+        // Added 4 more anchors
+        sendOnePDOevent(&Sensor_Board_Data, 21); //0x1A15 should be the PDO for ranging data 18-21
     }
 }

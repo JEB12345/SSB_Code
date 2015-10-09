@@ -123,7 +123,8 @@ main(int argc, char** argv)
 
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
-#if defined(CONF71) && !defined(NO_BOOTLOADER)
+//#if defined(CONF71) && 
+#if !defined(NO_BOOTLOADER)
     if (IMU_Init(400000, 70000000) == 0) {
         mpuData.startData = 1;
     }
@@ -217,16 +218,7 @@ main(int argc, char** argv)
                  * specific to Sensor Board
                  */
                 can_push_state();
-                
-//                //Hijack strain gauge data to transfer distance sensor info
-//                if(dwm_status.node_id==0){
-//                    CO(strain_gauge_raw_Strain_Gauge_1R) = (((uint32_t)dwm_status.distance_mm[1])<<16)|dwm_status.distance_mm[2];
-//                } else if(dwm_status.node_id==1){
-//                    CO(strain_gauge_raw_Strain_Gauge_1R) = (((uint32_t)dwm_status.distance_mm[0])<<16)|dwm_status.distance_mm[2];
-//                } else if(dwm_status.node_id==2){
-//                    CO(strain_gauge_raw_Strain_Gauge_1R) = (((uint32_t)dwm_status.distance_mm[0])<<16)|dwm_status.distance_mm[1];
-//                }
-                
+                            
             }
 
             /**

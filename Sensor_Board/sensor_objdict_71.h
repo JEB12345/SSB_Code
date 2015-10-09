@@ -70,6 +70,10 @@ extern UNS16 sensor71_ranging_distances_node_13;		/* Mapped at index 0x2017, sub
 extern UNS16 sensor71_ranging_distances_node_14;		/* Mapped at index 0x2017, subindex 0x0E */
 extern UNS16 sensor71_ranging_distances_node_15;		/* Mapped at index 0x2017, subindex 0x0F */
 extern UNS16 sensor71_ranging_distances_node_16;		/* Mapped at index 0x2017, subindex 0x10 */
+extern UNS16 sensor71_ranging_distances_node_18;		/* Mapped at index 0x2017, subindex 0x11 */
+extern UNS16 sensor71_ranging_distances_node_19;		/* Mapped at index 0x2017, subindex 0x12 */
+extern UNS16 sensor71_ranging_distances_node_20;		/* Mapped at index 0x2017, subindex 0x13 */
+extern UNS16 sensor71_ranging_distances_node_21;		/* Mapped at index 0x2017, subindex 0x14 */
 extern INTEGER32 motor72_position_control_Commanded_Position;		/* Mapped at index 0x2022, subindex 0x01 */
 extern UNS16 motor72_position_control_P_Gain;		/* Mapped at index 0x2022, subindex 0x02 */
 extern UNS16 motor72_position_control_I_Gain;		/* Mapped at index 0x2022, subindex 0x03 */
