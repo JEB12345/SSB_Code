@@ -131,7 +131,8 @@ main(int argc, char** argv)
     
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
-#if defined(CONF71) && !defined(NO_BOOTLOADER) &&!defined(ANCHOR)
+//#if defined(CONF71) && 
+#if !defined(NO_BOOTLOADER)
     if (IMU_Init(400000, 70000000) == 0) {
         mpuData.startData = 1;
     }
@@ -229,7 +230,6 @@ main(int argc, char** argv)
                  * specific to Sensor Board
                  */
                 can_push_state();
-                
             }
 
             /**
