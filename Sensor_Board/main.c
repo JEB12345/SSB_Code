@@ -126,7 +126,7 @@ main(int argc, char** argv)
 
 #ifdef ANCHOR
 //    ranging_id = ANCHOR_ID +1;
-    ranging_id = 21;
+    ranging_id = 18;
 #endif
     
     // Start Reading the int pin on IMU
