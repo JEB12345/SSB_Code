@@ -1093,7 +1093,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 /* index 0x1816 :   Transmit PDO 23 Parameter. */
                     UNS8 Sensor_Board_highestSubIndex_obj1816 = 6; /* number of subindex - 1*/
                     UNS32 Sensor_Board_obj1816_COB_ID_used_by_PDO = 0x207;	/* 519 */
-                    UNS8 Sensor_Board_obj1816_Transmission_Type = 0x0;	/* 0 */
+                    UNS8 Sensor_Board_obj1816_Transmission_Type = 0xFF;	/* 0 */
                     UNS16 Sensor_Board_obj1816_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1816_Compatibility_Entry = 0x0;	/* 0 */
                     UNS16 Sensor_Board_obj1816_Event_Timer = 0x2;	/* 2 */
