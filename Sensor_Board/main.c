@@ -13,7 +13,7 @@
 #include "sensor_loadcell.h"
 #include "sensor_pindefs.h"
 #include "sensor_state.h"
-//#include "sensor_uart.h"
+#include "sensor_uart.h"
 #include "sensor_timers.h"
 #include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
 //#include "packing.h"
@@ -55,7 +55,6 @@ float ypr[3] = {0, 0, 0};
 
 uint16_t count = 0;
 
-char hex2char(char halfhex);
 
 /*
  * 
@@ -90,7 +89,7 @@ main(int argc, char** argv)
     led_init();
     timers_init();
     state_init();
-//    uart_init();
+    uart_init();
 
     // Needs to be called ASAP so that the DWM isn't held in reset
     //DWM_RESET_OFF;
@@ -125,7 +124,7 @@ main(int argc, char** argv)
     mpuData.startData = 0;
 //#if defined(CONF71) && 
 #if !defined(NO_BOOTLOADER)
-    if (IMU_Init(400000, 70000000) == 0) {
+    if (IMU_Init(100000, 70000000) == 0) {
         mpuData.startData = 1;
     }
 #endif
@@ -196,8 +195,7 @@ main(int argc, char** argv)
                 if (timer_state.systime % 5 == 0) {
                     IMU_normalizeData(&mpuData, &magData, &imuData);
                     // Run AHRS algorithm
-                    //TODO: Takes a long time (and can stall the pic) ONLY when the DWM code is loaded
-                    IMU_UpdateAHRS (&imuData);
+                    IMU_UpdateAHRS(&imuData);
 
                     // Run IMU algorithm (does not use MAG data)
 //                    IMU_UpdateIMU(&imuData);
@@ -232,23 +230,21 @@ main(int argc, char** argv)
             /**
              * UART DW1000 debug Loop
              */
-//            if (timer_state.systime % 50 == 0 ) {
-//                //if(!(abs(dwm_status.distance[0]) > 1000)){
-//                    uart_tx_packet = uart_tx_cur_packet ();
-//                    uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
-//                    uart_tx_packet[1] = 0xFF; //CMD
-//                    uart_tx_packet[2] = 14;
-//                    memcpy(&(uart_tx_packet[3]),&(dwm_status.rxdiag.firstPathAmp1),2);
-//                    memcpy(&(uart_tx_packet[5]),&(dwm_status.rxdiag.firstPathAmp2),2);
-//                    memcpy(&(uart_tx_packet[7]),&(dwm_status.rxdiag.firstPathAmp3),2);
-//                    memcpy(&(uart_tx_packet[9]),&(dwm_status.rxdiag.maxGrowthCIR),2);
-//                    memcpy(&(uart_tx_packet[11]),&(dwm_status.rxdiag.rxPreamCount),2);
-//                    
-//                    uart_tx_compute_cks (uart_tx_packet);
-//                    uart_tx_update_index ();
-//                    uart_tx_start_transmit ();
-//                //}
-//            }
+            if (timer_state.systime % 10 == 0 ) {
+                //if(!(abs(dwm_status.distance[0]) > 1000)){
+                    uart_tx_packet = uart_tx_cur_packet ();
+                    uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
+                    uart_tx_packet[1] = 0xFF; //CMD
+                    uart_tx_packet[2] = 14;
+                    memcpy(&(uart_tx_packet[3]),&(CO(accel_accel_x_raw)),2);
+                    memcpy(&(uart_tx_packet[5]),&(CO(accel_accel_y_raw)),2);
+                    memcpy(&(uart_tx_packet[7]),&(CO(accel_accel_z_raw)),2);
+                    
+                    uart_tx_compute_cks (uart_tx_packet);
+                    uart_tx_update_index ();
+                    uart_tx_start_transmit ();
+                //}
+            }
             
             if (timer_state.systime % 100 == 0 && dwt_works) {
                 //dwm_status.irq_enable = 1; //in case the device hangs
@@ -339,21 +335,6 @@ main(int argc, char** argv)
         }
     }
     return (EXIT_SUCCESS);
-}
-
-char
-hex2char(char halfhex)
-{
-    char rv;
-    // Test for numeric characters
-    if (halfhex <= 9 && halfhex >= 0) {
-        return (halfhex + '0');
-    }// Otherwise check for upper-case A-F
-    else if ((rv = halfhex - 10) <= 5 && rv >= 0) {
-        return rv + 'A';
-    } // Finally check for lower-case a-f
-    // Otherwise return -1 as an error
-    return -1;
 }
 
 /**
