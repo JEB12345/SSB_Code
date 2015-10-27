@@ -123,11 +123,11 @@ main(int argc, char** argv)
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
 //#if defined(CONF71) && 
-#if !defined(NO_BOOTLOADER)
+//#if !defined(NO_BOOTLOADER)
     if (IMU_Init(100000, 70000000) == 0) {
         mpuData.startData = 1;
     }
-#endif
+//#endif
 
     for (;;) {
         if (timer_state.systime != timer_state.prev_systime) {
@@ -231,14 +231,16 @@ main(int argc, char** argv)
              * UART DW1000 debug Loop
              */
             if (timer_state.systime % 10 == 0 ) {
+                float Q[4];
+                IMU_GetQuaternion(Q);
                 //if(!(abs(dwm_status.distance[0]) > 1000)){
                     uart_tx_packet = uart_tx_cur_packet ();
                     uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
                     uart_tx_packet[1] = 0xFF; //CMD
                     uart_tx_packet[2] = 14;
-                    memcpy(&(uart_tx_packet[3]),&(CO(accel_accel_x_raw)),2);
-                    memcpy(&(uart_tx_packet[5]),&(CO(accel_accel_y_raw)),2);
-                    memcpy(&(uart_tx_packet[7]),&(CO(accel_accel_z_raw)),2);
+                    memcpy(&(uart_tx_packet[3]),&Q[0],4);
+//                    memcpy(&(uart_tx_packet[5]),&(CO(accel_accel_y_raw)),2);
+//                    memcpy(&(uart_tx_packet[7]),&(CO(accel_accel_z_raw)),2);
                     
                     uart_tx_compute_cks (uart_tx_packet);
                     uart_tx_update_index ();

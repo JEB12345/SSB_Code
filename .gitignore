@@ -46,3 +46,4 @@ Thumbs.db
 # VIM generated files #
 #######################
 *.swp
+/Sensor_Board/dist/default/
