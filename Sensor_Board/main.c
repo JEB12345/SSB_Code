@@ -74,6 +74,7 @@ main(int argc, char** argv)
     uint8_t dwt_init_flag = 0;
     uint8_t dwt_works = 0;
     uint8_t result = -1;
+    unsigned imu_step = 0;
 
     volatile unsigned timer4_flag = 0;
     
@@ -192,16 +193,40 @@ main(int argc, char** argv)
     //                QuaternionToYawPitchRoll(quaterion, ypr);
                 }
 
-                if (timer_state.systime % 5 == 0) {
-                    IMU_normalizeData(&mpuData, &magData, &imuData);
-                    // Run AHRS algorithm
-                    IMU_UpdateAHRS(&imuData);
-
-                    // Run IMU algorithm (does not use MAG data)
-//                    IMU_UpdateIMU(&imuData);
-
-                    //copy state to CAN dictionary
-                    IMU_CopyOutput(&imuData, &mpuData, &magData);
+//                if (timer_state.systime % 10 == 0) 
+//                    IMU_normalizeData(&mpuData, &magData, &imuData);
+//                    // Run AHRS algorithm
+//                    IMU_UpdateAHRS(&imuData);
+//
+//                    // Run IMU algorithm (does not use MAG data)
+////                    IMU_UpdateIMU(&imuData);
+//
+//                    //copy state to CAN dictionary
+//                    IMU_CopyOutput(&imuData, &mpuData, &magData);
+//                }
+                { 
+                    switch(imu_step){
+                        case 0:
+                            IMU_normalizeData(&mpuData, &magData, &imuData);
+                            // Run AHRS algorithm
+                            IMU_UpdateAHRS_reentrant(0,&imuData);
+                            break;
+                        case 1:
+                        case 2:
+                        case 3:
+//                        case 4:
+                            // Run AHRS algorithm
+                            IMU_UpdateAHRS_reentrant(imu_step,&imuData);
+                            break;
+                        case 4:
+                            //copy state to CAN dictionary
+                            IMU_CopyOutput(&imuData, &mpuData, &magData);
+                            break;
+                    };
+                    imu_step += 1;
+                    if(imu_step==5){
+                        imu_step = 0;
+                    }
                 }
             }
 
