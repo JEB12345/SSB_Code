@@ -38,6 +38,49 @@
 
 extern volatile unsigned int ecan1TXMsgBuf[8][8] __attribute__((aligned(8 * 16)));
 
+const int16_t mag_offsets_x[12] = {
+    -712,
+    -712,
+    -712,
+    -712,
+    -712,
+    -712,
+    -712,
+    -712,
+    -712,
+    -712,
+    -712,
+    -712
+};
+const int16_t mag_offsets_y[12] = {
+    1267,
+    1267,
+    1267,
+    1267,
+    1267,
+    1267,
+    1267,
+    1267,
+    1267,
+    1267,
+    1267,
+    1267
+};
+const int16_t mag_offsets_z[12] = {
+    3012,
+    3012,
+    3012,
+    3012,
+    3012,
+    3012,
+    3012,
+    3012,
+    3012,
+    3012,
+    3012,
+    3012
+};
+
 extern system_data system_state;
 extern timer_data timer_state;
 extern loadcell_data loadcell_state;
@@ -52,6 +95,7 @@ MAG3110_Data magData;
 IMU_Data imuData;
 float quaterion[4] = {0, 0, 0, 0};
 float ypr[3] = {0, 0, 0};
+int16_t mag_offset[3] = {0,0,0};
 
 uint16_t count = 0;
 
@@ -124,11 +168,11 @@ main(int argc, char** argv)
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
 //#if defined(CONF71) && 
-//#if !defined(NO_BOOTLOADER)
-    if (IMU_Init(100000, 70000000) == 0) {
+#if !defined(NO_BOOTLOADER)
+    if (IMU_Init(400000, 70000000) == 0) {
         mpuData.startData = 1;
     }
-//#endif
+#endif
 
     for (;;) {
         if (timer_state.systime != timer_state.prev_systime) {
@@ -136,6 +180,12 @@ main(int argc, char** argv)
             //everything in here will be executed once every ms
             //make sure that everything in here takes less than 1ms
             //useful for checking state consistency, synchronization, watchdog...
+            
+            if(ranging_id != 0){
+                mag_offset[0] = mag_offsets_x[ranging_id - 2];
+                mag_offset[1] = mag_offsets_y[ranging_id - 2];
+                mag_offset[2] = mag_offsets_z[ranging_id - 2];
+            }
             
             if(result != 0){
 #ifndef FIXED_BASE
@@ -193,21 +243,10 @@ main(int argc, char** argv)
     //                QuaternionToYawPitchRoll(quaterion, ypr);
                 }
 
-//                if (timer_state.systime % 10 == 0) 
-//                    IMU_normalizeData(&mpuData, &magData, &imuData);
-//                    // Run AHRS algorithm
-//                    IMU_UpdateAHRS(&imuData);
-//
-//                    // Run IMU algorithm (does not use MAG data)
-////                    IMU_UpdateIMU(&imuData);
-//
-//                    //copy state to CAN dictionary
-//                    IMU_CopyOutput(&imuData, &mpuData, &magData);
-//                }
                 { 
                     switch(imu_step){
                         case 0:
-                            IMU_normalizeData(&mpuData, &magData, &imuData);
+                            IMU_normalizeData(&mpuData, &magData, &imuData, mag_offset);
                             // Run AHRS algorithm
                             IMU_UpdateAHRS_reentrant(0,&imuData);
                             break;
@@ -256,16 +295,17 @@ main(int argc, char** argv)
              * UART DW1000 debug Loop
              */
             if (timer_state.systime % 10 == 0 ) {
-                float Q[4];
-                IMU_GetQuaternion(Q);
+//                float Q[4];
+//                IMU_GetQuaternion(Q);
                 //if(!(abs(dwm_status.distance[0]) > 1000)){
                     uart_tx_packet = uart_tx_cur_packet ();
                     uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
                     uart_tx_packet[1] = 0xFF; //CMD
                     uart_tx_packet[2] = 14;
-                    memcpy(&(uart_tx_packet[3]),&Q[0],4);
-//                    memcpy(&(uart_tx_packet[5]),&(CO(accel_accel_y_raw)),2);
-//                    memcpy(&(uart_tx_packet[7]),&(CO(accel_accel_z_raw)),2);
+//                    memcpy(&(uart_tx_packet[3]),&Q[0],4);
+                    memcpy(&(uart_tx_packet[3]),&(CO(mag_mag_x_raw)),2);
+                    memcpy(&(uart_tx_packet[5]),&(CO(mag_mag_y_raw)),2);
+                    memcpy(&(uart_tx_packet[7]),&(CO(mag_mag_z_raw)),2);
                     
                     uart_tx_compute_cks (uart_tx_packet);
                     uart_tx_update_index ();
