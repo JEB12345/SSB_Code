@@ -50,7 +50,8 @@ const int16_t mag_offsets_x[12] = {
     -712,
     -712,
     -712,
-    -712
+    -712,
+    -704
 };
 const int16_t mag_offsets_y[12] = {
     1267,
@@ -64,7 +65,8 @@ const int16_t mag_offsets_y[12] = {
     1267,
     1267,
     1267,
-    1267
+    1267,
+    1495
 };
 const int16_t mag_offsets_z[12] = {
     3012,
@@ -78,9 +80,55 @@ const int16_t mag_offsets_z[12] = {
     3012,
     3012,
     3012,
-    3012
+    3012,
+    3102
 };
 
+const int16_t gyro_offsets_x[12] = {
+    190,
+    190,
+    190,
+    190,
+    190,
+    190,
+    190,
+    190,
+    190,
+    190,
+    190,
+    190,
+    190
+};
+const int16_t gyro_offsets_y[12] = {
+    120,
+    120,
+    120,
+    120,
+    120,
+    120,
+    120,
+    120,
+    120,
+    120,
+    120,
+    120,
+    120
+};
+const int16_t gyro_offsets_z[12] = {
+    62,
+    62,
+    62,
+    62,
+    62,
+    62,
+    62,
+    62,
+    62,
+    62,
+    62,
+    62,
+    62
+};
 extern system_data system_state;
 extern timer_data timer_state;
 extern loadcell_data loadcell_state;
@@ -96,6 +144,7 @@ IMU_Data imuData;
 float quaterion[4] = {0, 0, 0, 0};
 float ypr[3] = {0, 0, 0};
 int16_t mag_offset[3] = {0,0,0};
+int16_t gyro_offset[3] = {0,0,0};
 
 uint16_t count = 0;
 
@@ -168,11 +217,11 @@ main(int argc, char** argv)
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
 //#if defined(CONF71) && 
-#if !defined(NO_BOOTLOADER)
+//#if !defined(NO_BOOTLOADER)
     if (IMU_Init(400000, 70000000) == 0) {
         mpuData.startData = 1;
     }
-#endif
+//#endif
 
     for (;;) {
         if (timer_state.systime != timer_state.prev_systime) {
@@ -181,10 +230,15 @@ main(int argc, char** argv)
             //make sure that everything in here takes less than 1ms
             //useful for checking state consistency, synchronization, watchdog...
             
+            ranging_id = 14;
             if(ranging_id != 0){
                 mag_offset[0] = mag_offsets_x[ranging_id - 2];
                 mag_offset[1] = mag_offsets_y[ranging_id - 2];
                 mag_offset[2] = mag_offsets_z[ranging_id - 2];
+                
+                gyro_offset[0] = gyro_offsets_x[ranging_id - 2];
+                gyro_offset[1] = gyro_offsets_y[ranging_id - 2];
+                gyro_offset[2] = gyro_offsets_z[ranging_id - 2];
             }
             
             if(result != 0){
@@ -238,15 +292,11 @@ main(int argc, char** argv)
              * IMU Loop
              */
             if(mpuData.startData){
-                if (timer_state.systime % 10 == 0) {
-    //                IMU_GetQuaternion(quaterion);
-    //                QuaternionToYawPitchRoll(quaterion, ypr);
-                }
-
                 { 
+                    LED_2 ^= 1;
                     switch(imu_step){
                         case 0:
-                            IMU_normalizeData(&mpuData, &magData, &imuData, mag_offset);
+                            IMU_normalizeData(&mpuData, &magData, &imuData, gyro_offset, mag_offset);
                             // Run AHRS algorithm
                             IMU_UpdateAHRS_reentrant(0,&imuData);
                             break;
@@ -292,7 +342,7 @@ main(int argc, char** argv)
             
 
             /**
-             * UART DW1000 debug Loop
+             * UART debug Loop
              */
             if (timer_state.systime % 10 == 0 ) {
 //                float Q[4];
@@ -302,10 +352,11 @@ main(int argc, char** argv)
                     uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
                     uart_tx_packet[1] = 0xFF; //CMD
                     uart_tx_packet[2] = 14;
-//                    memcpy(&(uart_tx_packet[3]),&Q[0],4);
-                    memcpy(&(uart_tx_packet[3]),&(CO(mag_mag_x_raw)),2);
-                    memcpy(&(uart_tx_packet[5]),&(CO(mag_mag_y_raw)),2);
-                    memcpy(&(uart_tx_packet[7]),&(CO(mag_mag_z_raw)),2);
+                    memcpy(&(uart_tx_packet[3]),&imuData.magX,4);
+//                    memcpy(&(uart_tx_packet[3]),&(CO(mag_mag_x_norm)),4);
+                    memcpy(&(uart_tx_packet[7]),&(CO(mag_mag_x_raw)),2);
+//                    memcpy(&(uart_tx_packet[5]),&(CO(mag_mag_y_raw)),2);
+//                    memcpy(&(uart_tx_packet[7]),&(CO(mag_mag_z_raw)),2); 
                     
                     uart_tx_compute_cks (uart_tx_packet);
                     uart_tx_update_index ();
