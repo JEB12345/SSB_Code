@@ -38,7 +38,7 @@
 
 extern volatile unsigned int ecan1TXMsgBuf[8][8] __attribute__((aligned(8 * 16)));
 
-const int16_t mag_offsets_x[12] = {
+const int16_t mag_offsets_x[13] = {
     -712,
     -712,
     -712,
@@ -53,7 +53,7 @@ const int16_t mag_offsets_x[12] = {
     -712,
     -704
 };
-const int16_t mag_offsets_y[12] = {
+const int16_t mag_offsets_y[13] = {
     1267,
     1267,
     1267,
@@ -68,7 +68,7 @@ const int16_t mag_offsets_y[12] = {
     1267,
     1495
 };
-const int16_t mag_offsets_z[12] = {
+const int16_t mag_offsets_z[13] = {
     3012,
     3012,
     3012,
@@ -84,7 +84,7 @@ const int16_t mag_offsets_z[12] = {
     3102
 };
 
-const int16_t gyro_offsets_x[12] = {
+const int16_t gyro_offsets_x[13] = {
     190,
     190,
     190,
@@ -99,7 +99,7 @@ const int16_t gyro_offsets_x[12] = {
     190,
     190
 };
-const int16_t gyro_offsets_y[12] = {
+const int16_t gyro_offsets_y[13] = {
     120,
     120,
     120,
@@ -114,7 +114,7 @@ const int16_t gyro_offsets_y[12] = {
     120,
     120
 };
-const int16_t gyro_offsets_z[12] = {
+const int16_t gyro_offsets_z[13] = {
     62,
     62,
     62,
@@ -129,6 +129,8 @@ const int16_t gyro_offsets_z[12] = {
     62,
     62
 };
+
+extern mag_calib_param mag_calibration;
 extern system_data system_state;
 extern timer_data timer_state;
 extern loadcell_data loadcell_state;
@@ -143,9 +145,8 @@ MAG3110_Data magData;
 IMU_Data imuData;
 float quaterion[4] = {0, 0, 0, 0};
 float ypr[3] = {0, 0, 0};
-int16_t mag_offset[3] = {0,0,0};
 int16_t gyro_offset[3] = {0,0,0};
-
+int16_t mag_offset[12] = {1,0,0,0,0,1,0,0,0,0,1,0};
 uint16_t count = 0;
 
 
@@ -216,12 +217,9 @@ main(int argc, char** argv)
 
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
-//#if defined(CONF71) && 
-//#if !defined(NO_BOOTLOADER)
     if (IMU_Init(400000, 70000000) == 0) {
         mpuData.startData = 1;
     }
-//#endif
 
     for (;;) {
         if (timer_state.systime != timer_state.prev_systime) {
@@ -230,15 +228,23 @@ main(int argc, char** argv)
             //make sure that everything in here takes less than 1ms
             //useful for checking state consistency, synchronization, watchdog...
             
-            ranging_id = 14;
             if(ranging_id != 0){
-                mag_offset[0] = mag_offsets_x[ranging_id - 2];
-                mag_offset[1] = mag_offsets_y[ranging_id - 2];
-                mag_offset[2] = mag_offsets_z[ranging_id - 2];
-                
                 gyro_offset[0] = gyro_offsets_x[ranging_id - 2];
                 gyro_offset[1] = gyro_offsets_y[ranging_id - 2];
                 gyro_offset[2] = gyro_offsets_z[ranging_id - 2];
+                
+                mag_offset[0] = mag_calibration.magX.xx;
+                mag_offset[1] = mag_calibration.magX.xy;
+                mag_offset[2] = mag_calibration.magX.xz;
+                mag_offset[3] = mag_calibration.magX.offset;
+                mag_offset[4] = mag_calibration.magY.yx;
+                mag_offset[5] = mag_calibration.magY.yy;
+                mag_offset[6] = mag_calibration.magY.yz;
+                mag_offset[7] = mag_calibration.magY.offset;
+                mag_offset[8] = mag_calibration.magZ.zx;
+                mag_offset[9] = mag_calibration.magZ.zy;
+                mag_offset[10] = mag_calibration.magZ.zz;
+                mag_offset[11] = mag_calibration.magZ.offset;
             }
             
             if(result != 0){
@@ -345,23 +351,31 @@ main(int argc, char** argv)
              * UART debug Loop
              */
             if (timer_state.systime % 10 == 0 ) {
-//                float Q[4];
-//                IMU_GetQuaternion(Q);
-                //if(!(abs(dwm_status.distance[0]) > 1000)){
-                    uart_tx_packet = uart_tx_cur_packet ();
-                    uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
-                    uart_tx_packet[1] = 0xFF; //CMD
-                    uart_tx_packet[2] = 14;
-                    memcpy(&(uart_tx_packet[3]),&imuData.magX,4);
-//                    memcpy(&(uart_tx_packet[3]),&(CO(mag_mag_x_norm)),4);
-                    memcpy(&(uart_tx_packet[7]),&(CO(mag_mag_x_raw)),2);
-//                    memcpy(&(uart_tx_packet[5]),&(CO(mag_mag_y_raw)),2);
-//                    memcpy(&(uart_tx_packet[7]),&(CO(mag_mag_z_raw)),2); 
-                    
-                    uart_tx_compute_cks (uart_tx_packet);
-                    uart_tx_update_index ();
-                    uart_tx_start_transmit ();
-                //}
+                float Q[4];
+                int16_t x_norm, y_norm, z_norm, w_norm;
+                IMU_GetQuaternion(Q);
+                
+                x_norm = (int16_t)(CO(ahrs_ypr_yaw)*1000);
+                y_norm = (int16_t)(CO(ahrs_ypr_roll)*1000);
+                z_norm = (int16_t)(CO(ahrs_ypr_pitch)*1000);
+                w_norm = (int16_t)(Q[0]*1000);
+                
+                uart_tx_packet = uart_tx_cur_packet ();
+                uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
+                uart_tx_packet[1] = 0xFF; //CMD
+                uart_tx_packet[2] = 14;
+//                memcpy(&(uart_tx_packet[3]),&CO(ahrs_ypr_yaw),sizeof(float));
+                memcpy(&(uart_tx_packet[3]),&(x_norm),2);
+                memcpy(&(uart_tx_packet[5]),&(y_norm),2);
+                memcpy(&(uart_tx_packet[7]),&(z_norm),2);
+//                memcpy(&(uart_tx_packet[9]),&(w_norm),2);
+//                memcpy(&(uart_tx_packet[3]),&(CO(mag_mag_x_raw)),2);
+//                memcpy(&(uart_tx_packet[5]),&(CO(mag_mag_y_raw)),2);
+//                memcpy(&(uart_tx_packet[7]),&(CO(mag_mag_z_raw)),2); 
+
+                uart_tx_compute_cks (uart_tx_packet);
+                uart_tx_update_index ();
+                uart_tx_start_transmit ();
             }
             
             if (timer_state.systime % 100 == 0 && dwt_works) {

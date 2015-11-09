@@ -19,6 +19,30 @@
             RET_UNKNOWN = 127
         }
     return_value_t;
+    
+    typedef struct {
+        volatile struct {
+            int16_t xx;
+            int16_t xy;
+            int16_t xz;
+            int16_t offse;
+        } magX;
+        volatile struct {
+            int16_t yx;
+            int16_t yy;
+            int16_t yz;
+            int16_t offset;
+        } magY;
+        volatile struct {
+            int16_t zx;
+            int16_t zy;
+            int16_t zz;
+            int16_t offset;
+        } magZ;
+//        int16_t magX[4] = {224, -6, -4, -712};
+//        int16_t magY[4] = {-6, 256, -19, 1190};
+//        int16_t magZ[4] = {-4, -19, 190, -2889};
+    } mag_calib_param;
 
     typedef enum {
          SPI_IDLE            =0,
