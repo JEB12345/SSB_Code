@@ -23,7 +23,7 @@ extern loadcell_data loadcell_state;
 extern dwm_1000_status dwm_status;
 static Message rec_m;
 
-float mag_offset[];
+float mag_offset[9];
 
 static void can_reset(CO_Data* d);
 static void can_enable_heartbeat(uint16_t time);

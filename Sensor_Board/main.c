@@ -343,14 +343,14 @@ main(int argc, char** argv)
                 int16_t x_norm, y_norm, z_norm, w_norm;
                 IMU_GetQuaternion(Q);
                 
-//                int32_t test = (int32_t)(mag_offset[0]*1000);
+//                int16_t test = (int16_t)(mag_offset[0]*1000);
                 
                 uart_tx_packet = uart_tx_cur_packet ();
                 uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
                 uart_tx_packet[1] = 0xFF; //CMD
                 uart_tx_packet[2] = 14;
 //                memcpy(&(uart_tx_packet[3]),&CO(ahrs_ypr_yaw),sizeof(float));
-//                memcpy(&(uart_tx_packet[3]),&(test),4);
+//                memcpy(&(uart_tx_packet[3]),&(test),2);
 //                memcpy(&(uart_tx_packet[7]),&(mag_offset[8]),4);
 //                memcpy(&(uart_tx_packet[7]),&(z_norm),2);
 //                memcpy(&(uart_tx_packet[9]),&(w_norm),2);
