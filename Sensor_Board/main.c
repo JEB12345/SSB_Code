@@ -130,7 +130,6 @@ const int16_t gyro_offsets_z[13] = {
     62
 };
 
-extern mag_calib_param mag_calibration;
 extern system_data system_state;
 extern timer_data timer_state;
 extern loadcell_data loadcell_state;
@@ -138,6 +137,7 @@ extern loadcell_data loadcell_state;
 extern can_data can_state;
 extern uint8_t txreq_bitarray;
 extern dwm_1000_status dwm_status;
+extern float mag_offset[];
 
 MPU6050_Data mpuData;
 MAG3110_Data magData;
@@ -146,7 +146,6 @@ IMU_Data imuData;
 float quaterion[4] = {0, 0, 0, 0};
 float ypr[3] = {0, 0, 0};
 int16_t gyro_offset[3] = {0,0,0};
-int16_t mag_offset[12] = {1,0,0,0,0,1,0,0,0,0,1,0};
 uint16_t count = 0;
 
 
@@ -220,6 +219,7 @@ main(int argc, char** argv)
     if (IMU_Init(400000, 70000000) == 0) {
         mpuData.startData = 1;
     }
+    
 
     for (;;) {
         if (timer_state.systime != timer_state.prev_systime) {
@@ -232,19 +232,6 @@ main(int argc, char** argv)
                 gyro_offset[0] = gyro_offsets_x[ranging_id - 2];
                 gyro_offset[1] = gyro_offsets_y[ranging_id - 2];
                 gyro_offset[2] = gyro_offsets_z[ranging_id - 2];
-                
-                mag_offset[0] = mag_calibration.magX.xx;
-                mag_offset[1] = mag_calibration.magX.xy;
-                mag_offset[2] = mag_calibration.magX.xz;
-                mag_offset[3] = mag_calibration.magX.offset;
-                mag_offset[4] = mag_calibration.magY.yx;
-                mag_offset[5] = mag_calibration.magY.yy;
-                mag_offset[6] = mag_calibration.magY.yz;
-                mag_offset[7] = mag_calibration.magY.offset;
-                mag_offset[8] = mag_calibration.magZ.zx;
-                mag_offset[9] = mag_calibration.magZ.zy;
-                mag_offset[10] = mag_calibration.magZ.zz;
-                mag_offset[11] = mag_calibration.magZ.offset;
             }
             
             if(result != 0){
@@ -304,6 +291,7 @@ main(int argc, char** argv)
                         case 0:
                             IMU_normalizeData(&mpuData, &magData, &imuData, gyro_offset, mag_offset);
                             // Run AHRS algorithm
+                            imuData.magZ = -imuData.magZ;
                             IMU_UpdateAHRS_reentrant(0,&imuData);
                             break;
                         case 1:
@@ -355,19 +343,16 @@ main(int argc, char** argv)
                 int16_t x_norm, y_norm, z_norm, w_norm;
                 IMU_GetQuaternion(Q);
                 
-                x_norm = (int16_t)(CO(ahrs_ypr_yaw)*1000);
-                y_norm = (int16_t)(CO(ahrs_ypr_roll)*1000);
-                z_norm = (int16_t)(CO(ahrs_ypr_pitch)*1000);
-                w_norm = (int16_t)(Q[0]*1000);
+//                int32_t test = (int32_t)(mag_offset[0]*1000);
                 
                 uart_tx_packet = uart_tx_cur_packet ();
                 uart_tx_packet[0] = 0xFF; //ALWAYS 0xFF
                 uart_tx_packet[1] = 0xFF; //CMD
                 uart_tx_packet[2] = 14;
 //                memcpy(&(uart_tx_packet[3]),&CO(ahrs_ypr_yaw),sizeof(float));
-                memcpy(&(uart_tx_packet[3]),&(x_norm),2);
-                memcpy(&(uart_tx_packet[5]),&(y_norm),2);
-                memcpy(&(uart_tx_packet[7]),&(z_norm),2);
+//                memcpy(&(uart_tx_packet[3]),&(test),4);
+//                memcpy(&(uart_tx_packet[7]),&(mag_offset[8]),4);
+//                memcpy(&(uart_tx_packet[7]),&(z_norm),2);
 //                memcpy(&(uart_tx_packet[9]),&(w_norm),2);
 //                memcpy(&(uart_tx_packet[3]),&(CO(mag_mag_x_raw)),2);
 //                memcpy(&(uart_tx_packet[5]),&(CO(mag_mag_y_raw)),2);

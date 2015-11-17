@@ -23,10 +23,14 @@ extern loadcell_data loadcell_state;
 extern dwm_1000_status dwm_status;
 static Message rec_m;
 
+float mag_offset[];
+
 static void can_reset(CO_Data* d);
 static void can_enable_heartbeat(uint16_t time);
 static void can_enable_slave_heartbeat(UNS8 nodeId, uint16_t time);
 static void ConfigureSlaveNode(CO_Data* d, unsigned char nodeId);
+
+UNS32 mag_calibration_cb(CO_Data* d, const indextable * tbl, UNS8 bSubindex);
 
 char heartbeat = 1;
 
@@ -67,6 +71,8 @@ return_value_t can_init()
 #endif
 
     PDOInit(&Sensor_Board_Data);
+
+    RegisterSetODentryCallBack(&Sensor_Board_Data,0x2019,0x9,mag_calibration_cb);
 
     return can_state.init_return;
 }
@@ -289,4 +295,9 @@ void can_push_state()
         // Added 4 more anchors
         sendOnePDOevent(&Sensor_Board_Data, 21); //0x1A15 should be the PDO for ranging data 18-21
     }
+}
+
+UNS32 mag_calibration_cb(CO_Data* d, const indextable * tbl, UNS8 bSubindex) {
+    memcpy(mag_offset, CO(mag_cal_param), 9*sizeof(float));
+    return 0;
 }

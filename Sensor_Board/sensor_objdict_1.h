@@ -77,6 +77,7 @@ extern UNS16 sensor1_ranging_distances_node_21;		/* Mapped at index 0x2017, subi
 extern REAL32 sensor1_ahrs_ypr_yaw;		/* Mapped at index 0x2018, subindex 0x01 */
 extern REAL32 sensor1_ahrs_ypr_pitch;		/* Mapped at index 0x2018, subindex 0x02 */
 extern REAL32 sensor1_ahrs_ypr_roll;		/* Mapped at index 0x2018, subindex 0x03 */
+extern REAL32 sensor1_mag_cal_param[9];		/* Mapped at index 0x2019, subindex 0x01 - 0x09 */
 extern INTEGER32 motor2_position_control_Commanded_Position;		/* Mapped at index 0x2022, subindex 0x01 */
 extern UNS16 motor2_position_control_P_Gain;		/* Mapped at index 0x2022, subindex 0x02 */
 extern UNS16 motor2_position_control_I_Gain;		/* Mapped at index 0x2022, subindex 0x03 */

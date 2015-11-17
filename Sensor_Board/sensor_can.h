@@ -20,6 +20,8 @@ extern "C" {
 #endif
     
 #define MOTOR_POSITION_LIMIT 35     //This value is in rads
+    
+    extern float mag_offset[];
 
     /**
      * @brief can_init() Initalizes the dspic33e's CAN Bus at 1Mbaud
