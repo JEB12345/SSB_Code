@@ -1108,7 +1108,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     UNS8 Sensor_Board_obj1816_Transmission_Type = 0xFF;	/* 255 */
                     UNS16 Sensor_Board_obj1816_Inhibit_Time = 0x0;	/* 0 */
                     UNS8 Sensor_Board_obj1816_Compatibility_Entry = 0x0;	/* 0 */
-                    UNS16 Sensor_Board_obj1816_Event_Timer = 0x2;	/* 2 */
+                    UNS16 Sensor_Board_obj1816_Event_Timer = 0x14;	/* 20 */
                     UNS8 Sensor_Board_obj1816_SYNC_start_value = 0x0;	/* 0 */
                     ODCallback_t Sensor_Board_Index1816_callbacks[] = 
                      {
@@ -1637,7 +1637,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                        { RW, real32, sizeof (REAL32), (void*)&sensor71_mag_cal_param[5] },
                        { RW, real32, sizeof (REAL32), (void*)&sensor71_mag_cal_param[6] },
                        { RW, real32, sizeof (REAL32), (void*)&sensor71_mag_cal_param[7] },
-                       { RW, real32, sizeof (REAL32), (void*)&sensor71_mag_cal_param[8] } 
+                       { RW, real32, sizeof (REAL32), (void*)&sensor71_mag_cal_param[8] }
                      };
 
 /* index 0x2022 :   Mapped variable motor72_position_control */
