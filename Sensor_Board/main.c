@@ -137,7 +137,6 @@ extern loadcell_data loadcell_state;
 extern can_data can_state;
 extern uint8_t txreq_bitarray;
 extern dwm_1000_status dwm_status;
-float mag_offset[];
 
 MPU6050_Data mpuData;
 MAG3110_Data magData;
@@ -145,6 +144,7 @@ MAG3110_Data magData;
 IMU_Data imuData;
 float quaterion[4] = {0, 0, 0, 0};
 float ypr[3] = {0, 0, 0};
+float mag_offset[9];
 int16_t gyro_offset[3] = {0,0,0};
 uint16_t count = 0;
 
