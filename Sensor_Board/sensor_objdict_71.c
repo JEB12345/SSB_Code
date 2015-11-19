@@ -73,15 +73,8 @@ REAL32 sensor71_ahrs_ypr_pitch = 0.000000;		/* Mapped at index 0x2018, subindex 
 REAL32 sensor71_ahrs_ypr_roll = 0.000000;		/* Mapped at index 0x2018, subindex 0x03 */
 REAL32 sensor71_mag_cal_param[] =		/* Mapped at index 0x2019, subindex 0x01 - 0x09 */
   {
-    1.000000,
-    1.000000,
-    1.000000,
-    0.000000,
-    0.000000,
-    0.000000,
-    0.000000,
-    0.000000,
-    0.000000
+    2.28378710e-03,   1.87549566e-05,   6.72151464e-05, 2.57660229e-03,  -7.15505571e-06, 1.85536648e-03,//
+    -659.66297423,  782.13802331,  478.57898673 //offsets
   };
 INTEGER32 motor72_position_control_Commanded_Position = 0x0;		/* Mapped at index 0x2022, subindex 0x01 */
 UNS16 motor72_position_control_P_Gain = 0x0;		/* Mapped at index 0x2022, subindex 0x02 */

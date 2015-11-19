@@ -38,97 +38,97 @@
 
 extern volatile unsigned int ecan1TXMsgBuf[8][8] __attribute__((aligned(8 * 16)));
 
-const int16_t mag_offsets_x[13] = {
-    -712,
-    -712,
-    -712,
-    -712,
-    -712,
-    -712,
-    -712,
-    -712,
-    -712,
-    -712,
-    -712,
-    -712,
-    -704
-};
-const int16_t mag_offsets_y[13] = {
-    1267,
-    1267,
-    1267,
-    1267,
-    1267,
-    1267,
-    1267,
-    1267,
-    1267,
-    1267,
-    1267,
-    1267,
-    1495
-};
-const int16_t mag_offsets_z[13] = {
-    3012,
-    3012,
-    3012,
-    3012,
-    3012,
-    3012,
-    3012,
-    3012,
-    3012,
-    3012,
-    3012,
-    3012,
-    3102
-};
-
-const int16_t gyro_offsets_x[13] = {
-    190,
-    190,
-    190,
-    190,
-    190,
-    190,
-    190,
-    190,
-    190,
-    190,
-    190,
-    190,
-    190
-};
-const int16_t gyro_offsets_y[13] = {
-    120,
-    120,
-    120,
-    120,
-    120,
-    120,
-    120,
-    120,
-    120,
-    120,
-    120,
-    120,
-    120
-};
-const int16_t gyro_offsets_z[13] = {
-    62,
-    62,
-    62,
-    62,
-    62,
-    62,
-    62,
-    62,
-    62,
-    62,
-    62,
-    62,
-    62
-};
+//const int16_t mag_offsets_x[13] = {
+//    -712,
+//    -712,
+//    -712,
+//    -712,
+//    -712,
+//    -712,
+//    -712,
+//    -712,
+//    -712,
+//    -712,
+//    -712,
+//    -712,
+//    -704
+//};
+//const int16_t mag_offsets_y[13] = {
+//    1267,
+//    1267,
+//    1267,
+//    1267,
+//    1267,
+//    1267,
+//    1267,
+//    1267,
+//    1267,
+//    1267,
+//    1267,
+//    1267,
+//    1495
+//};
+//const int16_t mag_offsets_z[13] = {
+//    3012,
+//    3012,
+//    3012,
+//    3012,
+//    3012,
+//    3012,
+//    3012,
+//    3012,
+//    3012,
+//    3012,
+//    3012,
+//    3012,
+//    3102
+//};
+//
+//const int16_t gyro_offsets_x[13] = {
+//    190,
+//    190,
+//    190,
+//    190,
+//    190,
+//    190,
+//    190,
+//    190,
+//    190,
+//    190,
+//    190,
+//    190,
+//    190
+//};
+//const int16_t gyro_offsets_y[13] = {
+//    120,
+//    120,
+//    120,
+//    120,
+//    120,
+//    120,
+//    120,
+//    120,
+//    120,
+//    120,
+//    120,
+//    120,
+//    120
+//};
+//const int16_t gyro_offsets_z[13] = {
+//    62,
+//    62,
+//    62,
+//    62,
+//    62,
+//    62,
+//    62,
+//    62,
+//    62,
+//    62,
+//    62,
+//    62,
+//    62
+//};
 
 extern system_data system_state;
 extern timer_data timer_state;
@@ -137,7 +137,7 @@ extern loadcell_data loadcell_state;
 extern can_data can_state;
 extern uint8_t txreq_bitarray;
 extern dwm_1000_status dwm_status;
-extern float mag_offset[];
+float mag_offset[];
 
 MPU6050_Data mpuData;
 MAG3110_Data magData;
@@ -228,11 +228,11 @@ main(int argc, char** argv)
             //make sure that everything in here takes less than 1ms
             //useful for checking state consistency, synchronization, watchdog...
             
-            if(ranging_id != 0){
-                gyro_offset[0] = gyro_offsets_x[ranging_id - 2];
-                gyro_offset[1] = gyro_offsets_y[ranging_id - 2];
-                gyro_offset[2] = gyro_offsets_z[ranging_id - 2];
-            }
+//            if(ranging_id != 0){
+//                gyro_offset[0] = gyro_offsets_x[ranging_id - 2];
+//                gyro_offset[1] = gyro_offsets_y[ranging_id - 2];
+//                gyro_offset[2] = gyro_offsets_z[ranging_id - 2];
+//            }
             
             if(result != 0){
 #ifndef FIXED_BASE

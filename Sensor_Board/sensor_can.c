@@ -14,7 +14,7 @@
 #include "sensor_uart.h"
 #include "sensor_loadcell.h"
 #include "dwm1000_dspic/dwm_spi.h"
-
+#include "MPU60xx/IMU.h"
 
 can_data can_state;
 extern CO_Data Sensor_Board_Data;
@@ -23,7 +23,9 @@ extern loadcell_data loadcell_state;
 extern dwm_1000_status dwm_status;
 static Message rec_m;
 
-float mag_offset[9];
+extern float mag_offset[9];
+extern int16_t gyro_offset[3];
+extern MPU6050_Data mpuData;
 
 static void can_reset(CO_Data* d);
 static void can_enable_heartbeat(uint16_t time);
@@ -298,6 +300,11 @@ void can_push_state()
 }
 
 UNS32 mag_calibration_cb(CO_Data* d, const indextable * tbl, UNS8 bSubindex) {
+    //set magnetometer parameters
     memcpy(mag_offset, CO(mag_cal_param), 9*sizeof(float));
+    //reset gyro bias
+    gyro_offset[0] = mpuData.gyroX;
+    gyro_offset[1] = mpuData.gyroY;
+    gyro_offset[2] = mpuData.gyroZ;
     return 0;
 }
