@@ -291,7 +291,7 @@ main(int argc, char** argv)
                         case 0:
                             IMU_normalizeData(&mpuData, &magData, &imuData, gyro_offset, mag_offset);
                             // Run AHRS algorithm
-                            imuData.magZ = -imuData.magZ;
+//                            imuData.magZ = -imuData.magZ;
                             IMU_UpdateAHRS_reentrant(0,&imuData);
                             break;
                         case 1:
