@@ -291,7 +291,6 @@ main(int argc, char** argv)
                         case 0:
                             IMU_normalizeData(&mpuData, &magData, &imuData, gyro_offset, mag_offset);
                             // Run AHRS algorithm
-//                            imuData.magZ = -imuData.magZ;
                             IMU_UpdateAHRS_reentrant(0,&imuData);
                             break;
                         case 1:
@@ -303,6 +302,7 @@ main(int argc, char** argv)
                             break;
                         case 4:
                             //copy state to CAN dictionary
+//                            IMU_UpdateAHRS_reentrant(imu_step-1,&imuData);
                             IMU_CopyOutput(&imuData, &mpuData, &magData);
                             break;
                     };
@@ -445,7 +445,7 @@ main(int argc, char** argv)
                 C1TR45CONbits.TXREQ5 = 1;
                 txreq_bitarray = txreq_bitarray & 0b11011111;
             }
-            if ((txreq_bitarray & 0b01000000) && !C1TR67CONbits.TXREQ6) {
+             if ((txreq_bitarray & 0b01000000) && !C1TR67CONbits.TXREQ6) {
                 C1TR67CONbits.TXREQ6 = 1;
                 txreq_bitarray = txreq_bitarray & 0b10111111;
             }
