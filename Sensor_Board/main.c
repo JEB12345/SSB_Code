@@ -18,12 +18,14 @@
 #include "../libs/dspic_CanFestival/CanFestival-3/include/dspic33e/can_dspic33e.h"
 #include "packing.h"
 
+#ifndef ANCHOR
 /**
  * This is code from the git submodule for the MPU60xx library
  */
 #include "MPU60xx/I2CdsPIC.h"
 #include "MPU60xx/IMU.h"
 #include "MPU60xx/IMU_Math.h"
+#endif
 
 /**
  * This code is for the DWM1000 Module
@@ -46,12 +48,14 @@ extern can_data can_state;
 extern uint8_t txreq_bitarray;
 extern dwm_1000_status dwm_status;
 
+#ifndef ANCHOR
 MPU6050_Data mpuData;
 MAG3110_Data magData;
 //imu_data imu_state;
 IMU_Data imuData;
 float quaterion[4] = {0, 0, 0, 0};
 float ypr[3] = {0, 0, 0};
+#endif 
 
 uint16_t count = 0;
 
@@ -126,11 +130,13 @@ main(int argc, char** argv)
 
 #ifdef ANCHOR
 //    ranging_id = ANCHOR_ID +1;
-    ranging_id = 17;
+    ranging_id = 20;
 #endif
     
+#ifndef ANCHOR
     // Start Reading the int pin on IMU
     mpuData.startData = 0;
+#endif 
 //#if defined(CONF71) && 
 #if !defined(NO_BOOTLOADER)
     if (IMU_Init(400000, 70000000) == 0) {
@@ -196,6 +202,7 @@ main(int argc, char** argv)
 
             led_update();
             
+#ifndef ANCHOR
             /**
              * IMU Loop
              */
@@ -218,6 +225,7 @@ main(int argc, char** argv)
                     IMU_CopyOutput(&imuData, &mpuData, &magData);
                 }
             }
+#endif
 
             /**
              * CANFestival Loop
@@ -279,12 +287,14 @@ main(int argc, char** argv)
 //            LED_3 = mpuData.accelY > 0;
 //            LED_1 = mpuData.accelZ > 0;
 
+#ifndef ANCHOR
             /**
              * IMU Fast Function
              */
             if(mpuData.startData){
                 IMU_CopyI2CData(&mpuData, &magData);
             }
+#endif
 
             if (!T1CONbits.TON) {
 #ifndef ANCHOR
@@ -376,12 +386,14 @@ hex2char(char halfhex)
  */
 void __attribute__((__interrupt__, no_auto_psv))
 _CNInterrupt(void) {
+#ifndef ANCHOR
     if (mpuData.startData == 1) {
         if (PORTFbits.RF0 == 1) {
             // Gets the IMU data after the INT pin has been triggered
             IMU_GetCount(); //(&mpuData, &magData);
         }
     }
+#endif
     IFS1bits.CNIF = 0; // Clear the interrupt flag
 }
 
