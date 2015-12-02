@@ -130,7 +130,7 @@ main(int argc, char** argv)
 
 #ifdef ANCHOR
 //    ranging_id = ANCHOR_ID +1;
-    ranging_id = 20;
+    ranging_id = 13;
 #endif
     
 #ifndef ANCHOR
@@ -162,7 +162,7 @@ main(int argc, char** argv)
                     if(dwt_init_flag){
                         config_spi2_slow();
 #ifdef CONF71
-                        result = dwm_init((ranging_id - 2), timer_4_set);
+                        result = dwm_init((ranging_id - 1), timer_4_set);
 #else
 #ifdef FIXED_BASE
                         result = dwm_init(0, timer_4_set);
