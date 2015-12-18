@@ -71,7 +71,7 @@ return_value_t timers_init() {
 
     //Settings the Loop Time
     TMR5 = 0x00; //Clear Timer 5 register
-    PR5 = 7000; //Fp / (TCKPS*PR5) = LoopTime => 70000000/7000 = 10000Hz
+    PR5 = 100; //Fp / (TCKPS*PR5) = LoopTime => 70000000/7000 = 10000Hz
     //70000000/(1*140)=500000Hz
     IFS1bits.T5IF = 0; //Clear Timer 5 Interrupt Flag
     IEC1bits.T5IE = 1; //Enable Timer 5 Interrupt
@@ -103,14 +103,18 @@ void __attribute__((__interrupt__, no_auto_psv)) _T4Interrupt(void) {
 
 void __attribute__((__interrupt__, auto_psv)) _T5Interrupt(void) {
     static uint16_t last_fasttime = 0;
-    //timer 5 is a continuously running timer
-    ++timer_state.fasttime;
-    ++timer_state.ext_time_100us;
-    if (timer_state.ext_time_100us >= 10000) {
-        timer_state.ext_time_100us = 0;
-        ++timer_state.ext_time_seconds;
+    static uint16_t fast_time_wrapper = 0; //old interrupt was running 70 times slower
+    if(fast_time_wrapper++>69){
+        fast_time_wrapper = 0;
+        //timer 5 is a continuously running timer
+        ++timer_state.fasttime;
+        ++timer_state.ext_time_100us;
+        if (timer_state.ext_time_100us >= 10000) {
+            timer_state.ext_time_100us = 0;
+            ++timer_state.ext_time_seconds;
+        }
+
+        CO(nrf_time) = (((uint32_t)timer_state.ext_time_seconds&0xFFFF) << 16) | (((uint32_t)timer_state.ext_time_100us&0xFFFF));
     }
-    
-    CO(nrf_time) = (((uint32_t)timer_state.ext_time_seconds&0xFFFF) << 16) | (((uint32_t)timer_state.ext_time_100us&0xFFFF));
     IFS1bits.T5IF = 0; // Clear Timer 5 Interrupt Flag
 }
