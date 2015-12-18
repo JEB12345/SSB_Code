@@ -194,10 +194,12 @@ void adc_update_output() {
         VBAT_5V5_EN = ON;
         EN_BACKUP_5V5 = OFF;
         EN_VBAT_5V5 = ON;
+        //LATBbits.LATB6  = 0;
     } else {
         EN_BACKUP_5V5 = ON;
         EN_VBAT_5V5 = OFF;
         VBAT_5V5_EN = OFF;
+        //LATBbits.LATB6  =1 ;
     }
 
 }
