@@ -218,6 +218,16 @@ main(int argc, char** argv)
     mpuData.startData = 0;
     if (IMU_Init(400000, 70000000) == 0) {
         mpuData.startData = 1;
+        //set default magnetometer parameters here, because the object dictionaries might get regenerated
+        CO(mag_cal_param)[0] = 2.27948221e-03;
+        CO(mag_cal_param)[1] = 0;
+        CO(mag_cal_param)[2] = 0;
+        CO(mag_cal_param)[3] = 2.73792933e-03;
+        CO(mag_cal_param)[4] = 0;
+        CO(mag_cal_param)[5] = 1.67992014e-03;
+        CO(mag_cal_param)[6] = -611.51138231;
+        CO(mag_cal_param)[7] = 511.04492308;
+        CO(mag_cal_param)[8] = 80.39787872;
     }
     
 
