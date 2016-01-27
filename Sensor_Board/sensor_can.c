@@ -231,17 +231,19 @@ void can_time_dispatch()
 void can_push_state()
 {
 #ifdef CONF71
-    if(abs(desired_motor_position_motor_72) > (MOTOR_POSITION_LIMIT * 1000.)){
+    if(desired_motor_position_motor_72 > (MOTOR_POSITION_LIMIT * 1000.)){
         motor72_position_control_Commanded_Position = (MOTOR_POSITION_LIMIT * 1000.);
-    }
-    else{
+    } else if(desired_motor_position_motor_72 < -(MOTOR_POSITION_LIMIT * 1000.)){
+        motor72_position_control_Commanded_Position = -(MOTOR_POSITION_LIMIT * 1000.);
+    } else{
         motor72_position_control_Commanded_Position = desired_motor_position_motor_72;
     }
 #else
-    if(abs(desired_motor_position_motor_2) > (MOTOR_POSITION_LIMIT * 1000.)){
+    if(desired_motor_position_motor_2 > (MOTOR_POSITION_LIMIT * 1000.)){
         motor2_position_control_Commanded_Position = (MOTOR_POSITION_LIMIT * 1000.);
-    }
-    else{
+    } else if(desired_motor_position_motor_2 < -(MOTOR_POSITION_LIMIT * 1000.)){
+        motor2_position_control_Commanded_Position = -(MOTOR_POSITION_LIMIT * 1000.);
+    } else{
         motor2_position_control_Commanded_Position = desired_motor_position_motor_2;
     }
 #endif

@@ -19,7 +19,7 @@
 extern "C" {
 #endif
     
-#define MOTOR_POSITION_LIMIT 35     //This value is in rads
+#define MOTOR_POSITION_LIMIT 35L     //This value is in rads
     
     extern float mag_offset[];
 

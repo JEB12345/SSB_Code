@@ -172,10 +172,10 @@ int main (int argc, char** argv)
                     CO(power_switches_24_killswitch)
                   && (killswitch_state.state==KS_ON)) {
                 KILLSWITCH_uC = ON;
-                CO(24V_on) = 1;
+//                CO(24V_on) = 1;
 //                CO(power_switches_5V5_Out_1) = 1;
             } else {
-                CO(24V_on) = 0;
+//                CO(24V_on) = 0;
 //                CO(power_switches_5V5_Out_1) = 0;
                 KILLSWITCH_uC = OFF;
             }
@@ -214,9 +214,11 @@ int main (int argc, char** argv)
           if(VMOTOR_EN){
               LED_R = 1;
               LED_G = 0;
+              CO(24V_on) = 1; //the motor board needs this information to safely shut down the motor (coast/brake)
             } else {
               LED_R = 0;
               LED_G = 1;
+              CO(24V_on) = 0;
             }
           if(EN_BACKUP_5V5) {
               LED_B = 0;
