@@ -62,7 +62,9 @@ int main (int argc, char** argv)
   buzzer_set_frequency(TONE_A_6);  
   nrf24l01_init();
   buzzer_set_frequency(TONE_A_5);
+#ifdef TEMP_SENSOR
   i2c_1_init();
+#endif
   temperature_init();
   buzzer_set_frequency(TONE_D_7);
   killswitch_init();

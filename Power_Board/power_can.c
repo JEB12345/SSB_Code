@@ -176,37 +176,37 @@ void can_time_dispatch() {
 //    }
 }
 
-void can_push_state() {
-    UNS32 data_1[1] = {adc_values.AN7};
-    UNS32 s = 0;
-    static uint8_t state = 0;
-
-    switch (state++) {
-        case 0:
-            s = sizeof (UNS32);
-            writeLocalDict(&Power_Board_Data, // CO_Data* for this uC
-                    0x3001, // Index
-                    0x00, // Sub-Index]
-                    data_1, // void * SourceData Location
-                    &s, // UNS8 * Size of Data
-                    1); // UNS8 checkAccess
-            break;
-
-            //        case 1:
-            //        case 2:
-            //        case 3:
-
-        default:
-            state = 0;
-            break;
-    };
-}
+//void can_push_state() {
+//    UNS32 data_1[1] = {adc_values.AN7};
+//    UNS32 s = 0;
+//    static uint8_t state = 0;
+//
+//    switch (state++) {
+//        case 0:
+//            s = sizeof (UNS32);
+//            writeLocalDict(&Power_Board_Data, // CO_Data* for this uC
+//                    0x3001, // Index
+//                    0x00, // Sub-Index]
+//                    data_1, // void * SourceData Location
+//                    &s, // UNS8 * Size of Data
+//                    1); // UNS8 checkAccess
+//            break;
+//
+//            //        case 1:
+//            //        case 2:
+//            //        case 3:
+//
+//        default:
+//            state = 0;
+//            break;
+//    };
+//}
 
 void can_update() {
     if (can_state.init_return == RET_OK) {
         can_process();
 
-        can_push_state();
+//        can_push_state();
 
         if (txreq_bitarray & 0b00000001 && !C1TR01CONbits.TXREQ0) {
             C1TR01CONbits.TXREQ0 = 1;

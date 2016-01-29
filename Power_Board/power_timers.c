@@ -9,6 +9,7 @@
 #include "power_state.h"
 #include "power_timers.h"
 #include "power_can.h"
+#include "power_pindef.h"
 
 extern can_data can_state;
 
@@ -93,8 +94,14 @@ return_value_t timers_init() {
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void) {
+    LED_B = 0;
+    LED_R = 0;
+    LED_G = 0;
     ++timer_state.systime;
     IFS0bits.T1IF = 0; // Clear Timer 1 Interrupt Flag
+    LED_B = 1;
+    LED_R = 1;
+    LED_G = 1;
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _T4Interrupt(void) {

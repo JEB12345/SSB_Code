@@ -313,6 +313,9 @@ void rf_spi_send(){
     uint16_t j;
     int16_t k;
 
+    LED_R = 0;
+    LED_G = 0;
+    LED_B = 0;
     while(nrf24l01_state.spi_rf_busy);
     for(k=-1;nrf24l01_state.spi_rf_cur_msg<=nrf24l01_state.spi_rf_num_msg;++nrf24l01_state.spi_rf_cur_msg){
         /*spi_cur_msg==current message to send*/
