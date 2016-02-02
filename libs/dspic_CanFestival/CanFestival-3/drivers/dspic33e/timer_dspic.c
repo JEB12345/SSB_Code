@@ -59,8 +59,10 @@ INPUT	value TIMEVAL (unsigned long)
 OUTPUT	void
  ******************************************************************************/ {
     uint32_t tmp = (ReadTimer23() + value);
+    DisableIntT2;
     OpenTimer23(TIMER23CONFIG, tmp);
     ConfigIntTimer23(T3_INT_PRIOR_5 & T3_INT_ON);
+    EnableIntT2;
 }
 
 inline TIMEVAL getElapsedTime(void)
