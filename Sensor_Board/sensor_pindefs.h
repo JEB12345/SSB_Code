@@ -142,7 +142,7 @@ extern "C" {
 #endif
 
 #if RE12_IO==PIN_INPUT
-#define P7_RE12    PORTEbits.RE3
+#define P7_RE12    PORTEbits.RE12
 #else
 #define P7_RE12    LATEbits.LATE3
 #endif

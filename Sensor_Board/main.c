@@ -385,9 +385,9 @@ main(int argc, char** argv)
             //untimed processes in main loop:
             //executed as fast as possible
             //these processes should NOT block the main loop
-//            LED_4 = mpuData.accelX > 0;
-//            LED_3 = mpuData.accelY > 0;
-//            LED_1 = mpuData.accelZ > 0;
+//            LED_4 = magData.magX > 0;
+//            LED_3 = magData.magY > 0;
+//            LED_1 = magData.magZ > 0;
 
             /**
              * IMU Fast Function
